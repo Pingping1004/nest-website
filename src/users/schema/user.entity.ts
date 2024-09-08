@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('user')
 export class User {
@@ -12,8 +12,8 @@ export class User {
     password: string;
 
     @Column({ length: 30, default: 'user' })
-    role: string;
+    role: string = 'user'; // Ensure default value is assigned
 
     @Column({ nullable: true })
-    profilePicture: string;
+    profilePicture?: string; // Mark as optional or use string | null
 }

@@ -1,4 +1,5 @@
 import { Controller, Get, Req, Res, Render } from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
 
 @Controller()
@@ -7,13 +8,14 @@ export class AppController {
 
   @Get()
   async RenderIndex(@Req() req: Request, @Res() res: Response) {
+    const userId = 1;
     console.log('Index ejs is rendered !!!');
-    // res.render('index', {});
+    res.render('index', { userId });
   }
 
-  @Get('/signup')
-  @Render('signup')
-  signup() {
-    return;
+  @Get('/')
+  @Render('index')
+  index() {
+    return 'Index ejs run';
   }
 }
