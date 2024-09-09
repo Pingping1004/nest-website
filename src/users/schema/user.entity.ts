@@ -9,11 +9,14 @@ export class User {
     username: string;
 
     @Column({ length: 70 })
-    password: string;
+    password?: string;
 
     @Column({ length: 30, default: 'user' })
     role: string = 'user'; // Ensure default value is assigned
 
     @Column({ nullable: true })
     profilePicture?: string; // Mark as optional or use string | null
+
+    @Column()
+    googleId: string;
 }

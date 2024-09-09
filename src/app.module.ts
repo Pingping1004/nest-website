@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/schema/user.entity';
+import { GoogleStrategy } from './auth/strategy/google.strategy';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { User } from './users/schema/user.entity';
   ],
 
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GoogleStrategy],
 })
 export class AppModule {}

@@ -52,6 +52,9 @@ var passport_1 = require("@nestjs/passport");
 var jwt_strategy_1 = require("./strategy/jwt.strategy");
 var jwt_1 = require("@nestjs/jwt");
 var constant_1 = require("./constant");
+var google_strategy_1 = require("./strategy/google.strategy");
+var typeorm_1 = require("@nestjs/typeorm");
+var config_1 = require("@nestjs/config");
 var AuthModule = /** @class */ (function () {
     function AuthModule() {
     }
@@ -60,6 +63,8 @@ var AuthModule = /** @class */ (function () {
             imports: [
                 passport_1.PassportModule,
                 users_module_1.UsersModule,
+                typeorm_1.TypeOrmModule,
+                config_1.ConfigModule,
                 jwt_1.JwtModule.registerAsync({
                     useFactory: function () { return __awaiter(void 0, void 0, void 0, function () {
                         return __generator(this, function (_a) {
@@ -71,7 +76,7 @@ var AuthModule = /** @class */ (function () {
                     }); }
                 }),
             ],
-            providers: [auth_service_1.AuthService, local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy],
+            providers: [auth_service_1.AuthService, local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy, google_strategy_1.GoogleStrategy],
             controllers: [auth_controller_1.AuthController],
             exports: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy]
         })

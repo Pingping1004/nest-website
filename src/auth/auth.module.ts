@@ -7,11 +7,16 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtConstant } from './constant';
+import { GoogleStrategy } from './strategy/google.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
+    TypeOrmModule,
+    ConfigModule,
     JwtModule.registerAsync({
       useFactory: async() => ({
         secret: JwtConstant.secret,
@@ -19,7 +24,7 @@ import { JwtConstant } from './constant';
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],
   exports: [AuthService, JwtStrategy],
 })

@@ -27,6 +27,9 @@ var User = /** @class */ (function () {
     __decorate([
         typeorm_1.Column({ nullable: true })
     ], User.prototype, "profilePicture");
+    __decorate([
+        typeorm_1.Column()
+    ], User.prototype, "googleId");
     User = __decorate([
         typeorm_1.Entity('user')
     ], User);

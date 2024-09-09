@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -45,8 +48,11 @@ exports.__esModule = true;
 exports.AuthService = void 0;
 var common_1 = require("@nestjs/common");
 var bcrypt = require("bcrypt");
+var user_entity_1 = require("../users/schema/user.entity");
+var typeorm_1 = require("@nestjs/typeorm");
 var AuthService = /** @class */ (function () {
-    function AuthService(userService, jwtService) {
+    function AuthService(userRepository, userService, jwtService) {
+        this.userRepository = userRepository;
         this.userService = userService;
         this.jwtService = jwtService;
     }
@@ -81,12 +87,46 @@ var AuthService = /** @class */ (function () {
                 payload = { username: user.username, sub: user.userId };
                 accessToken = this.jwtService.sign(payload);
                 console.log('Generated token payload:', payload);
-                return [2 /*return*/, { accessToken: accessToken }];
+                return [2 /*return*/, { accessToken: accessToken, message: 'Login successful' }];
+            });
+        });
+    };
+    AuthService.prototype.googleLogin = function (req) {
+        return __awaiter(this, void 0, Promise, function () {
+            var _a, username, role, profilePicture, googleId, user, payload;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!req.user) {
+                            throw new Error('Google login failed: No user information received');
+                        }
+                        _a = req.user, username = _a.username, role = _a.role, profilePicture = _a.profilePicture, googleId = _a.googleId;
+                        return [4 /*yield*/, this.userService.findByUserName(username)];
+                    case 1:
+                        user = _b.sent();
+                        if (!!user) return [3 /*break*/, 3];
+                        user = this.userRepository.create({
+                            username: username,
+                            role: role,
+                            profilePicture: profilePicture,
+                            googleId: googleId
+                        });
+                        return [4 /*yield*/, this.userRepository.save(user)];
+                    case 2:
+                        _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        payload = { username: user.username };
+                        return [2 /*return*/, {
+                                accessToken: this.jwtService.sign(payload)
+                            }];
+                }
             });
         });
     };
     AuthService = __decorate([
-        common_1.Injectable()
+        common_1.Injectable(),
+        __param(0, typeorm_1.InjectRepository(user_entity_1.User))
     ], AuthService);
     return AuthService;
 }());

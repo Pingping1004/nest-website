@@ -15,6 +15,7 @@ var users_module_1 = require("./users/users.module");
 var config_1 = require("@nestjs/config");
 var typeorm_1 = require("@nestjs/typeorm");
 var user_entity_1 = require("./users/schema/user.entity");
+var google_strategy_1 = require("./auth/strategy/google.strategy");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -42,7 +43,7 @@ var AppModule = /** @class */ (function () {
                 })
             ],
             controllers: [app_controller_1.AppController],
-            providers: [app_service_1.AppService]
+            providers: [app_service_1.AppService, google_strategy_1.GoogleStrategy]
         })
     ], AppModule);
     return AppModule;

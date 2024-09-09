@@ -48,6 +48,7 @@ exports.__esModule = true;
 exports.AuthController = void 0;
 var common_1 = require("@nestjs/common");
 var local_auth_guard_1 = require("./local-auth.guard");
+var google_auth_guard_1 = require("./google-auth.guard");
 var AuthController = /** @class */ (function () {
     function AuthController(authservice) {
         this.authservice = authservice;
@@ -77,11 +78,58 @@ var AuthController = /** @class */ (function () {
             });
         });
     };
+    AuthController.prototype.googleAuth = function (req) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/];
+            });
+        });
+    };
+    AuthController.prototype.googleAuthRedirect = function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var accessToken;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.authservice.googleLogin(req)];
+                    case 1:
+                        accessToken = (_a.sent()).accessToken;
+                        return [2 /*return*/, {
+                                accessToken: accessToken,
+                                message: 'Google authentication successful'
+                            }];
+                }
+            });
+        });
+    };
+    AuthController.prototype.logout = function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                res.clearCookie('jwt token', {
+                    httpOnly: true
+                });
+                return [2 /*return*/];
+            });
+        });
+    };
     __decorate([
         common_1.UseGuards(local_auth_guard_1.LocalAuthGuard),
         common_1.Post('/login'),
         __param(0, common_1.Request()), __param(1, common_1.Res({ passthrough: true }))
     ], AuthController.prototype, "login");
+    __decorate([
+        common_1.Get('google'),
+        common_1.UseGuards(google_auth_guard_1.GoogleAuthGuard),
+        __param(0, common_1.Request())
+    ], AuthController.prototype, "googleAuth");
+    __decorate([
+        common_1.Get('google/callback'),
+        common_1.UseGuards(google_auth_guard_1.GoogleAuthGuard),
+        __param(0, common_1.Request()), __param(1, common_1.Res({ passthrough: true }))
+    ], AuthController.prototype, "googleAuthRedirect");
+    __decorate([
+        common_1.Get('logout'),
+        __param(0, common_1.Request()), __param(1, common_1.Res())
+    ], AuthController.prototype, "logout");
     AuthController = __decorate([
         common_1.Controller('auth')
     ], AuthController);

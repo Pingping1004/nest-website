@@ -22,7 +22,7 @@ var UsersModule = /** @class */ (function () {
             ],
             controllers: [users_controller_1.UsersController],
             providers: [users_service_1.UsersService],
-            exports: [users_service_1.UsersService]
+            exports: [users_service_1.UsersService, typeorm_1.TypeOrmModule]
         })
     ], UsersModule);
     return UsersModule;
