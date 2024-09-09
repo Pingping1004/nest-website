@@ -1,12 +1,22 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -45,46 +55,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.AuthController = void 0;
+exports.JwtStrategy = void 0;
+var passport_jwt_1 = require("passport-jwt");
+var passport_1 = require("@nestjs/passport");
 var common_1 = require("@nestjs/common");
-var local_auth_guard_1 = require("./local-auth.guard");
-var AuthController = /** @class */ (function () {
-    function AuthController(authservice) {
-        this.authservice = authservice;
+var constant_1 = require("../constant");
+var JwtStrategy = /** @class */ (function (_super) {
+    __extends(JwtStrategy, _super);
+    function JwtStrategy() {
+        return _super.call(this, {
+            jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([
+                function (request) {
+                    var _a;
+                    return (_a = request === null || request === void 0 ? void 0 : request.cookies) === null || _a === void 0 ? void 0 : _a.access_token;
+                },
+            ]),
+            ignoreExpiration: false,
+            secretOrKey: constant_1.JwtConstant.secret
+        }) || this;
     }
-    AuthController.prototype.login = function (req, res) {
+    JwtStrategy.prototype.validate = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
-            var accessToken, error_1;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        console.log(req.user);
-                        return [4 /*yield*/, this.authservice.login(req.user)];
-                    case 1:
-                        accessToken = (_a.sent()).accessToken;
-                        //save to cookie
-                        res.cookie('access_token', accessToken, {
-                            httpOnly: true
-                        });
-                        return [2 /*return*/, { message: "Login successful" }];
-                    case 2:
-                        error_1 = _a.sent();
-                        console.error('Login failed', error_1.message);
-                        throw new common_1.HttpException('Login failed', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
-                    case 3: return [2 /*return*/];
-                }
+                console.log('JWT payload:', payload);
+                return [2 /*return*/, { userId: payload.sub, username: payload.username }];
             });
         });
     };
-    __decorate([
-        common_1.UseGuards(local_auth_guard_1.LocalAuthGuard),
-        common_1.Post('/login'),
-        __param(0, common_1.Request()), __param(1, common_1.Res({ passthrough: true }))
-    ], AuthController.prototype, "login");
-    AuthController = __decorate([
-        common_1.Controller('auth')
-    ], AuthController);
-    return AuthController;
-}());
-exports.AuthController = AuthController;
+    JwtStrategy = __decorate([
+        common_1.Injectable()
+    ], JwtStrategy);
+    return JwtStrategy;
+}(passport_1.PassportStrategy(passport_jwt_1.Strategy)));
+exports.JwtStrategy = JwtStrategy;

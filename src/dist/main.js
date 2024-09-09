@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var core_1 = require("@nestjs/core");
 var app_module_1 = require("./app.module");
+var cookieParser = require("cookie-parser");
 var path = require("path");
 function bootstrap() {
     return __awaiter(this, void 0, void 0, function () {
@@ -47,6 +48,7 @@ function bootstrap() {
                 case 0: return [4 /*yield*/, core_1.NestFactory.create(app_module_1.AppModule)];
                 case 1:
                     app = _a.sent();
+                    app.use(cookieParser());
                     app.setBaseViewsDir(path.join(__dirname, 'views'));
                     app.setViewEngine('ejs');
                     return [4 /*yield*/, app.listen(3000)];

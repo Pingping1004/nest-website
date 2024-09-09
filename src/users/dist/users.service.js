@@ -123,13 +123,20 @@ var UsersService = /** @class */ (function () {
         return __awaiter(this, void 0, Promise, function () {
             var user;
             return __generator(this, function (_a) {
-                user = this.userRepository.findOne({
-                    where: ({ username: username })
-                });
-                if (!user) {
-                    throw new common_1.NotFoundException("User with username " + username + " is not found");
+                switch (_a.label) {
+                    case 0:
+                        console.log('Searching for user with username:', username);
+                        return [4 /*yield*/, this.userRepository.findOne({
+                                where: { username: username }
+                            })];
+                    case 1:
+                        user = _a.sent();
+                        console.log('User found:', user);
+                        if (!user) {
+                            throw new common_1.NotFoundException("User with username " + username + " is not found");
+                        }
+                        return [2 /*return*/, user];
                 }
-                return [2 /*return*/, user];
             });
         });
     };
@@ -137,13 +144,20 @@ var UsersService = /** @class */ (function () {
         return __awaiter(this, void 0, Promise, function () {
             var user;
             return __generator(this, function (_a) {
-                user = this.userRepository.findOne({
-                    where: ({ id: id })
-                });
-                if (!user) {
-                    throw new common_1.NotFoundException("User with ID " + id + " is not found");
+                switch (_a.label) {
+                    case 0:
+                        console.log('Searching for user with ID:', id);
+                        return [4 /*yield*/, this.userRepository.findOne({
+                                where: ({ id: id })
+                            })];
+                    case 1:
+                        user = _a.sent();
+                        console.log('User found:', user);
+                        if (!user) {
+                            throw new common_1.NotFoundException("User with ID " + id + " is not found");
+                        }
+                        return [2 /*return*/, user];
                 }
-                return [2 /*return*/, user];
             });
         });
     };

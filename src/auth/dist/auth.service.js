@@ -46,8 +46,9 @@ exports.AuthService = void 0;
 var common_1 = require("@nestjs/common");
 var bcrypt = require("bcrypt");
 var AuthService = /** @class */ (function () {
-    function AuthService(userService) {
+    function AuthService(userService, jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
     AuthService.prototype.validateUser = function (username, password) {
         return __awaiter(this, void 0, Promise, function () {
@@ -65,10 +66,22 @@ var AuthService = /** @class */ (function () {
                         _b.label = 3;
                     case 3:
                         if (_a) {
-                            return [2 /*return*/, user];
+                            return [2 /*return*/, { userId: user.id, username: user.username }];
                         }
                         return [2 /*return*/, null];
                 }
+            });
+        });
+    };
+    AuthService.prototype.login = function (user) {
+        return __awaiter(this, void 0, void 0, function () {
+            var payload, accessToken;
+            return __generator(this, function (_a) {
+                console.log('User object received for login:', user);
+                payload = { username: user.username, sub: user.userId };
+                accessToken = this.jwtService.sign(payload);
+                console.log('Generated token payload:', payload);
+                return [2 /*return*/, { accessToken: accessToken }];
             });
         });
     };

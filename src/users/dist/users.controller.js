@@ -47,6 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.UsersController = void 0;
 var common_1 = require("@nestjs/common");
+var jwt_auth_guard_1 = require("../../src/auth/jwt-auth.guard");
 var UsersController = /** @class */ (function () {
     function UsersController(userService) {
         this.userService = userService;
@@ -68,10 +69,29 @@ var UsersController = /** @class */ (function () {
             });
         });
     };
+    UsersController.prototype.getProfile = function (req) {
+        return __awaiter(this, void 0, void 0, function () {
+            var user;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.userService.findByUserName(req.user.username)];
+                    case 1:
+                        user = _a.sent();
+                        console.log('Fetched user:', user);
+                        return [2 /*return*/, user];
+                }
+            });
+        });
+    };
     __decorate([
         common_1.Post('/signup'),
         __param(0, common_1.Body())
     ], UsersController.prototype, "signup");
+    __decorate([
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        common_1.Get('/profile'),
+        __param(0, common_1.Request())
+    ], UsersController.prototype, "getProfile");
     UsersController = __decorate([
         common_1.Controller('user')
     ], UsersController);

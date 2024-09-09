@@ -50,10 +50,12 @@ export class UsersService {
     }
 
     async findByUserName(username: string): Promise<User | null> {
-        const user = this.userRepository.findOne({
-            where: ({ username }),
+        console.log('Searching for user with username:', username);
+        const user = await this.userRepository.findOne({
+            where: { username },
         });
 
+        console.log('User found:', user);
         if (!user) {
             throw new NotFoundException(`User with username ${username} is not found`);
         }
@@ -62,10 +64,12 @@ export class UsersService {
     }
 
     async findByUserId(id: number): Promise<User | null> {
-        const user = this.userRepository.findOne({
+        console.log('Searching for user with ID:', id);
+        const user = await this.userRepository.findOne({
             where: ({ id }),
         })
 
+        console.log('User found:', user);
         if (!user) {
             throw new NotFoundException(`User with ID ${id} is not found`);
         }
