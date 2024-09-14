@@ -51,28 +51,41 @@ var AppController = /** @class */ (function () {
     function AppController(appService) {
         this.appService = appService;
     }
-    AppController.prototype.RenderIndex = function (req, res) {
+    AppController.prototype.renderIndex = function (req, res) {
+        // const userId = req.user ? req.user.sub : null;
+        // console.log('EJS rendering for USER_ID:', userId);
+        res.render('index', { userId: req.user ? req.user.userId : null });
+    };
+    AppController.prototype.renderSignup = function (res) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId;
             return __generator(this, function (_a) {
-                userId = 1;
-                console.log('Index ejs is rendered !!!');
-                res.render('index', { userId: userId });
+                console.log('Signup page is rendering');
+                res.render('signup');
                 return [2 /*return*/];
             });
         });
     };
-    AppController.prototype.index = function () {
-        return 'Index ejs run';
+    AppController.prototype.renderLogin = function (res) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                console.log('Login page is rendering');
+                res.render('login');
+                return [2 /*return*/];
+            });
+        });
     };
     __decorate([
-        common_1.Get(),
+        common_1.Get('index'),
         __param(0, common_1.Req()), __param(1, common_1.Res())
-    ], AppController.prototype, "RenderIndex");
+    ], AppController.prototype, "renderIndex");
     __decorate([
-        common_1.Get('/'),
-        common_1.Render('index')
-    ], AppController.prototype, "index");
+        common_1.Get('/signup'),
+        __param(0, common_1.Res())
+    ], AppController.prototype, "renderSignup");
+    __decorate([
+        common_1.Get('/login'),
+        __param(0, common_1.Res())
+    ], AppController.prototype, "renderLogin");
     AppController = __decorate([
         common_1.Controller()
     ], AppController);

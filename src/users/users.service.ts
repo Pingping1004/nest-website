@@ -9,23 +9,21 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
     constructor(
         @InjectRepository(User)
-        private readonly userRepository: Repository<User>
+        private readonly userRepository: Repository<User>,
     ) {}
 
     async createUser(signupUserDto: SignupUserDto): Promise<User> {
         try {
-            if (!signupUserDto.role) {
-                signupUserDto.role = 'user';
-            }
+            const role = signupUserDto.role || 'user';
             const hashedPassword = await bcrypt.hash(signupUserDto.password, 10);
             const newUser = this.userRepository.create({
                 ...signupUserDto,
                 password: hashedPassword,
-                role: signupUserDto.role || 'user',
+                role: role,
             });
         
             const savedUser = await this.userRepository.save(newUser);
-            console.log('New saved signup user:', savedUser);
+            console.log('New signup user:', savedUser);
             return savedUser;
         } catch (error) {
             console.error('Error creating user:', error.message, error.stack);

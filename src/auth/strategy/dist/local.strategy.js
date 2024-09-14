@@ -83,7 +83,8 @@ var LocalStrategy = /** @class */ (function (_super) {
                             console.log('Invalid credentials');
                             throw new common_1.UnauthorizedException();
                         }
-                        return [2 /*return*/, user];
+                        // return user;
+                        return [2 /*return*/, { userId: user.userId, username: user.username }];
                 }
             });
         });

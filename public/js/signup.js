@@ -1,6 +1,7 @@
 import { authenticateUser } from './role.js'
 
 const signupForm = document.querySelector("#signupform");
+const signupBtn = document.querySelector('.signup-btn');
 
   if (signupForm) {
     signupForm.addEventListener("submit", (event) => {
@@ -9,8 +10,9 @@ const signupForm = document.querySelector("#signupform");
       const users = {
         username: formData.get("username"),
         password: formData.get("password"),
-        role: formData.get("role"),
-        profilePicture: formData.get("profilePicture"),
+        role: formData.get("role") || 'user',
+        profilePicture: formData.get("profilePicture") || null,
+        googleId: formData.get("googleId") || "",
       };
 
       console.log('Users object before signup:', users);
@@ -29,7 +31,7 @@ const signupForm = document.querySelector("#signupform");
   async function signupUser(users) {
     if (!validateForm(users)) return;
     try {
-      const response = await fetch("http://localhost:3000/api/auth/signup", {
+      const response = await fetch("http://localhost:3000/user/signup", {
         method: "POST",
         body: JSON.stringify(users),
         headers: {
@@ -41,7 +43,6 @@ const signupForm = document.querySelector("#signupform");
         const error = await response.json();
         console.error('Signup failed:', error);
         alert(`Signup failed: ${error.message || 'Unknown Error'}`);
-        return;
       }
 
       const data = await response.json();

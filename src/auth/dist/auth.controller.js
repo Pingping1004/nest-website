@@ -49,18 +49,19 @@ exports.AuthController = void 0;
 var common_1 = require("@nestjs/common");
 var local_auth_guard_1 = require("./local-auth.guard");
 var google_auth_guard_1 = require("./google-auth.guard");
+var jwt_auth_guard_1 = require("./jwt-auth.guard");
 var AuthController = /** @class */ (function () {
     function AuthController(authservice) {
         this.authservice = authservice;
     }
     AuthController.prototype.login = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var accessToken, error_1;
+            var accessToken, userId, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        console.log(req.user);
+                        console.log('Req user object from login', req.user);
                         return [4 /*yield*/, this.authservice.login(req.user)];
                     case 1:
                         accessToken = (_a.sent()).accessToken;
@@ -68,13 +69,39 @@ var AuthController = /** @class */ (function () {
                         res.cookie('access_token', accessToken, {
                             httpOnly: true
                         });
-                        return [2 /*return*/, { message: "Login successful" }];
+                        userId = req.user.userId;
+                        console.log('userId from login using userId:', userId);
+                        console.log('Redirecting to index ID:', userId);
+                        // res.redirect(`/auth/index/${userId}`);
+                        res.json({ userId: userId });
+                        return [3 /*break*/, 3];
                     case 2:
                         error_1 = _a.sent();
                         console.error('Login failed', error_1.message);
                         throw new common_1.HttpException('Login failed', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
                     case 3: return [2 /*return*/];
                 }
+            });
+        });
+    };
+    AuthController.prototype.renderAuthIndex = function (id, req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var userIdFromParam;
+            return __generator(this, function (_a) {
+                userIdFromParam = parseInt(id, 10);
+                // Check if parsing was successful
+                if (isNaN(userIdFromParam)) {
+                    console.error('Failed to parse user ID from URL parameter:', id);
+                    return [2 /*return*/, res.status(400).send('Invalid user ID')];
+                }
+                console.log('User ID from url:', userIdFromParam);
+                console.log('req user:', req.user);
+                console.log('Req user userID with userId:', req.user.userId);
+                if (userIdFromParam !== req.user.userId) {
+                    return [2 /*return*/, res.status(403).send('Forbidden')];
+                }
+                res.render('index', { userId: req.user.userId });
+                return [2 /*return*/];
             });
         });
     };
@@ -93,6 +120,10 @@ var AuthController = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.authservice.googleLogin(req)];
                     case 1:
                         accessToken = (_a.sent()).accessToken;
+                        //save to cookie
+                        res.cookie('access_token', accessToken, {
+                            httpOnly: true
+                        });
                         return [2 /*return*/, {
                                 accessToken: accessToken,
                                 message: 'Google authentication successful'
@@ -114,21 +145,26 @@ var AuthController = /** @class */ (function () {
     __decorate([
         common_1.UseGuards(local_auth_guard_1.LocalAuthGuard),
         common_1.Post('/login'),
-        __param(0, common_1.Request()), __param(1, common_1.Res({ passthrough: true }))
+        __param(0, common_1.Req()), __param(1, common_1.Res({ passthrough: true }))
     ], AuthController.prototype, "login");
     __decorate([
-        common_1.Get('google'),
+        common_1.Get('index/:id'),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        __param(0, common_1.Param('id')), __param(1, common_1.Req()), __param(2, common_1.Res())
+    ], AuthController.prototype, "renderAuthIndex");
+    __decorate([
         common_1.UseGuards(google_auth_guard_1.GoogleAuthGuard),
-        __param(0, common_1.Request())
+        common_1.Get('google'),
+        __param(0, common_1.Req())
     ], AuthController.prototype, "googleAuth");
     __decorate([
         common_1.Get('google/callback'),
         common_1.UseGuards(google_auth_guard_1.GoogleAuthGuard),
-        __param(0, common_1.Request()), __param(1, common_1.Res({ passthrough: true }))
+        __param(0, common_1.Req()), __param(1, common_1.Res({ passthrough: true }))
     ], AuthController.prototype, "googleAuthRedirect");
     __decorate([
         common_1.Get('logout'),
-        __param(0, common_1.Request()), __param(1, common_1.Res())
+        __param(0, common_1.Req()), __param(1, common_1.Res())
     ], AuthController.prototype, "logout");
     AuthController = __decorate([
         common_1.Controller('auth')

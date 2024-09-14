@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { SignupUserDto } from 'src/users/dto/user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,8 @@ export interface UserPayload {
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
         private readonly userService: UsersService,
         private readonly jwtService: JwtService,
     ) {}
@@ -38,7 +39,7 @@ export class AuthService {
         return { accessToken, message: 'Login successful' };
     }
 
-    async googleLogin(req): Promise<any> {
+    async googleLogin(req: any): Promise<any> {
         if (!req.user) {
             throw new Error('Google login failed: No user information received');
         }
@@ -61,5 +62,14 @@ export class AuthService {
         return {
             accessToken: this.jwtService.sign(payload)
         }
+    }
+
+    async findUserById(userId: number): Promise<User> {
+        const user = await this.userService.findByUserId(userId);
+
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+        }
+        return user;
     }
 }

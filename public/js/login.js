@@ -21,12 +21,13 @@ if (loginForm) {
 
   async function loginUser(users) {
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
+      const response = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
         body: JSON.stringify(users),
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -37,9 +38,10 @@ if (loginForm) {
 
       const data = await response.json();
       console.log("Login successful:", data);
-      authenticateUser(data);
+      // authenticateUser(data);
+      window.location.href = `/auth/index/${data.userId}`;
     } catch (error) {
-      console.error("Error:", error.message);
+        console.error("Error:", error.message);
     }
   }
 

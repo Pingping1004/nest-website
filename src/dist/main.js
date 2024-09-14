@@ -40,6 +40,8 @@ var core_1 = require("@nestjs/core");
 var app_module_1 = require("./app.module");
 var cookieParser = require("cookie-parser");
 var path = require("path");
+var express = require("express");
+var path_1 = require("path");
 function bootstrap() {
     return __awaiter(this, void 0, void 0, function () {
         var app;
@@ -50,6 +52,8 @@ function bootstrap() {
                     app = _a.sent();
                     app.use(cookieParser());
                     app.setBaseViewsDir(path.join(__dirname, 'views'));
+                    app.use('/public', express.static(path_1.join(__dirname, '..', 'public')));
+                    app.use('/node_modules', express.static(path_1.join(__dirname, '../node_modules')));
                     app.setViewEngine('ejs');
                     return [4 /*yield*/, app.listen(3000)];
                 case 2:

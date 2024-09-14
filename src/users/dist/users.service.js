@@ -67,22 +67,20 @@ var UsersService = /** @class */ (function () {
     }
     UsersService.prototype.createUser = function (signupUserDto) {
         return __awaiter(this, void 0, Promise, function () {
-            var hashedPassword, newUser, savedUser, error_1;
+            var role, hashedPassword, newUser, savedUser, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        if (!signupUserDto.role) {
-                            signupUserDto.role = 'user';
-                        }
+                        role = signupUserDto.role || 'user';
                         return [4 /*yield*/, bcrypt.hash(signupUserDto.password, 10)];
                     case 1:
                         hashedPassword = _a.sent();
-                        newUser = this.userRepository.create(__assign(__assign({}, signupUserDto), { password: hashedPassword, role: signupUserDto.role || 'user' }));
+                        newUser = this.userRepository.create(__assign(__assign({}, signupUserDto), { password: hashedPassword, role: role }));
                         return [4 /*yield*/, this.userRepository.save(newUser)];
                     case 2:
                         savedUser = _a.sent();
-                        console.log('New saved signup user:', savedUser);
+                        console.log('New signup user:', savedUser);
                         return [2 /*return*/, savedUser];
                     case 3:
                         error_1 = _a.sent();

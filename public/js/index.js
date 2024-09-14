@@ -129,6 +129,7 @@ window.deletePost = async function deletePost(index) {
 };
 
 signUpLoginBtn.addEventListener('click', () => {
-  console.log('Signup/Login button is clicked!')
-  window.location.href = '/signup'
+  if (signUpLoginBtn) {
+    window.location.href = '/signup'
+  }
 });

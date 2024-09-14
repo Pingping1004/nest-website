@@ -124,6 +124,22 @@ var AuthService = /** @class */ (function () {
             });
         });
     };
+    AuthService.prototype.findUserById = function (userId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var user;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.userService.findByUserId(userId)];
+                    case 1:
+                        user = _a.sent();
+                        if (!user) {
+                            throw new common_1.HttpException('User not found', common_1.HttpStatus.UNAUTHORIZED);
+                        }
+                        return [2 /*return*/, user];
+                }
+            });
+        });
+    };
     AuthService = __decorate([
         common_1.Injectable(),
         __param(0, typeorm_1.InjectRepository(user_entity_1.User))

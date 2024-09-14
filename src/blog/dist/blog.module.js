@@ -6,27 +6,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 exports.__esModule = true;
-exports.UsersModule = void 0;
+exports.BlogModule = void 0;
 var common_1 = require("@nestjs/common");
-var users_controller_1 = require("./users.controller");
-var users_service_1 = require("./users.service");
+var blog_controller_1 = require("./blog.controller");
+var blog_service_1 = require("./blog.service");
 var typeorm_1 = require("@nestjs/typeorm");
-var user_entity_1 = require("./schema/user.entity");
-var jwt_1 = require("@nestjs/jwt");
-var UsersModule = /** @class */ (function () {
-    function UsersModule() {
+var blog_entity_1 = require("./schema/blog.entity");
+var BlogModule = /** @class */ (function () {
+    function BlogModule() {
     }
-    UsersModule = __decorate([
+    BlogModule = __decorate([
         common_1.Module({
             imports: [
-                jwt_1.JwtModule,
-                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
+                typeorm_1.TypeOrmModule.forFeature([blog_entity_1.Blog]),
             ],
-            controllers: [users_controller_1.UsersController],
-            providers: [users_service_1.UsersService, jwt_1.JwtService],
-            exports: [users_service_1.UsersService, typeorm_1.TypeOrmModule]
+            controllers: [blog_controller_1.BlogController],
+            providers: [blog_service_1.BlogService]
         })
-    ], UsersModule);
-    return UsersModule;
+    ], BlogModule);
+    return BlogModule;
 }());
-exports.UsersModule = UsersModule;
+exports.BlogModule = BlogModule;

@@ -21,11 +21,11 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @Get('/profile')
     async getProfile(@Request() req) {
-        // console.log(req.user);
-        // const userId = req.user.userId;
-        // console.log('User ID from JWT:', req.user.userId);
-        const user = await this.userService.findByUserName(req.user.username);
-        console.log('Fetched user:', user);
-        return user;
+        const user = req.user as User;
+        console.log('Req.user:', user);
+        console.log('User ID from JWT:', user.id);
+        const fetchUser = await this.userService.findByUserName(user.username);
+        console.log('Fetched user:', fetchUser);
+        return fetchUser;
     }
 }

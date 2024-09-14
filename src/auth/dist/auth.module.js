@@ -55,6 +55,7 @@ var constant_1 = require("./constant");
 var google_strategy_1 = require("./strategy/google.strategy");
 var typeorm_1 = require("@nestjs/typeorm");
 var config_1 = require("@nestjs/config");
+var users_controller_1 = require("../users/users.controller");
 var AuthModule = /** @class */ (function () {
     function AuthModule() {
     }
@@ -77,7 +78,7 @@ var AuthModule = /** @class */ (function () {
                 }),
             ],
             providers: [auth_service_1.AuthService, local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy, google_strategy_1.GoogleStrategy],
-            controllers: [auth_controller_1.AuthController],
+            controllers: [auth_controller_1.AuthController, users_controller_1.UsersController],
             exports: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy]
         })
     ], AuthModule);

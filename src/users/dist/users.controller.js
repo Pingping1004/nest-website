@@ -71,14 +71,18 @@ var UsersController = /** @class */ (function () {
     };
     UsersController.prototype.getProfile = function (req) {
         return __awaiter(this, void 0, void 0, function () {
-            var user;
+            var user, fetchUser;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.userService.findByUserName(req.user.username)];
+                    case 0:
+                        user = req.user;
+                        console.log('Req.user:', user);
+                        console.log('User ID from JWT:', user.id);
+                        return [4 /*yield*/, this.userService.findByUserName(user.username)];
                     case 1:
-                        user = _a.sent();
-                        console.log('Fetched user:', user);
-                        return [2 /*return*/, user];
+                        fetchUser = _a.sent();
+                        console.log('Fetched user:', fetchUser);
+                        return [2 /*return*/, fetchUser];
                 }
             });
         });

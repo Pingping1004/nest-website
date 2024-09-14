@@ -16,6 +16,8 @@ var config_1 = require("@nestjs/config");
 var typeorm_1 = require("@nestjs/typeorm");
 var user_entity_1 = require("./users/schema/user.entity");
 var google_strategy_1 = require("./auth/strategy/google.strategy");
+var blog_module_1 = require("./blog/blog.module");
+var blog_entity_1 = require("./blog/schema/blog.entity");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -30,6 +32,7 @@ var AppModule = /** @class */ (function () {
                 }),
                 auth_module_1.AuthModule,
                 users_module_1.UsersModule,
+                blog_module_1.BlogModule,
                 // Connect to typeorm database
                 typeorm_1.TypeOrmModule.forRoot({
                     type: 'mysql',
@@ -38,9 +41,10 @@ var AppModule = /** @class */ (function () {
                     username: process.env.DB_USERNAME,
                     password: process.env.DB_PASSWORD,
                     database: process.env.DB_DATABASE,
-                    entities: [user_entity_1.User],
+                    entities: [user_entity_1.User, blog_entity_1.Blog],
                     synchronize: true
-                })
+                }),
+                blog_module_1.BlogModule
             ],
             controllers: [app_controller_1.AppController],
             providers: [app_service_1.AppService, google_strategy_1.GoogleStrategy]

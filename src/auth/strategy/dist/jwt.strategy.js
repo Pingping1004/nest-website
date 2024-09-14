@@ -62,8 +62,8 @@ var common_1 = require("@nestjs/common");
 var constant_1 = require("../constant");
 var JwtStrategy = /** @class */ (function (_super) {
     __extends(JwtStrategy, _super);
-    function JwtStrategy() {
-        return _super.call(this, {
+    function JwtStrategy(authService, userService) {
+        var _this = _super.call(this, {
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([
                 function (request) {
                     var _a;
@@ -73,12 +73,27 @@ var JwtStrategy = /** @class */ (function (_super) {
             ignoreExpiration: false,
             secretOrKey: constant_1.JwtConstant.secret
         }) || this;
+        _this.authService = authService;
+        _this.userService = userService;
+        return _this;
     }
     JwtStrategy.prototype.validate = function (payload) {
-        return __awaiter(this, void 0, void 0, function () {
+        return __awaiter(this, void 0, Promise, function () {
+            var user;
             return __generator(this, function (_a) {
-                console.log('JWT payload:', payload);
-                return [2 /*return*/, { userId: payload.sub, username: payload.username }];
+                switch (_a.label) {
+                    case 0:
+                        console.log('JWT payload:', payload);
+                        return [4 /*yield*/, this.authService.findUserById(payload.sub)];
+                    case 1:
+                        user = _a.sent();
+                        if (!user) {
+                            throw new common_1.UnauthorizedException('User not found');
+                        }
+                        console.log('JWT validtion user:', user);
+                        // return user;
+                        return [2 /*return*/, { userId: user.id, username: user.username }];
+                }
             });
         });
     };

@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Online blog post</title>
-    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../public/css/styles.css">
-    <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 
@@ -16,14 +16,14 @@
         <header class="header">
             <div class="left-panel">
                 <h3>Hello EJS!</h3>
-                <p>User ID: <%= userId || 'Null' %></p>
+                <p>User ID: <%= userId %></p>
             </div>
             <div class="right-panel">
                 <% if (userId) { %>
                     <button class="logout-btn btn btn-primary">Logout</button>
                     <% } else { %>
                         <button class="signup-login-btn btn btn-primary">Signup/Login</button>
-                        <% } %>
+                    <% } %>
             </div>
         </header>
 
