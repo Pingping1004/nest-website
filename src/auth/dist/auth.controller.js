@@ -135,9 +135,16 @@ var AuthController = /** @class */ (function () {
     AuthController.prototype.logout = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                res.clearCookie('jwt token', {
-                    httpOnly: true
-                });
+                try {
+                    res.clearCookie('access_token', {
+                        httpOnly: true
+                    });
+                    console.log('Logout function is activated');
+                    return [2 /*return*/, res.status(common_1.HttpStatus.OK).json({ message: 'Logout successful' })];
+                }
+                catch (error) {
+                    return [2 /*return*/, res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' })];
+                }
                 return [2 /*return*/];
             });
         });
@@ -163,7 +170,7 @@ var AuthController = /** @class */ (function () {
         __param(0, common_1.Req()), __param(1, common_1.Res({ passthrough: true }))
     ], AuthController.prototype, "googleAuthRedirect");
     __decorate([
-        common_1.Get('logout'),
+        common_1.Get('/logout'),
         __param(0, common_1.Req()), __param(1, common_1.Res())
     ], AuthController.prototype, "logout");
     AuthController = __decorate([

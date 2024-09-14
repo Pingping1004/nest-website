@@ -1,52 +1,67 @@
-import { authenticateUser } from './role.js'
+import { authenticateUser } from './role.js';
 
-const loginForm = document.querySelector("#loginform");
-const logOutBtn = document.querySelector('.logout-btn');
+const loginForm = document.querySelector('#loginform');
+const logoutBtn = document.querySelector('.logout-btn');
 
 if (loginForm) {
-    loginForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const formData = new FormData(event.target);
-      const users = {
-        username: formData.get("username"),
-        password: formData.get("password"),
-        // role: formData.get("role"),
-      };
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const users = {
+      username: formData.get('username'),
+      password: formData.get('password'),
+      // role: formData.get("role"),
+    };
 
-      loginUser(users);
+    loginUser(users);
+  });
+} else {
+  console.error('Login form not found');
+}
+
+async function loginUser(users) {
+  try {
+    const response = await fetch('http://localhost:3000/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(users),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
     });
-  } else {
-    console.error("Login form not found");
-  }
 
-  async function loginUser(users) {
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Login failed:', errorText);
+      throw new Error('Login failed');
+    }
+
+    const data = await response.json();
+    console.log('Login successful:', data);
+    authenticateUser(data);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        body: JSON.stringify(users),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
+      const response = await fetch('http://localhost:3000/auth/logout', {
+        method: 'GET',
+        credentials: 'include',
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Login failed:", errorText);
-        throw new Error("Login failed");
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Logout response:', data);
+        console.log('Cookie after logout', document.cookie);
+        window.location.href = '/login'; // Redirect to login page
+      } else {
+        console.error('Logout failed:', await response.text());
       }
-
-      const data = await response.json();
-      console.log("Login successful:", data);
-      authenticateUser(data);
     } catch (error) {
-        console.error("Error:", error.message);
+      console.error('Error during logout:', error);
     }
-  }
-
-  function logout() {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
-
-  logOutBtn.addEventListener('click', logout);
+  });
+}

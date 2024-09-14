@@ -5,6 +5,7 @@ const createPostBtn = document.querySelector("#create-post-btn");
 const mainFeed = document.querySelector(".main-content");
 const editPostBtn = document.querySelectorAll(".edit-post-btn");
 const signUpLoginBtn = document.querySelector('.signup-login-btn');
+const logoutBtn = document.querySelector('.logout-btn');
 
 const articles = [];
 let edittingIndex = null;

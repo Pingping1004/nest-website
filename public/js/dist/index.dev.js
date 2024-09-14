@@ -7,6 +7,7 @@ var createPostBtn = document.querySelector("#create-post-btn");
 var mainFeed = document.querySelector(".main-content");
 var editPostBtn = document.querySelectorAll(".edit-post-btn");
 var signUpLoginBtn = document.querySelector('.signup-login-btn');
+var logoutBtn = document.querySelector('.logout-btn');
 var articles = [];
 var edittingIndex = null;
 

@@ -78,10 +78,17 @@ export class AuthController {
         }
     }
 
-    @Get('logout')
-    async logout(@Req() req, @Res() res: Response) {
-        res.clearCookie('jwt token', {
-            httpOnly: true,
-        })
+    @Get('/logout')
+    async logout(@Req() req: Request, @Res() res: Response) {
+        try {
+            res.clearCookie('access_token', {
+                httpOnly: true,
+            });
+
+            console.log('Logout function is activated');
+            return res.status(HttpStatus.OK).json({ message: 'Logout successful' });
+        } catch(error) {
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Logout failed' });
+        }
     }
 }
