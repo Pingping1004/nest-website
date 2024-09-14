@@ -13,6 +13,8 @@ var users_service_1 = require("./users.service");
 var typeorm_1 = require("@nestjs/typeorm");
 var user_entity_1 = require("./schema/user.entity");
 var jwt_1 = require("@nestjs/jwt");
+var auth_module_1 = require("../auth/auth.module");
+var auth_service_1 = require("../auth/auth.service");
 var UsersModule = /** @class */ (function () {
     function UsersModule() {
     }
@@ -20,10 +22,11 @@ var UsersModule = /** @class */ (function () {
         common_1.Module({
             imports: [
                 jwt_1.JwtModule,
+                common_1.forwardRef(function () { return auth_module_1.AuthModule; }),
                 typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
             ],
             controllers: [users_controller_1.UsersController],
-            providers: [users_service_1.UsersService, jwt_1.JwtService],
+            providers: [users_service_1.UsersService, jwt_1.JwtService, auth_service_1.AuthService],
             exports: [users_service_1.UsersService, typeorm_1.TypeOrmModule]
         })
     ], UsersModule);

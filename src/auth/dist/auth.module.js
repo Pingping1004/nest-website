@@ -63,7 +63,7 @@ var AuthModule = /** @class */ (function () {
         common_1.Module({
             imports: [
                 passport_1.PassportModule,
-                users_module_1.UsersModule,
+                common_1.forwardRef(function () { return users_module_1.UsersModule; }),
                 typeorm_1.TypeOrmModule,
                 config_1.ConfigModule,
                 jwt_1.JwtModule.registerAsync({

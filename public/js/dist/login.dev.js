@@ -50,7 +50,6 @@ function loginUser(users) {
 
         case 7:
           errorText = _context.sent;
-          // Fetch the response text (likely HTML)
           console.error("Login failed:", errorText);
           throw new Error("Login failed");
 
@@ -60,9 +59,8 @@ function loginUser(users) {
 
         case 12:
           data = _context.sent;
-          console.log("Login successful:", data); // authenticateUser(data);
-
-          window.location.href = "/auth/index/".concat(data.userId);
+          console.log("Login successful:", data);
+          (0, _role.authenticateUser)(data);
           _context.next = 20;
           break;
 

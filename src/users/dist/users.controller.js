@@ -49,22 +49,40 @@ exports.UsersController = void 0;
 var common_1 = require("@nestjs/common");
 var jwt_auth_guard_1 = require("../../src/auth/jwt-auth.guard");
 var UsersController = /** @class */ (function () {
-    function UsersController(userService) {
+    function UsersController(userService, authService) {
         this.userService = userService;
+        this.authService = authService;
     }
-    UsersController.prototype.signup = function (signupUserDto) {
-        return __awaiter(this, void 0, Promise, function () {
-            var error_1;
+    UsersController.prototype.signup = function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var user, accessToken, userId, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.userService.createUser(signupUserDto)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.userService.createUser(req.body)];
+                    case 1:
+                        user = _a.sent();
+                        console.log('User signup:', user);
+                        console.log('User signup ID:', user.id);
+                        return [4 /*yield*/, this.authService.login({
+                                userId: user.id,
+                                username: user.username
+                            })];
                     case 2:
+                        accessToken = (_a.sent()).accessToken;
+                        res.cookie('access_token', accessToken, {
+                            httpOnly: true
+                        });
+                        // const userId = req.user.userId;
+                        console.log('userId for signup:', user.id);
+                        userId = user.id;
+                        res.json({ userId: userId });
+                        return [3 /*break*/, 4];
+                    case 3:
                         error_1 = _a.sent();
                         throw new common_1.HttpException('Signup failed', common_1.HttpStatus.BAD_REQUEST);
-                    case 3: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -89,7 +107,7 @@ var UsersController = /** @class */ (function () {
     };
     __decorate([
         common_1.Post('/signup'),
-        __param(0, common_1.Body())
+        __param(0, common_1.Req()), __param(1, common_1.Res({ passthrough: true }))
     ], UsersController.prototype, "signup");
     __decorate([
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),

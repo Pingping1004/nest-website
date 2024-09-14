@@ -9,8 +9,8 @@ export function authenticateUser(data) {
     localStorage.setItem("user", JSON.stringify(users));
 
     if (users.role === "admin") {
-      window.location.href = "/admin/admin/index/:id";
+      window.location.href = `/auth/admin/index/${data.userId}`;
     } else {
-      window.location.href = `/auth/index/${data.id}`;
+      window.location.href = `/auth/index/${data.userId}`;
     }
   }

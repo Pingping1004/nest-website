@@ -31,15 +31,14 @@ if (loginForm) {
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Fetch the response text (likely HTML)
+        const errorText = await response.text();
         console.error("Login failed:", errorText);
         throw new Error("Login failed");
       }
 
       const data = await response.json();
       console.log("Login successful:", data);
-      // authenticateUser(data);
-      window.location.href = `/auth/index/${data.userId}`;
+      authenticateUser(data);
     } catch (error) {
         console.error("Error:", error.message);
     }

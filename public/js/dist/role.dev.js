@@ -15,8 +15,8 @@ function authenticateUser(data) {
   localStorage.setItem("user", JSON.stringify(users));
 
   if (users.role === "admin") {
-    window.location.href = "/admin/admin/index/:id";
+    window.location.href = "/auth/admin/index/".concat(data.userId);
   } else {
-    window.location.href = "/auth/index/".concat(data.id);
+    window.location.href = "/auth/index/".concat(data.userId);
   }
 }
