@@ -10,6 +10,7 @@ import * as jwt from 'jsonwebtoken';
 interface JwtPayload {
     userId: number;
     username: string;
+    role: string;
 }
 
 @Injectable()
@@ -37,6 +38,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         }
         console.log('JWT validtion user:', user);
         // return user;
-        return { userId: user.id, username: user.username };
+        return { userId: user.id, username: user.username, role: user.role };
     }
 }

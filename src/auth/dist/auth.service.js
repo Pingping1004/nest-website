@@ -72,7 +72,7 @@ var AuthService = /** @class */ (function () {
                         _b.label = 3;
                     case 3:
                         if (_a) {
-                            return [2 /*return*/, { userId: user.id, username: user.username }];
+                            return [2 /*return*/, { userId: user.id, username: user.username, role: user.role }];
                         }
                         return [2 /*return*/, null];
                 }
@@ -81,13 +81,22 @@ var AuthService = /** @class */ (function () {
     };
     AuthService.prototype.login = function (user) {
         return __awaiter(this, void 0, void 0, function () {
-            var payload, accessToken;
+            var foundUser, payload, accessToken;
             return __generator(this, function (_a) {
-                console.log('User object received for login:', user);
-                payload = { username: user.username, sub: user.userId };
-                accessToken = this.jwtService.sign(payload);
-                console.log('Generated token payload:', payload);
-                return [2 /*return*/, { accessToken: accessToken, message: 'Login successful' }];
+                switch (_a.label) {
+                    case 0:
+                        console.log('User object received for login:', user);
+                        return [4 /*yield*/, this.userRepository.findOne({ where: { username: user.username } })];
+                    case 1:
+                        foundUser = _a.sent();
+                        if (!foundUser) {
+                            throw new Error('User not found');
+                        }
+                        payload = { username: foundUser.username, sub: foundUser.id, role: foundUser.role };
+                        accessToken = this.jwtService.sign(payload);
+                        console.log('Generated token payload:', payload);
+                        return [2 /*return*/, { accessToken: accessToken, message: 'Login successful' }];
+                }
             });
         });
     };

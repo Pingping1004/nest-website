@@ -23,6 +23,7 @@ export class UsersController {
             const { accessToken } = await this.authService.login({
                 userId: user.id,
                 username: user.username,
+                role: user.role,
             });
 
             res.cookie('access_token', accessToken, {
@@ -31,6 +32,7 @@ export class UsersController {
             
             // const userId = req.user.userId;
             console.log('userId for signup:', user.id);
+            console.log('user role for signup:', user.role);
             const userId = user.id;
             res.json({ userId });
         } catch (error) {

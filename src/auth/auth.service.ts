@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 export interface UserPayload {
     userId: number;
     username: string;
+    role: string;
 }
 
 @Injectable()
@@ -26,14 +27,21 @@ export class AuthService {
     async validateUser(username: string, password: string): Promise<UserPayload | null> {
         const user = await this.userService.findByUserName(username);
         if (user && (await bcrypt.compare(password, user.password))) {
-            return { userId: user.id, username: user.username };
+            return { userId: user.id, username: user.username, role: user.role };
         }
         return null;
     }
 
     async login(user: any) {
         console.log('User object received for login:', user);
-        const payload = { username: user.username, sub: user.userId };
+        // Retrieve user from the database (include role in the result)
+        const foundUser = await this.userRepository.findOne({ where: { username: user.username } });
+
+        if (!foundUser) {
+            throw new Error('User not found');
+        }
+
+        const payload = { username: foundUser.username, sub: foundUser.id, role: foundUser.role };
         const accessToken = this.jwtService.sign(payload);
         console.log('Generated token payload:', payload);
         return { accessToken, message: 'Login successful' };

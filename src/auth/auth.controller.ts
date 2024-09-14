@@ -26,11 +26,12 @@ export class AuthController {
                 // secure: process.env.NODE_ENV === 'production',
             });
 
-            const userId = req.user.userId;  // Ensure req.user contains userId
+            const userId = req.user.userId;
+            const role = req.user.role;
+
             console.log('userId from login using userId:', userId);
-            console.log('Redirecting to index ID:', userId);
-            // res.redirect(`/auth/index/${userId}`);
-            res.json({ userId });
+            console.log('Role from login user:', role);
+            res.json({ userId, role });
         } catch (error) {
             console.error('Login failed', error.message);
             throw new HttpException('Login failed', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -48,6 +49,8 @@ export class AuthController {
             return res.status(400).send('Invalid user ID');
         }
 
+        const userId = req.user.userId;
+        const role = req.user.role;
         console.log('User ID from url:', userIdFromParam);
         console.log('req user:', req.user);
         console.log('Req user userID with userId:', req.user.userId);
@@ -55,7 +58,7 @@ export class AuthController {
         if (userIdFromParam !== req.user.userId) {
             return res.status(403).send('Forbidden');
         }
-        res.render('index', { userId: req.user.userId });
+        res.render('index', { userId, role });
     }
 
     @UseGuards(GoogleAuthGuard)

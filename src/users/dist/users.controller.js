@@ -67,7 +67,8 @@ var UsersController = /** @class */ (function () {
                         console.log('User signup ID:', user.id);
                         return [4 /*yield*/, this.authService.login({
                                 userId: user.id,
-                                username: user.username
+                                username: user.username,
+                                role: user.role
                             })];
                     case 2:
                         accessToken = (_a.sent()).accessToken;
@@ -76,6 +77,7 @@ var UsersController = /** @class */ (function () {
                         });
                         // const userId = req.user.userId;
                         console.log('userId for signup:', user.id);
+                        console.log('user role for signup:', user.role);
                         userId = user.id;
                         res.json({ userId: userId });
                         return [3 /*break*/, 4];

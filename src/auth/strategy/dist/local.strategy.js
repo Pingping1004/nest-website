@@ -84,7 +84,7 @@ var LocalStrategy = /** @class */ (function (_super) {
                             throw new common_1.UnauthorizedException();
                         }
                         // return user;
-                        return [2 /*return*/, { userId: user.userId, username: user.username }];
+                        return [2 /*return*/, { userId: user.userId, username: user.username, role: user.role }];
                 }
             });
         });

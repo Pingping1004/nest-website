@@ -92,7 +92,7 @@ var JwtStrategy = /** @class */ (function (_super) {
                         }
                         console.log('JWT validtion user:', user);
                         // return user;
-                        return [2 /*return*/, { userId: user.id, username: user.username }];
+                        return [2 /*return*/, { userId: user.id, username: user.username, role: user.role }];
                 }
             });
         });

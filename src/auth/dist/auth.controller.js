@@ -56,7 +56,7 @@ var AuthController = /** @class */ (function () {
     }
     AuthController.prototype.login = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var accessToken, userId, error_1;
+            var accessToken, userId, role, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -70,10 +70,10 @@ var AuthController = /** @class */ (function () {
                             httpOnly: true
                         });
                         userId = req.user.userId;
+                        role = req.user.role;
                         console.log('userId from login using userId:', userId);
-                        console.log('Redirecting to index ID:', userId);
-                        // res.redirect(`/auth/index/${userId}`);
-                        res.json({ userId: userId });
+                        console.log('Role from login user:', role);
+                        res.json({ userId: userId, role: role });
                         return [3 /*break*/, 3];
                     case 2:
                         error_1 = _a.sent();
@@ -86,7 +86,7 @@ var AuthController = /** @class */ (function () {
     };
     AuthController.prototype.renderAuthIndex = function (id, req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var userIdFromParam;
+            var userIdFromParam, userId, role;
             return __generator(this, function (_a) {
                 userIdFromParam = parseInt(id, 10);
                 // Check if parsing was successful
@@ -94,13 +94,15 @@ var AuthController = /** @class */ (function () {
                     console.error('Failed to parse user ID from URL parameter:', id);
                     return [2 /*return*/, res.status(400).send('Invalid user ID')];
                 }
+                userId = req.user.userId;
+                role = req.user.role;
                 console.log('User ID from url:', userIdFromParam);
                 console.log('req user:', req.user);
                 console.log('Req user userID with userId:', req.user.userId);
                 if (userIdFromParam !== req.user.userId) {
                     return [2 /*return*/, res.status(403).send('Forbidden')];
                 }
-                res.render('index', { userId: req.user.userId });
+                res.render('index', { userId: userId, role: role });
                 return [2 /*return*/];
             });
         });
