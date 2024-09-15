@@ -20,6 +20,7 @@ export class UsersController {
             const user = await this.userService.createUser(req.body);
             console.log('User signup:', user);
             console.log('User signup ID:', user.id);
+            console.log('User signup role:', user.role);
             const { accessToken } = await this.authService.login({
                 userId: user.id,
                 username: user.username,
@@ -33,8 +34,10 @@ export class UsersController {
             // const userId = req.user.userId;
             console.log('userId for signup:', user.id);
             console.log('user role for signup:', user.role);
+            
             const userId = user.id;
-            res.json({ userId });
+            const role = user.role;
+            res.json({ userId, role });
         } catch (error) {
             throw new HttpException('Signup failed', HttpStatus.BAD_REQUEST);
         }

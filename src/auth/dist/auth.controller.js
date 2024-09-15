@@ -107,9 +107,28 @@ var AuthController = /** @class */ (function () {
             });
         });
     };
-    AuthController.prototype.googleAuth = function (req) {
+    AuthController.prototype.renderAdminAuthIndex = function (id, req, res) {
         return __awaiter(this, void 0, void 0, function () {
+            var userIdFromParam, userId, role;
             return __generator(this, function (_a) {
+                userIdFromParam = parseInt(id, 10);
+                // Check if parsing was successful
+                if (isNaN(userIdFromParam)) {
+                    console.error('Failed to parse user ID from URL parameter:', id);
+                    return [2 /*return*/, res.status(400).send('Invalid user ID')];
+                }
+                if (req.user.role !== 'admin') {
+                    return [2 /*return*/, res.status(403).send('Forbidden: Admin access only')];
+                }
+                userId = req.user.userId;
+                role = req.user.role;
+                console.log('Admin user ID from url:', userIdFromParam);
+                console.log('req admin user:', req.user);
+                console.log('Req admin user with userId:', req.user.userId);
+                if (userIdFromParam !== req.user.userId) {
+                    return [2 /*return*/, res.status(403).send('Forbidden')];
+                }
+                res.render('admin', { userId: userId, role: role });
                 return [2 /*return*/];
             });
         });
@@ -162,10 +181,10 @@ var AuthController = /** @class */ (function () {
         __param(0, common_1.Param('id')), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], AuthController.prototype, "renderAuthIndex");
     __decorate([
-        common_1.UseGuards(google_auth_guard_1.GoogleAuthGuard),
-        common_1.Get('google'),
-        __param(0, common_1.Req())
-    ], AuthController.prototype, "googleAuth");
+        common_1.Get('admin/index/:id'),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        __param(0, common_1.Param('id')), __param(1, common_1.Req()), __param(2, common_1.Res())
+    ], AuthController.prototype, "renderAdminAuthIndex");
     __decorate([
         common_1.Get('google/callback'),
         common_1.UseGuards(google_auth_guard_1.GoogleAuthGuard),

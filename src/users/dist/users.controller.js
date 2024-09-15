@@ -55,7 +55,7 @@ var UsersController = /** @class */ (function () {
     }
     UsersController.prototype.signup = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, accessToken, userId, error_1;
+            var user, accessToken, userId, role, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -65,6 +65,7 @@ var UsersController = /** @class */ (function () {
                         user = _a.sent();
                         console.log('User signup:', user);
                         console.log('User signup ID:', user.id);
+                        console.log('User signup role:', user.role);
                         return [4 /*yield*/, this.authService.login({
                                 userId: user.id,
                                 username: user.username,
@@ -79,7 +80,8 @@ var UsersController = /** @class */ (function () {
                         console.log('userId for signup:', user.id);
                         console.log('user role for signup:', user.role);
                         userId = user.id;
-                        res.json({ userId: userId });
+                        role = user.role;
+                        res.json({ userId: userId, role: role });
                         return [3 /*break*/, 4];
                     case 3:
                         error_1 = _a.sent();

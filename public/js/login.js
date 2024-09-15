@@ -10,7 +10,7 @@ if (loginForm) {
     const users = {
       username: formData.get('username'),
       password: formData.get('password'),
-      // role: formData.get("role"),
+      role: formData.get("role"),
     };
 
     loginUser(users);
@@ -19,7 +19,7 @@ if (loginForm) {
   console.error('Login form not found');
 }
 
-async function loginUser(users) {
+export async function loginUser(users) {
   try {
     const response = await fetch('http://localhost:3000/auth/login', {
       method: 'POST',
@@ -37,8 +37,9 @@ async function loginUser(users) {
     }
 
     const data = await response.json();
-    console.log('Login successful:', data);
+    console.log('User data from API:', data);
     authenticateUser(data);
+    console.log('Login successful:', data);
   } catch (error) {
     console.error('Error:', error.message);
   }

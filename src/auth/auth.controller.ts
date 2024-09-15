@@ -61,10 +61,31 @@ export class AuthController {
         res.render('index', { userId, role });
     }
 
-    @UseGuards(GoogleAuthGuard)
-    @Get('google')
-    async googleAuth(@Req() req) {
-        //
+    @Get('admin/index/:id')
+    @UseGuards(JwtAuthGuard)
+    async renderAdminAuthIndex(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+        const userIdFromParam = parseInt(id, 10);
+
+        // Check if parsing was successful
+        if (isNaN(userIdFromParam)) {
+            console.error('Failed to parse user ID from URL parameter:', id);
+            return res.status(400).send('Invalid user ID');
+        }
+
+        if (req.user.role !== 'admin') {
+            return res.status(403).send('Forbidden: Admin access only');
+        }
+
+        const userId = req.user.userId;
+        const role = req.user.role;
+        console.log('Admin user ID from url:', userIdFromParam);
+        console.log('req admin user:', req.user);
+        console.log('Req admin user with userId:', req.user.userId);
+
+        if (userIdFromParam !== req.user.userId) {
+            return res.status(403).send('Forbidden');
+        }
+        res.render('admin', { userId, role });
     }
 
     @Get('google/callback')

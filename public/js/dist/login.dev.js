@@ -1,5 +1,10 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.loginUser = loginUser;
+
 var _role = require("./role.js");
 
 var loginForm = document.querySelector('#loginform');
@@ -11,8 +16,8 @@ if (loginForm) {
     var formData = new FormData(event.target);
     var users = {
       username: formData.get('username'),
-      password: formData.get('password') // role: formData.get("role"),
-
+      password: formData.get('password'),
+      role: formData.get("role")
     };
     loginUser(users);
   });
@@ -59,22 +64,23 @@ function loginUser(users) {
 
         case 12:
           data = _context.sent;
-          console.log('Login successful:', data);
+          console.log('User data from API:', data);
           (0, _role.authenticateUser)(data);
-          _context.next = 20;
+          console.log('Login successful:', data);
+          _context.next = 21;
           break;
 
-        case 17:
-          _context.prev = 17;
+        case 18:
+          _context.prev = 18;
           _context.t0 = _context["catch"](0);
           console.error('Error:', _context.t0.message);
 
-        case 20:
+        case 21:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 17]]);
+  }, null, null, [[0, 18]]);
 }
 
 if (logoutBtn) {
