@@ -16,8 +16,13 @@ export class UsersController {
     @Post('/signup')
     async signup(@Req() req, @Res({ passthrough: true }) res: Response) {
         try {
-            // return await this.userService.createUser(signupUserDto);
-            const user = await this.userService.createUser(req.body);
+            const signupUserDto = req.body;
+
+            if (!signupUserDto.username || !signupUserDto.password) {
+                throw new HttpException('Missing username or password', HttpStatus.BAD_REQUEST);
+            }
+            
+            const user = await this.userService.createUser(signupUserDto);
             console.log('User signup:', user);
             console.log('User signup ID:', user.id);
             console.log('User signup role:', user.role);
