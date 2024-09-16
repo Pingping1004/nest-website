@@ -1,3 +1,8 @@
+export enum Role {
+    user = 'user',
+    admin = 'admin',
+}
+
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('user')
@@ -11,11 +16,11 @@ export class User {
     @Column({ length: 70 })
     password?: string;
 
-    @Column({ length: 30, default: 'user' })
-    role: string = 'user'; // Ensure default value is assigned
-
     @Column({ nullable: true })
-    profilePicture?: string; // Mark as optional or use string | null
+    profilePicture?: string;
+
+    @Column({ type: 'enum', enum: Role, default: Role.user })
+    role: Role;
 
     @Column()
     googleId: string;

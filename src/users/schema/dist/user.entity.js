@@ -6,11 +6,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 exports.__esModule = true;
-exports.User = void 0;
+exports.User = exports.Role = void 0;
+var Role;
+(function (Role) {
+    Role["user"] = "user";
+    Role["admin"] = "admin";
+})(Role = exports.Role || (exports.Role = {}));
 var typeorm_1 = require("typeorm");
 var User = /** @class */ (function () {
     function User() {
-        this.role = 'user'; // Ensure default value is assigned
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn()
@@ -22,11 +26,11 @@ var User = /** @class */ (function () {
         typeorm_1.Column({ length: 70 })
     ], User.prototype, "password");
     __decorate([
-        typeorm_1.Column({ length: 30, "default": 'user' })
-    ], User.prototype, "role");
-    __decorate([
         typeorm_1.Column({ nullable: true })
     ], User.prototype, "profilePicture");
+    __decorate([
+        typeorm_1.Column({ type: 'enum', "enum": Role, "default": Role.user })
+    ], User.prototype, "role");
     __decorate([
         typeorm_1.Column()
     ], User.prototype, "googleId");

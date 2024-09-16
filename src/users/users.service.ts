@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LoginUserDto, SignupUserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
+import { Role } from './schema/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -14,10 +15,15 @@ export class UsersService {
 
     async createUser(signupUserDto: SignupUserDto): Promise<User> {
         try {
+            // Set tole based on username or default to 'user'
+            let role: Role = Role.user; //Default role
+            console.log('Role of signup user:', role);
+
             if (signupUserDto.username.startsWith('admin')) {
-                signupUserDto.role = 'admin';
+                // signupUserDto.role = 'admin';
+                role = Role.admin;
             }
-            const role = signupUserDto.role || 'user';
+            // const role = signupUserDto.role || 'user';
             const hashedPassword = await bcrypt.hash(signupUserDto.password, 10);
             const newUser = this.userRepository.create({
                 ...signupUserDto,

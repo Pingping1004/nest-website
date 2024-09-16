@@ -50,6 +50,9 @@ var common_1 = require("@nestjs/common");
 var local_auth_guard_1 = require("./local-auth.guard");
 var google_auth_guard_1 = require("./google-auth.guard");
 var jwt_auth_guard_1 = require("./jwt-auth.guard");
+var role_auth_guard_1 = require("./role-auth.guard");
+var user_entity_1 = require("../users/schema/user.entity");
+var roles_decorator_1 = require("./roles.decorator");
 var AuthController = /** @class */ (function () {
     function AuthController(authservice) {
         this.authservice = authservice;
@@ -177,12 +180,14 @@ var AuthController = /** @class */ (function () {
     ], AuthController.prototype, "login");
     __decorate([
         common_1.Get('index/:id'),
-        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard, role_auth_guard_1.RolesGuard),
+        roles_decorator_1.Roles(user_entity_1.Role.user, user_entity_1.Role.admin),
         __param(0, common_1.Param('id')), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], AuthController.prototype, "renderAuthIndex");
     __decorate([
         common_1.Get('admin/index/:id'),
-        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard, role_auth_guard_1.RolesGuard),
+        roles_decorator_1.Roles(user_entity_1.Role.admin),
         __param(0, common_1.Param('id')), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], AuthController.prototype, "renderAdminAuthIndex");
     __decorate([

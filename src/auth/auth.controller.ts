@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Render, HttpException, HttpStatus, UseGuards , Req, Res } from '@nestjs/common';
+import { Controller, Get, Param, Post, Render, HttpException, HttpStatus, UseGuards , Req, Res, SetMetadata } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -6,6 +6,9 @@ import { GoogleAuthGuard } from './google-auth.guard';
 import { clearCookie } from 'cookie-parser'
 import { User } from 'src/users/schema/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { RolesGuard } from './role-auth.guard';
+import { Role } from '../users/schema/user.entity';
+import { Roles } from './roles.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +42,8 @@ export class AuthController {
     }
 
     @Get('index/:id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.user, Role.admin)
     async renderAuthIndex(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
         const userIdFromParam = parseInt(id, 10);
 
@@ -62,7 +66,8 @@ export class AuthController {
     }
 
     @Get('admin/index/:id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.admin)
     async renderAdminAuthIndex(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
         const userIdFromParam = parseInt(id, 10);
 

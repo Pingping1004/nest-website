@@ -22,7 +22,7 @@ export class UsersController {
             console.log('User signup ID:', user.id);
             console.log('User signup role:', user.role);
             const { accessToken } = await this.authService.login({
-                userId: user.id,
+                id: user.id,
                 username: user.username,
                 role: user.role,
             });

@@ -67,7 +67,7 @@ var UsersController = /** @class */ (function () {
                         console.log('User signup ID:', user.id);
                         console.log('User signup role:', user.role);
                         return [4 /*yield*/, this.authService.login({
-                                userId: user.id,
+                                id: user.id,
                                 username: user.username,
                                 role: user.role
                             })];

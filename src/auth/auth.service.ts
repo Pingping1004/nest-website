@@ -32,7 +32,7 @@ export class AuthService {
         return null;
     }
 
-    async login(user: any) {
+    async login(user: Partial<User>) {
         console.log('User object received for login:', user);
         // Retrieve user from the database (include role in the result)
         const foundUser = await this.userRepository.findOne({ where: { username: user.username } });
@@ -44,6 +44,7 @@ export class AuthService {
         const payload = { username: foundUser.username, sub: foundUser.id, role: foundUser.role };
         const accessToken = this.jwtService.sign(payload);
         console.log('Generated token payload:', payload);
+
         return { accessToken, message: 'Login successful' };
     }
 

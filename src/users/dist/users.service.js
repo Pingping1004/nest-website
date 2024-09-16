@@ -61,6 +61,7 @@ var common_1 = require("@nestjs/common");
 var user_entity_1 = require("./schema/user.entity");
 var typeorm_1 = require("@nestjs/typeorm");
 var bcrypt = require("bcrypt");
+var user_entity_2 = require("./schema/user.entity");
 var UsersService = /** @class */ (function () {
     function UsersService(userRepository) {
         this.userRepository = userRepository;
@@ -72,10 +73,12 @@ var UsersService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
+                        role = user_entity_2.Role.user;
+                        console.log('Role of signup user:', role);
                         if (signupUserDto.username.startsWith('admin')) {
-                            signupUserDto.role = 'admin';
+                            // signupUserDto.role = 'admin';
+                            role = user_entity_2.Role.admin;
                         }
-                        role = signupUserDto.role || 'user';
                         return [4 /*yield*/, bcrypt.hash(signupUserDto.password, 10)];
                     case 1:
                         hashedPassword = _a.sent();
