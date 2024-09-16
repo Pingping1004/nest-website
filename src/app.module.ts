@@ -7,8 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/schema/user.entity';
 import { GoogleStrategy } from './auth/strategy/google.strategy';
-import { BlogModule } from './blog/blog.module';
-import { Blog } from './blog/schema/blog.entity';
+import { BlogModule } from './post/post.module';
+import { Post } from './post/schema/post.entity';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { Blog } from './blog/schema/blog.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Blog],
+      entities: [User, Post],
       synchronize: true,
     }),
     BlogModule

@@ -1,8 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
-import { User } from '../../../src/users/schema/user.entity';
+import { User } from '../../users/schema/user.entity';
 
-@Entity('blog')
-export class Blog {
+@Entity('post')
+export class Post {
     @PrimaryGeneratedColumn()
     postId: number;
 
