@@ -3,7 +3,8 @@ export enum Role {
     admin = 'admin',
 }
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Post } from '../../post/schema/post.entity';
 
 @Entity('user')
 export class User {
@@ -23,5 +24,8 @@ export class User {
     role: Role;
 
     @Column()
-    googleId: string;
+    googleId?: string;
+
+    @OneToMany(() => Post, post => post.author)
+    posts: Post[];
 }

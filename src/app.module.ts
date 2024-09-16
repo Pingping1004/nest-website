@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/schema/user.entity';
 import { GoogleStrategy } from './auth/strategy/google.strategy';
-import { BlogModule } from './post/post.module';
+import { PostModule } from './post/post.module';
 import { Post } from './post/schema/post.entity';
 
 @Module({
@@ -20,7 +20,7 @@ import { Post } from './post/schema/post.entity';
 
     AuthModule,
     UsersModule,
-    BlogModule,
+    PostModule,
     // Connect to typeorm database
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -32,7 +32,7 @@ import { Post } from './post/schema/post.entity';
       entities: [User, Post],
       synchronize: true,
     }),
-    BlogModule
+    PostModule
   ],
 
   controllers: [AppController],

@@ -9,6 +9,7 @@ import { Post } from './schema/post.entity';
     TypeOrmModule.forFeature([Post]),
   ],
   controllers: [PostController],
-  providers: [PostService]
+  providers: [PostService],
+  exports: [PostService],
 })
-export class BlogModule {}
+export class PostModule {}
