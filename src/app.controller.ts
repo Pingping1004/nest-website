@@ -11,7 +11,7 @@ export class AppController {
   renderIndex(@Req() req: any, @Res() res: Response) {
     // const userId = req.user ? req.user.sub : null;
     // console.log('EJS rendering for USER_ID:', userId);
-    res.render('index', { userId: req.user ? req.user.userId : null });
+    res.render('index');
   }
 
   @Get('/signup')

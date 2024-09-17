@@ -9,6 +9,7 @@ import { User } from './users/schema/user.entity';
 import { GoogleStrategy } from './auth/strategy/google.strategy';
 import { PostModule } from './post/post.module';
 import { Post } from './post/schema/post.entity';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { Post } from './post/schema/post.entity';
       entities: [User, Post],
       synchronize: true,
     }),
-    PostModule
+    PostModule,
+    AdminModule
   ],
 
   controllers: [AppController],

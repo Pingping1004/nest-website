@@ -82,4 +82,12 @@ export class UsersService {
         }
         return user;
     }
+
+    async getAllUsers(): Promise<User[]> {
+        try {
+            return this.userRepository.find();
+        } catch (error) {
+            console.error('Failed to get all users', error.message);
+        }
+    }
 }

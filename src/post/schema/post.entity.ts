@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index } 
 import { User } from '../../users/schema/user.entity';
 
 @Entity('post')
-@Index('IDX_AUTHOR_ID', ["authorId"])
+@Index('IDX_AUTHOR_ID', ["author"])
 export class Post {
     @PrimaryGeneratedColumn()
     postId: number;

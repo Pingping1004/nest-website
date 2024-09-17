@@ -1,11 +1,8 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
-import { SignupUserDto } from 'src/users/dto/user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/schema/user.entity';
-import { JwtConstant } from './constant';
 import { JwtService } from '@nestjs/jwt';
-import { Jwt } from 'jsonwebtoken';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -13,6 +10,7 @@ export interface UserPayload {
     userId: number;
     username: string;
     role: string;
+    user: User;
 }
 
 @Injectable()
@@ -27,7 +25,12 @@ export class AuthService {
     async validateUser(username: string, password: string): Promise<UserPayload | null> {
         const user = await this.userService.findByUserName(username);
         if (user && (await bcrypt.compare(password, user.password))) {
-            return { userId: user.id, username: user.username, role: user.role };
+            return {
+                userId: user.id,
+                username: user.username,
+                role: user.role,
+                user,
+             }
         }
         return null;
     }
@@ -45,7 +48,10 @@ export class AuthService {
         const accessToken = this.jwtService.sign(payload);
         console.log('Generated token payload:', payload);
 
-        return { accessToken, message: 'Login successful' };
+        return { accessToken,
+                message: 'Login successful',
+                user: foundUser,
+        };
     }
 
     async googleLogin(req: any): Promise<any> {
@@ -69,7 +75,8 @@ export class AuthService {
 
         const payload = { username: user.username};
         return {
-            accessToken: this.jwtService.sign(payload)
+            accessToken: this.jwtService.sign(payload),
+            user,
         }
     }
 

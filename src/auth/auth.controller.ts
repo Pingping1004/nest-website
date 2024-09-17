@@ -81,6 +81,7 @@ export class AuthController {
             return res.status(403).send('Forbidden: Admin access only');
         }
 
+        const user = req.user;
         const userId = req.user.userId;
         const role = req.user.role;
         console.log('Admin user ID from url:', userIdFromParam);
@@ -90,7 +91,7 @@ export class AuthController {
         if (userIdFromParam !== req.user.userId) {
             return res.status(403).send('Forbidden');
         }
-        res.render('admin', { userId, role });
+        res.render('admin', { userId, role, user });
     }
 
     @Get('google/callback')
