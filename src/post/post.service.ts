@@ -3,6 +3,7 @@ import { CreatePostDto, UpdatePostDto} from './dto/post.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './schema/post.entity';
+import { User } from '../users/schema/user.entity';
 
 @Injectable()
 export class PostService {
@@ -15,14 +16,16 @@ export class PostService {
         try {
             const post = this.postRepository.create({
                 ...createPostDto,
-                author: {id },
+                author: { id },
             });
 
+            console.log('Author ID of owner:', post.author);
             const newPost = await this.postRepository.save(post);
             console.log('New created post:', newPost);
             return newPost;
         } catch (error) {
             console.error('Failed to create post', error.message);
+            throw new InternalServerErrorException('Failed to create post');
         }
     }
 

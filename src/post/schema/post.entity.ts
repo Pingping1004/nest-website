@@ -13,13 +13,13 @@ export class Post {
     @Column()
     content?: string;
 
-    @Column()
+    @Column({ default: '' })
     pictureContent?: string;
 
     @ManyToOne(() => User, (user) => user.posts)
     @JoinColumn({ name: 'authorId' }) // Foreign key column in the database
     author: User; // User who created the post
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP '})
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP ' })
     date: Date;
 }

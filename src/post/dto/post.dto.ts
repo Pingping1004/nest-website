@@ -8,6 +8,9 @@ export class CreatePostDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @IsString()
+  pictureContent?: string;
 }
 
 export class UpdatePostDto {
@@ -18,4 +21,7 @@ export class UpdatePostDto {
   @IsOptional()
   @IsString()
   content?: string;
+
+  @IsString()
+  pictureContent?: string;
 }

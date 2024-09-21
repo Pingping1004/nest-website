@@ -7,6 +7,7 @@ import { clearCookie } from 'cookie-parser'
 import { User } from 'src/users/schema/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './role-auth.guard';
+import { PostService } from '../post/post.service';
 import { Role } from '../users/schema/user.entity';
 import { Roles } from './roles.decorator';
 
@@ -14,6 +15,7 @@ import { Roles } from './roles.decorator';
 export class AuthController {
     constructor(
         private readonly authservice: AuthService,
+        private readonly postService: PostService,
     ) {}
 
     @UseGuards(LocalAuthGuard)
@@ -55,14 +57,18 @@ export class AuthController {
 
         const userId = req.user.userId;
         const role = req.user.role;
+        const posts = await this.postService.getAllPosts();
+
         console.log('User ID from url:', userIdFromParam);
         console.log('req user:', req.user);
         console.log('Req user userID with userId:', req.user.userId);
+        console.log('Post render:', posts);
 
         if (userIdFromParam !== req.user.userId) {
             return res.status(403).send('Forbidden');
         }
-        res.render('index', { userId, role });
+        
+        res.render('index', { userId, role, posts });
     }
 
     @Get('admin/index/:id')

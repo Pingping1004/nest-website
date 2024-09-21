@@ -32,6 +32,7 @@ import { AdminModule } from './admin/admin.module';
       database: process.env.DB_DATABASE,
       entities: [User, Post],
       synchronize: true,
+      // logging: true,
     }),
     PostModule,
     AdminModule

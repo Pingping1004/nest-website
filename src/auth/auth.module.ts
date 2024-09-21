@@ -11,6 +11,8 @@ import { GoogleStrategy } from './strategy/google.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config'
 import { UsersController } from '../users/users.controller';
+import { PostModule } from '../post/post.module';
+import { PostService } from '../post/post.service';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { UsersController } from '../users/users.controller';
     forwardRef(() => UsersModule),
     TypeOrmModule,
     ConfigModule,
+    PostModule,
     JwtModule.registerAsync({
       useFactory: async() => ({
         secret: JwtConstant.secret,
