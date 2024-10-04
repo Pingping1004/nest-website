@@ -11,6 +11,10 @@ var logoutBtn = document.querySelector('.logout-btn');
 var articles = [];
 var edittingIndex = null;
 var loggedInUserId = null;
+var postId = null;
+document.addEventListener('DOMContentLoaded', function () {
+  fetchAllPosts();
+});
 
 function fetchAllPosts() {
   var response, data, posts, userId;
@@ -41,23 +45,27 @@ function fetchAllPosts() {
           posts = data.posts, userId = data.userId;
           articles = posts; // Update the articles array with the latest posts
 
-          loggedInUserId = userId;
+          loggedInUserId = userId; // If you want to log each postId from the posts array:
+
+          posts.forEach(function (post) {
+            console.log('Post ID:', post.postId); // Extract and log the postId from each post
+          });
           console.log('All render posts:', articles);
           renderPost();
-          _context.next = 19;
+          _context.next = 20;
           break;
 
-        case 16:
-          _context.prev = 16;
+        case 17:
+          _context.prev = 17;
           _context.t0 = _context["catch"](0);
           console.error('Error fetching all posts:', _context.t0.message);
 
-        case 19:
+        case 20:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 16]]);
+  }, null, null, [[0, 17]]);
 }
 
 function addPost() {
@@ -153,17 +161,23 @@ function renderPost() {
           articles.forEach(function (article, index) {
             var mainFeedList = document.createElement("div");
             mainFeedList.classList.add("main-feed-list");
+            mainFeedList.id = "post-".concat(article.postId);
             console.log('Article UserID:', article.author.id);
             console.log('Logged in userID:', loggedInUserId);
-            mainFeedList.innerHTML = "\n    <div>\n      <h3 class=\"article-title\">".concat(article.title, "</h3>\n      <p class=\"article-content\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.id, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      ").concat(article.author.id === loggedInUserId ? "<button class=\"edit-post-btn btn btn-secondary\">Edit</button>\n           <button class=\"delete-post-btn btn btn-danger\">Delete</button>" : '', "\n    </div>");
+            mainFeedList.innerHTML = "\n    <div>\n      <h3 class=\"article-title\">".concat(article.title, "</h3>\n      <p class=\"article-content\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.id, "</p>\n      <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      ").concat(article.author.id === loggedInUserId ? "<button class=\"edit-post-btn btn btn-secondary\">Edit</button>\n           <button class=\"delete-post-btn btn btn-danger\" data-post-id=\"".concat(article.postId, "\">Delete</button>") : '', "\n    </div>");
 
             if (article.author.id === loggedInUserId) {
               mainFeedList.querySelector('.edit-post-btn').addEventListener('click', function () {
                 editPost(index);
               });
-              mainFeedList.querySelector('.delete-post-btn').addEventListener('click', function () {
-                deletePost(index);
-              });
+              var deleteBtn = mainFeedList.querySelector('.delete-post-btn');
+
+              if (deleteBtn) {
+                deleteBtn.addEventListener('click', function () {
+                  var postId = deleteBtn.getAttribute('data-post-id');
+                  deletePost(postId);
+                });
+              }
             }
 
             mainFeed.append(mainFeedList);
@@ -177,7 +191,7 @@ function renderPost() {
   });
 }
 
-function editPost(index) {
+function editPost(postId) {
   var _editPostBtn;
 
   return regeneratorRuntime.async(function editPost$(_context4) {
@@ -218,7 +232,7 @@ function editPost(index) {
 
 ;
 
-function savePost(index) {
+function savePost(postId) {
   var currentDate, editTitleInput, editContentInput, response, updatePost, _editPostBtn2;
 
   return regeneratorRuntime.async(function savePost$(_context5) {
@@ -236,8 +250,9 @@ function savePost(index) {
           articles[index].content = editContentInput;
           articles[index].date = currentDate.toISOString();
           _context5.next = 12;
-          return regeneratorRuntime.awrap(fetch('/post/update/:id', {
+          return regeneratorRuntime.awrap(fetch("/post/update/".concat(postId), {
             method: 'PATCH',
+            credentials: "include",
             headers: {
               'Content-Type': 'application/json'
             },
@@ -301,66 +316,74 @@ function savePost(index) {
   }, null, null, [[0, 35]]);
 }
 
-window.deletePost = function deletePost(index) {
-  var response, deletedPost;
+window.deletePost = function deletePost(postId) {
+  var response, postElement, deletedPost, result;
   return regeneratorRuntime.async(function deletePost$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
           _context6.prev = 0;
-
-          if (!(index > -1 && index < articles.length)) {
-            _context6.next = 15;
-            break;
-          }
-
-          articles.splice(index, 1);
-          _context6.next = 5;
-          return regeneratorRuntime.awrap(fetch('/post/delete/:id', {
+          console.log('postId to delete:', postId);
+          _context6.next = 4;
+          return regeneratorRuntime.awrap(fetch("/post/delete/".concat(postId), {
             method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            credentials: 'include'
           }));
 
-        case 5:
+        case 4:
           response = _context6.sent;
 
-          if (response.ok) {
-            _context6.next = 13;
+          if (!response.ok) {
+            _context6.next = 17;
             break;
           }
 
-          _context6.next = 9;
+          postElement = document.getElementById("post-".concat(postId));
+
+          if (postElement) {
+            postElement.remove();
+          } else {
+            console.error("Post element with ID post-".concat(postId, " not found in DOM"));
+          }
+
+          _context6.next = 10;
           return regeneratorRuntime.awrap(response.json());
 
-        case 9:
+        case 10:
           deletedPost = _context6.sent;
-          console.log(deletedPost);
-          _context6.next = 14;
-          break;
-
-        case 13:
-          alert('Failed to remove post');
-
-        case 14:
+          console.log('Deleted post:', deletedPost);
+          articles = articles.filter(function (article) {
+            return article.postId !== parseInt(postId, 10);
+          });
+          console.log('Post deleted successfully');
           renderPost();
-
-        case 15:
-          _context6.next = 20;
+          _context6.next = 22;
           break;
 
         case 17:
-          _context6.prev = 17;
+          _context6.next = 19;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 19:
+          result = _context6.sent;
+          alert('Failed to remove post' + result.message);
+          console.error('Failed to remove post:', result.message);
+
+        case 22:
+          _context6.next = 27;
+          break;
+
+        case 24:
+          _context6.prev = 24;
           _context6.t0 = _context6["catch"](0);
           console.error('Failed to delete post', _context6.t0.message);
 
-        case 20:
+        case 27:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[0, 17]]);
+  }, null, null, [[0, 24]]);
 };
 
 signUpLoginBtn.addEventListener('click', function () {

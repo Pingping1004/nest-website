@@ -37,15 +37,19 @@ export class PostService {
         }
     }
 
-    async getPostById(id: number): Promise<Post | null> {
+    async getPostById(postId: number): Promise<Post | null> {
         try {
             // console.log('Searching for post from userId:', id);
-            const post = await this.postRepository.findOne({ where: { author: { id } } });
+            const post = await this.postRepository.findOne({ 
+                where: { postId },
+                relations: ['author'],
+            });
 
             if (!post) {
                 throw new NotFoundException('Post not found');
             }
 
+            console.log('Post that get by ID:', post);
             return post;
         } catch (error) {
             console.error('Failed to render post', error.message);
@@ -74,7 +78,11 @@ export class PostService {
 
     async deletePost(postId: number, id: number): Promise<Post> {
         try {
+            console.log('postId to delete:', postId);
+            
             const post = await this.getPostById(postId);
+
+            console.log('Deleted post detail:', post);
 
             if (!post) {
                 throw new NotFoundException('Post not found');
@@ -83,6 +91,7 @@ export class PostService {
             if (post.author.id !== id) {
                 throw new ForbiddenException(`You don't have permission to delete this post`);
             }
+
             return await this.postRepository.remove(post);
         } catch (error) {
             console.error('Failed to delete post', error.message);

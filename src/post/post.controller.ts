@@ -27,7 +27,7 @@ export class PostController {
             
             const post = await this.postService.createPost(createPostDto, userId);
             console.log('Post to create:', post)
-            console.log('Author ID from request:', post.author);
+            console.log('Author ID from request:', post.author.id);
             return post;
         } catch (error) {
             console.error('Failed to get post in controller', error.message);
@@ -37,14 +37,14 @@ export class PostController {
 
     @UseGuards(JwtAuthGuard)
     @Get('feed')
-    async getAllPost(@Req() req, @Res() res: Response): Promise<void> {
+    async getAllPost(@Req() req, @Res() res: Response) {
         try {
             const posts = await this.postService.getAllPosts();
             const userId = req.user.userId;
             console.log('userId before get all post and search post owner:', userId);
-            console.log('Post to render(backend controller', posts);
+            console.log('Post to render backend controller', posts);
             // res.render('index', { posts, userId });
-            res.status(200).json({ posts, userId });
+            return res.status(200).json({ posts, userId });
         } catch (error) {
             console.error('Failed to get post in controller', error.message);
             throw new InternalServerErrorException('Failed to retrieve posts');
@@ -85,18 +85,25 @@ export class PostController {
 
     @Delete('delete/:id')
     @UseGuards(JwtAuthGuard)
-    async deletePost(@Param('id') id: number, @Req() req, @Res() res) {
+    async deletePost(@Param('id') postId: number, @Req() req, @Res() res) {
         try {
-            const userId = req.user.userId;
-            const post = await this.postService.getPostById(id);
-            if (post.author !== req.user.userId) {
+            const userId = req.user?.userId;
+            const post = await this.postService.getPostById(postId);
+            const authorId = post.author.id;
+            console.log('Author ID of the post:', authorId);
+
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            if (authorId !== req.user.userId) {
                 return res.status(403).json({ message: 'You are not allowed to delete this post.' });
             }
 
-            await this.postService.deletePost(id, userId);
-            res.redirect('/feed');
+            await this.postService.deletePost(postId, userId);
+            return res.status(200).json({ message: 'Post deleted successfully', postId })
         } catch (error) {
-            console.error('Failed to get post in controller', error.message);
+            console.error('Failed to delete post in controller', error.message);
             throw new InternalServerErrorException('Failed to delete post');
         }
     }

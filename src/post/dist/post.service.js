@@ -105,19 +105,23 @@ var PostService = /** @class */ (function () {
             });
         });
     };
-    PostService.prototype.getPostById = function (id) {
+    PostService.prototype.getPostById = function (postId) {
         return __awaiter(this, void 0, Promise, function () {
             var post, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.postRepository.findOne({ where: { author: { id: id } } })];
+                        return [4 /*yield*/, this.postRepository.findOne({
+                                where: { postId: postId },
+                                relations: ['author']
+                            })];
                     case 1:
                         post = _a.sent();
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
+                        console.log('Post that get by ID:', post);
                         return [2 /*return*/, post];
                     case 2:
                         error_3 = _a.sent();
@@ -163,9 +167,11 @@ var PostService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
+                        console.log('postId to delete:', postId);
                         return [4 /*yield*/, this.getPostById(postId)];
                     case 1:
                         post = _a.sent();
+                        console.log('Deleted post detail:', post);
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }

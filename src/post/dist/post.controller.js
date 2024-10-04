@@ -75,7 +75,7 @@ var PostController = /** @class */ (function () {
                     case 3:
                         post = _a.sent();
                         console.log('Post to create:', post);
-                        console.log('Author ID from request:', post.author);
+                        console.log('Author ID from request:', post.author.id);
                         return [2 /*return*/, post];
                     case 4:
                         error_1 = _a.sent();
@@ -87,7 +87,7 @@ var PostController = /** @class */ (function () {
         });
     };
     PostController.prototype.getAllPost = function (req, res) {
-        return __awaiter(this, void 0, Promise, function () {
+        return __awaiter(this, void 0, void 0, function () {
             var posts, userId, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -98,10 +98,9 @@ var PostController = /** @class */ (function () {
                         posts = _a.sent();
                         userId = req.user.userId;
                         console.log('userId before get all post and search post owner:', userId);
-                        console.log('Post to render(backend controller', posts);
+                        console.log('Post to render backend controller', posts);
                         // res.render('index', { posts, userId });
-                        res.status(200).json({ posts: posts, userId: userId });
-                        return [3 /*break*/, 3];
+                        return [2 /*return*/, res.status(200).json({ posts: posts, userId: userId })];
                     case 2:
                         error_2 = _a.sent();
                         console.error('Failed to get post in controller', error_2.message);
@@ -149,28 +148,33 @@ var PostController = /** @class */ (function () {
             });
         });
     };
-    PostController.prototype.deletePost = function (id, req, res) {
+    PostController.prototype.deletePost = function (postId, req, res) {
+        var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var userId, post, error_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var userId, post, authorId, error_4;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        userId = req.user.userId;
-                        return [4 /*yield*/, this.postService.getPostById(id)];
+                        _b.trys.push([0, 3, , 4]);
+                        userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+                        return [4 /*yield*/, this.postService.getPostById(postId)];
                     case 1:
-                        post = _a.sent();
-                        if (post.author !== req.user.userId) {
+                        post = _b.sent();
+                        authorId = post.author.id;
+                        console.log('Author ID of the post:', authorId);
+                        if (!post) {
+                            return [2 /*return*/, res.status(404).json({ message: 'Post not found' })];
+                        }
+                        if (authorId !== req.user.userId) {
                             return [2 /*return*/, res.status(403).json({ message: 'You are not allowed to delete this post.' })];
                         }
-                        return [4 /*yield*/, this.postService.deletePost(id, userId)];
+                        return [4 /*yield*/, this.postService.deletePost(postId, userId)];
                     case 2:
-                        _a.sent();
-                        res.redirect('/feed');
-                        return [3 /*break*/, 4];
+                        _b.sent();
+                        return [2 /*return*/, res.status(200).json({ message: 'Post deleted successfully', postId: postId })];
                     case 3:
-                        error_4 = _a.sent();
-                        console.error('Failed to get post in controller', error_4.message);
+                        error_4 = _b.sent();
+                        console.error('Failed to delete post in controller', error_4.message);
                         throw new common_1.InternalServerErrorException('Failed to delete post');
                     case 4: return [2 /*return*/];
                 }

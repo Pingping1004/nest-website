@@ -10,6 +10,11 @@ const logoutBtn = document.querySelector('.logout-btn');
 let articles = [];
 let edittingIndex = null;
 let loggedInUserId = null;
+let postId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchAllPosts();
+})
 
 async function fetchAllPosts() {
   try {
@@ -20,9 +25,16 @@ async function fetchAllPosts() {
     }
 
     const data = await response.json();
-    const { posts, userId } = data;
+    let { posts, userId } = data;
+
     articles = posts; // Update the articles array with the latest posts
     loggedInUserId = userId;
+    
+    // If you want to log each postId from the posts array:
+    posts.forEach(post => {
+      console.log('Post ID:', post.postId);  // Extract and log the postId from each post
+    });
+
     console.log('All render posts:', articles);
     renderPost();
   } catch (error) {
@@ -81,6 +93,8 @@ async function renderPost() {
     const mainFeedList = document.createElement("div");
     mainFeedList.classList.add("main-feed-list");
 
+    mainFeedList.id = `post-${article.postId}`;
+
     console.log('Article UserID:', article.author.id);
     console.log('Logged in userID:', loggedInUserId);
 
@@ -89,10 +103,11 @@ async function renderPost() {
       <h3 class="article-title">${article.title}</h3>
       <p class="article-content">${article.content}</p>
       <p class="post-author-id">Author ID: ${article.author.id}</p>
+      <p class="post-id">Post ID: ${article.postId}</p>
       <p class="login-user-id">Login ID: ${loggedInUserId}</p>
       ${article.author.id === loggedInUserId
         ? `<button class="edit-post-btn btn btn-secondary">Edit</button>
-           <button class="delete-post-btn btn btn-danger">Delete</button>`
+           <button class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
         : ''}
     </div>`;
 
@@ -100,17 +115,20 @@ async function renderPost() {
       mainFeedList.querySelector('.edit-post-btn').addEventListener('click', () => {
         editPost(index);
       });
-
-      mainFeedList.querySelector('.delete-post-btn').addEventListener('click', () => {
-        deletePost(index);
-      });
+      
+      const deleteBtn = mainFeedList.querySelector('.delete-post-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+          const postId = deleteBtn.getAttribute('data-post-id');
+          deletePost(postId);
+        });
+      }
     }
-
     mainFeed.append(mainFeedList);
   });
 }
 
-async function editPost(index) {
+async function editPost(postId) {
   try {
       console.log("Edit mode activated");
 
@@ -136,7 +154,7 @@ async function editPost(index) {
   }
 };
 
-async function savePost(index) {
+async function savePost(postId) {
   try {
       console.log("Save mode activated");
 
@@ -151,8 +169,9 @@ async function savePost(index) {
       articles[index].content = editContentInput;
       articles[index].date = currentDate.toISOString();
 
-      const response = await fetch('/post/update/:id', {
+      const response = await fetch(`/post/update/${postId}`, {
         method: 'PATCH',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -189,30 +208,37 @@ async function savePost(index) {
   }
 }
 
-window.deletePost = async function deletePost(index) {
+window.deletePost = async function deletePost(postId) {
   try {
-      if (index > -1 && index < articles.length) {
-          articles.splice(index, 1);
-          const response = await fetch('/post/delete/:id', {
-              method: 'DELETE',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-          });
+      console.log('postId to delete:', postId);
+      const response = await fetch(`/post/delete/${postId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+      });
 
-          if (!response.ok) {
-              const deletedPost = await response.json();
-              console.log(deletedPost);
-          } else {
-              alert('Failed to remove post');
-          }
+      if (response.ok) {
+        const postElement = document.getElementById(`post-${postId}`);
+        if (postElement) {
+          postElement.remove();
+        } else {
+          console.error(`Post element with ID post-${postId} not found in DOM`);
+        }
 
-          renderPost();
+        const deletedPost = await response.json();
+        console.log('Deleted post:', deletedPost);
+
+        articles = articles.filter(article => article.postId !== parseInt(postId, 10));
+        console.log('Post deleted successfully');
+        renderPost();
+      } else {
+          const result = await response.json();
+          alert('Failed to remove post' + result.message);
+          console.error('Failed to remove post:', result.message);
       }
   } catch (error) {
       console.error('Failed to delete post', error.message);
   }
-};
+}
 
 signUpLoginBtn.addEventListener('click', () => {
   if (signUpLoginBtn) {
