@@ -1,6 +1,5 @@
 const titleInput = document.querySelector("#title-input");
 const contentInput = document.querySelector("#content-input");
-const backHomeBtn = document.querySelector("#back-home-btn");
 const createPostBtn = document.querySelector("#create-post-btn");
 const mainFeed = document.querySelector(".main-content");
 const editPostBtn = document.querySelectorAll(".edit-post-btn");
@@ -38,7 +37,7 @@ async function fetchAllPosts() {
     console.log('All render posts:', articles);
     renderPost();
   } catch (error) {
-    console.error('Error fetching all posts:', error.message);
+      console.error('Error fetching all posts:', error.message);
   }
 }
 
@@ -89,7 +88,7 @@ function clearInput() {
 async function renderPost() {
   mainFeed.innerHTML = "";
 
-  articles.forEach((article, index) => {
+  articles.forEach((article) => {
     const mainFeedList = document.createElement("div");
     mainFeedList.classList.add("main-feed-list");
 
@@ -99,112 +98,118 @@ async function renderPost() {
     console.log('Logged in userID:', loggedInUserId);
 
     mainFeedList.innerHTML = `
-    <div>
-      <h3 class="article-title">${article.title}</h3>
-      <p class="article-content">${article.content}</p>
+    <div id="post-${article.postId}">
+      <h3 class="article-title" id="title-input-${article.postId}">${article.title}</h3>
+      <p class="article-content" id="content-input-${article.postId}">${article.content}</p>
       <p class="post-author-id">Author ID: ${article.author.id}</p>
       <p class="post-id">Post ID: ${article.postId}</p>
       <p class="login-user-id">Login ID: ${loggedInUserId}</p>
       ${article.author.id === loggedInUserId
-        ? `<button class="edit-post-btn btn btn-secondary">Edit</button>
-           <button class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
+        ? `<button id="edit-btn-${article.postId}" class="edit-post-btn btn btn-secondary" data-post-id="${article.postId}">Edit</button>
+           <button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
         : ''}
     </div>`;
 
     if (article.author.id === loggedInUserId) {
-      mainFeedList.querySelector('.edit-post-btn').addEventListener('click', () => {
-        editPost(index);
-      });
-      
+      const editBtn = mainFeedList.querySelector('.edit-post-btn');
+      if (editBtn) {
+        editBtn.addEventListener('click', (event) => {
+          const postId = event.target.getAttribute('data-post-id');
+          console.log(`Edit mode activated for postId: ${postId}`);
+          editPost(postId, editBtn);
+        });
+      }
+
       const deleteBtn = mainFeedList.querySelector('.delete-post-btn');
       if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-          const postId = deleteBtn.getAttribute('data-post-id');
+        deleteBtn.addEventListener('click', (event) => {
+          const postId = event.target.getAttribute('data-post-id');
           deletePost(postId);
         });
       }
     }
+
     mainFeed.append(mainFeedList);
   });
 }
 
-async function editPost(postId) {
-  try {
-      console.log("Edit mode activated");
+function editPost(postId) {
+  const postElement = document.querySelector(`#post-${postId}`);
+  const editBtn= postElement.querySelector(`#edit-btn-${postId}`);
+  const titleElement = postElement.querySelector('.article-title');
+  const contentElement = postElement.querySelector('.article-content');
+  const isEditing = editBtn.textContent === 'Save';
+  
+  console.log("Edit mode activated on the postId:", postId);
 
-      titleInput.value = articles[index].title;
-      contentInput.value = articles[index].content;
+  if (isEditing) {
+    // If already in "Save" mode, call the save function
+    savePost(postId);
+  } else {
+    // Switch to edit mode
+    editBtn.textContent = 'Save';
+    editBtn.classList.remove('btn-secondary');
+    editBtn.classList.add('btn-primary');
+    createPostBtn.disabled = true; // Disable create button
 
-      console.log('Old Title', articles[index].title)
-      console.log('Old Content', articles[index].content)
-
-      edittingIndex = index;
-
-      const editPostBtn = document.querySelector('.edit-post-btn');
-      editPostBtn.textContent = "Save";
-      editPostBtn.classList.remove("btn-secondary");
-      editPostBtn.classList.add("btn-primary");
-
-      // Remove any existing event listeners
-      editPostBtn.removeEventListener("click", editPost);
-      editPostBtn.removeEventListener("click", savePost);
-      editPostBtn.addEventListener("click", savePost);
-  } catch (error) {
-      console.error('Failed to edit post', error.message);
+    // Change the UI to indicate editable mode
+    titleElement.contentEditable = true;
+    contentElement.contentEditable = true;
   }
-};
+}
 
 async function savePost(postId) {
+  const postElement = document.querySelector(`#post-${postId}`);
+  const titleElement = postElement.querySelector('.article-title');
+  const contentElement = postElement.querySelector('.article-content');
+  const editBtn = postElement.querySelector(`#edit-btn-${postId}`);
+
+  const newTitle = titleElement.textContent;
+  const newContent = contentElement.textContent;
+
+  if (!newTitle) {
+    alert("You can't post with an empty title");
+    return;
+  }
+
+  const updatedPost = {
+    title: newTitle,
+    content: newContent,
+  };
+
   try {
-      console.log("Save mode activated");
+    const response = await fetch(`/post/update/${postId}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedPost),
+    });
 
-      const currentDate = new Date();
-      const editTitleInput = titleInput.value;
-      const editContentInput = contentInput.value;
+    if (response.ok) {
+      const updatedPostData = await response.json();
+      console.log('Update post successfully', updatedPostData);
 
-      console.log("New title:", editTitleInput);
-      console.log("New content:", editContentInput);
+      // Update the DOM with the new title and content
+      titleElement.textContent = updatedPost.title;
+      contentElement.textContent = updatedPost.content;
 
-      articles[index].title = editTitleInput;
-      articles[index].content = editContentInput;
-      articles[index].date = currentDate.toISOString();
+      // Switch back to 'Edit' mode after saving
+      editBtn.textContent = 'Edit';
+      editBtn.classList.remove('btn-primary');
+      editBtn.classList.add('btn-secondary');
+      createPostBtn.disabled = false; // Re-enable create button
 
-      const response = await fetch(`/post/update/${postId}`, {
-        method: 'PATCH',
-        credentials: "include",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(articles[index]),
-      });
-
-      if (response.ok) {
-          const updatePost = await response.json();
-          console.log(updatePost);
-      } else {
-          alert('Failed to edit and save post');
-      }
-
-      console.log("Update title", articles[index].title);
-      console.log("Update content", articles[index].content);
-
-      const editPostBtn = document.querySelector('.edit-post-btn');
-      editPostBtn.textContent = "Edit";
-      editPostBtn.classList.remove("btn-primary");
-      editPostBtn.classList.add("btn-secondary");
-
-      edittingIndex = null;
-
-      // Remove any existing event listeners
-      editPostBtn.removeEventListener("click", savePost);
-      editPostBtn.removeEventListener("click", editPost);
-      editPostBtn.addEventListener("click", savePost);
-
+      // Reset contentEditable to false
+      titleElement.contentEditable = false;
+      contentElement.contentEditable = false;
       clearInput();
-      renderPost();
+    } else {
+      console.error('Failed to update post:', response.statusText);
+    }
   } catch (error) {
-      console.error('Error saving post:', error);
-      alert('An error occurred while creating the post.');
+    console.error('Error saving post:', error.message);
   }
 }
 

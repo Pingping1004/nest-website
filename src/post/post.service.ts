@@ -59,13 +59,18 @@ export class PostService {
     async updatePost(postId: number, updatePostDto: UpdatePostDto, id: number): Promise<Post | null> {
         try {
             const post = await this.getPostById(postId);
+            console.log('Updated post detail:', post);
+            console.log('Update DTO:', updatePostDto);
 
             if (!post) {
                 throw new NotFoundException('Post not found');
             }
 
-            if (post.author.id !== id) {
-                throw new ForbiddenException('You do not have permission to delete this post');
+            console.log('Author id of updating post:', post.author?.id);
+            console.log('User who update the post:', id);
+
+            if (post.author?.id !== id) {
+                throw new ForbiddenException('You do not have permission to edit this post');
             }
 
             Object.assign(post, updatePostDto);
@@ -87,6 +92,9 @@ export class PostService {
             if (!post) {
                 throw new NotFoundException('Post not found');
             }
+
+            console.log('Author id of updating post:', post.author.id);
+            console.log('User who update the post:', id);
 
             if (post.author.id !== id) {
                 throw new ForbiddenException(`You don't have permission to delete this post`);

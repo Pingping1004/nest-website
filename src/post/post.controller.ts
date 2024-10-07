@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Patch, Delete, Param, Body, Req, Res, UseGuards, NotFoundException, InternalServerErrorException } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
@@ -51,23 +51,15 @@ export class PostController {
         }
     }
 
-    @Get(':id')
-    async getPostById(@Param('id') id: number) {
-        try {
-            return this.postService.getPostById(id);
-        } catch (error) {
-            console.error('Failed to get post in controller', error.message);
-            throw new NotFoundException('Post not found');
-        }
-    }
-
-    @Patch('update/:id')
+    @Patch('update/:postId')
     @UseGuards(JwtAuthGuard)
-    async updatePost(@Param('id') id: number, @Body() updatePostDto: UpdatePostDto, @Req() req, @Res() res) {
+    async updatePost(@Param('postId') postId: number, @Body() updatePostDto: UpdatePostDto, @Req() req, @Res() res) {
         try {
-            const userId = req.user.id;
+            console.log('User from request:', req.user);
+            const userId = req.user.userId;
+            console.log('User ID in update controller:', userId);
             const post = await this.postService.updatePost(
-                id,
+                postId,
                 updatePostDto,
                 userId,
             )
@@ -79,13 +71,13 @@ export class PostController {
             return res.status(200).json(post);
         } catch (error) {
             console.error('Failed to update post in controller', error.message);
-            throw new InternalServerErrorException('Failed to update post');
+            return res.status(500).json({ message: 'Failed to update post' });
         }
     }
 
-    @Delete('delete/:id')
+    @Delete('delete/:postId')
     @UseGuards(JwtAuthGuard)
-    async deletePost(@Param('id') postId: number, @Req() req, @Res() res) {
+    async deletePost(@Param('postId') postId: number, @Req() req, @Res() res) {
         try {
             const userId = req.user?.userId;
             const post = await this.postService.getPostById(postId);

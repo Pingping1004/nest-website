@@ -110,29 +110,17 @@ var PostController = /** @class */ (function () {
             });
         });
     };
-    PostController.prototype.getPostById = function (id) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                try {
-                    return [2 /*return*/, this.postService.getPostById(id)];
-                }
-                catch (error) {
-                    console.error('Failed to get post in controller', error.message);
-                    throw new common_1.NotFoundException('Post not found');
-                }
-                return [2 /*return*/];
-            });
-        });
-    };
-    PostController.prototype.updatePost = function (id, updatePostDto, req, res) {
+    PostController.prototype.updatePost = function (postId, updatePostDto, req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var userId, post, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        userId = req.user.id;
-                        return [4 /*yield*/, this.postService.updatePost(id, updatePostDto, userId)];
+                        console.log('User from request:', req.user);
+                        userId = req.user.userId;
+                        console.log('User ID in update controller:', userId);
+                        return [4 /*yield*/, this.postService.updatePost(postId, updatePostDto, userId)];
                     case 1:
                         post = _a.sent();
                         if (!post) {
@@ -142,7 +130,7 @@ var PostController = /** @class */ (function () {
                     case 2:
                         error_3 = _a.sent();
                         console.error('Failed to update post in controller', error_3.message);
-                        throw new common_1.InternalServerErrorException('Failed to update post');
+                        return [2 /*return*/, res.status(500).json({ message: 'Failed to update post' })];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -192,18 +180,14 @@ var PostController = /** @class */ (function () {
         __param(0, common_1.Req()), __param(1, common_1.Res())
     ], PostController.prototype, "getAllPost");
     __decorate([
-        common_1.Get(':id'),
-        __param(0, common_1.Param('id'))
-    ], PostController.prototype, "getPostById");
-    __decorate([
-        common_1.Patch('update/:id'),
+        common_1.Patch('update/:postId'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-        __param(0, common_1.Param('id')), __param(1, common_1.Body()), __param(2, common_1.Req()), __param(3, common_1.Res())
+        __param(0, common_1.Param('postId')), __param(1, common_1.Body()), __param(2, common_1.Req()), __param(3, common_1.Res())
     ], PostController.prototype, "updatePost");
     __decorate([
-        common_1.Delete('delete/:id'),
+        common_1.Delete('delete/:postId'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-        __param(0, common_1.Param('id')), __param(1, common_1.Req()), __param(2, common_1.Res())
+        __param(0, common_1.Param('postId')), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], PostController.prototype, "deletePost");
     PostController = __decorate([
         common_1.Controller('post')

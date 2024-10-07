@@ -47,7 +47,7 @@ export class AuthService {
             throw new Error('User not found');
         }
 
-        const payload = { username: foundUser.username, sub: foundUser.id, role: foundUser.role };
+        const payload = { username: foundUser.username, userId: foundUser.id, role: foundUser.role };
         const accessToken = this.jwtService.sign(payload);
         console.log('Generated token payload:', payload);
 

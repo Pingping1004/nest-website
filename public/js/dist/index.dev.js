@@ -2,7 +2,6 @@
 
 var titleInput = document.querySelector("#title-input");
 var contentInput = document.querySelector("#content-input");
-var backHomeBtn = document.querySelector("#back-home-btn");
 var createPostBtn = document.querySelector("#create-post-btn");
 var mainFeed = document.querySelector(".main-content");
 var editPostBtn = document.querySelectorAll(".edit-post-btn");
@@ -158,23 +157,30 @@ function renderPost() {
       switch (_context3.prev = _context3.next) {
         case 0:
           mainFeed.innerHTML = "";
-          articles.forEach(function (article, index) {
+          articles.forEach(function (article) {
             var mainFeedList = document.createElement("div");
             mainFeedList.classList.add("main-feed-list");
             mainFeedList.id = "post-".concat(article.postId);
             console.log('Article UserID:', article.author.id);
             console.log('Logged in userID:', loggedInUserId);
-            mainFeedList.innerHTML = "\n    <div>\n      <h3 class=\"article-title\">".concat(article.title, "</h3>\n      <p class=\"article-content\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.id, "</p>\n      <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      ").concat(article.author.id === loggedInUserId ? "<button class=\"edit-post-btn btn btn-secondary\">Edit</button>\n           <button class=\"delete-post-btn btn btn-danger\" data-post-id=\"".concat(article.postId, "\">Delete</button>") : '', "\n    </div>");
+            mainFeedList.innerHTML = "\n    <div id=\"post-".concat(article.postId, "\">\n      <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n      <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.id, "</p>\n      <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      ").concat(article.author.id === loggedInUserId ? "<button class=\"edit-post-btn btn btn-secondary\" data-post-id=\"".concat(article.postId, "\">Edit</button>\n           <button class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    </div>");
 
             if (article.author.id === loggedInUserId) {
-              mainFeedList.querySelector('.edit-post-btn').addEventListener('click', function () {
-                editPost(index);
-              });
+              var editBtn = mainFeedList.querySelector('.edit-post-btn');
+
+              if (editBtn) {
+                editBtn.addEventListener('click', function (event) {
+                  var postId = event.target.getAttribute('data-post-id');
+                  console.log("Edit mode activated for postId: ".concat(postId));
+                  editPost(postId, editBtn);
+                });
+              }
+
               var deleteBtn = mainFeedList.querySelector('.delete-post-btn');
 
               if (deleteBtn) {
-                deleteBtn.addEventListener('click', function () {
-                  var postId = deleteBtn.getAttribute('data-post-id');
+                deleteBtn.addEventListener('click', function (event) {
+                  var postId = event.target.getAttribute('data-post-id');
                   deletePost(postId);
                 });
               }
@@ -192,149 +198,170 @@ function renderPost() {
 }
 
 function editPost(postId) {
-  var _editPostBtn;
+  var postElement = document.querySelector("#post-".concat(postId));
+  console.log('Edit mode is activated on the postId:', postId);
+  var oldTitle = postElement.querySelector('.article-title');
+  var oldContent = postElement.querySelector('.article-content');
+  console.log('Old title:', oldTitle);
+  console.log('Old content:', oldContent);
+  titleInput.textContent = oldTitle;
+  contentInput.textContent = oldContent;
+  var editBtn = postElement;
+} // function editPost(postId, editBtn) {
+//   const postElement = document.querySelector(`#post-${postId}`);
+//   console.log('Post element in the save post function:', postElement);
+//   if (!postElement) {
+//     console.error('Post element not found for postId:', postId);
+//     return;
+//   }
+//     // Old text to edit
+//     const titleElement = postElement.querySelector('.article-title');
+//     const contentElement = postElement.querySelector('.article-content');
+//       // Check if titleElement and contentElement exist before proceeding
+//     if (!titleElement || !contentElement) {
+//       console.error('Title or content elements not found in postElement.');
+//       return;
+//     }
+//     const oldTitle = titleElement.textContent;
+//     const oldContent = contentElement.textContent;
+//     // Replace the title and content with input fields
+//     titleElement.innerHTML = `<input type="text" class="edit-title-input" id="edit-title-input-${postId}" value="${oldTitle}">`;
+//     contentElement.innerHTML = `<textarea class="edit-content-input" id="edit-content-input-${postId}">${oldContent}</textarea>`;
+//     editBtn.textContent = "Save";
+//     editBtn.classList.remove("btn-secondary");
+//     editBtn.classList.add("btn-primary");
+//     editBtn.removeEventListener('click', () => editPost(postId, editBtn));
+//     editBtn.addEventListener('click', () => {
+//       savePost(postId, editBtn);
+//     }, { once: true });  // Use { once: true } to ensure the save handler is triggered only once
+// }
 
-  return regeneratorRuntime.async(function editPost$(_context4) {
+
+function savePost(postId, editBtn) {
+  var postElement, newTitle, newContent, sanitizedTitle, sanitizedContent, updatedPost, response, updatedPostData, titleElement, contentElement;
+  return regeneratorRuntime.async(function savePost$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          try {
-            console.log("Edit mode activated");
-            titleInput.value = articles[index].title;
-            contentInput.value = articles[index].content;
-            console.log('Old Title', articles[index].title);
-            console.log('Old Content', articles[index].content);
-            edittingIndex = index;
-            _editPostBtn = document.querySelector('.edit-post-btn');
-            _editPostBtn.textContent = "Save";
+          postElement = document.querySelector("#post-".concat(postId));
+          console.log('Post element in the save post function:', postElement);
 
-            _editPostBtn.classList.remove("btn-secondary");
-
-            _editPostBtn.classList.add("btn-primary"); // Remove any existing event listeners
-
-
-            _editPostBtn.removeEventListener("click", editPost);
-
-            _editPostBtn.removeEventListener("click", savePost);
-
-            _editPostBtn.addEventListener("click", savePost);
-          } catch (error) {
-            console.error('Failed to edit post', error.message);
+          if (!postElement) {
+            _context4.next = 42;
+            break;
           }
 
-        case 1:
+          // Get the updated values from the input fields
+          newTitle = postElement.querySelector("#edit-title-input-".concat(postId)).value;
+          newContent = postElement.querySelector("#edit-content-input-".concat(postId)).value;
+
+          if (!(!newTitle || !newContent)) {
+            _context4.next = 8;
+            break;
+          }
+
+          console.error('Title or content input not found.');
+          return _context4.abrupt("return");
+
+        case 8:
+          sanitizedTitle = DOMPurify.sanitize(newTitle);
+          sanitizedContent = DOMPurify.sanitize(newContent); // Prepare the data to be sent to the server
+
+          updatedPost = {
+            title: sanitizedTitle,
+            content: sanitizedContent
+          };
+          console.log('New Title:', sanitizedTitle);
+          console.log('New Content:', sanitizedContent);
+          editBtn.disabled = true; // Send the update request to the server
+
+          _context4.prev = 14;
+          _context4.next = 17;
+          return regeneratorRuntime.awrap(fetch("/post/update/".concat(postId), {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedPost)
+          }));
+
+        case 17:
+          response = _context4.sent;
+
+          if (!response.ok) {
+            _context4.next = 34;
+            break;
+          }
+
+          _context4.next = 21;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 21:
+          updatedPostData = _context4.sent;
+          console.log('Post update successfully:', updatedPostData);
+          titleElement = postElement.querySelector('.article-title');
+          contentElement = postElement.querySelector('.article-content'); // Update the post's title and content in the UI with the new values
+
+          titleElement.textContent = sanitizedTitle;
+          contentElement.textContent = sanitizedContent; // Change the "Save" button back to "Edit"
+
+          editBtn.textContent = 'Edit';
+          editBtn.classList.remove('btn-primary');
+          editBtn.classList.add('btn-secondary'); // Re-add the click event listener for editing
+
+          editBtn.removeEventListener('click', function () {
+            return savePost(postId, editBtn);
+          });
+          editBtn.addEventListener('click', function () {
+            editPost(postId, editBtn); // Revert back to edit mode
+          }, {
+            once: true
+          });
+          _context4.next = 36;
+          break;
+
+        case 34:
+          console.error('Failed to update post:', response.statusText);
+          editBtn.disabled = false;
+
+        case 36:
+          _context4.next = 42;
+          break;
+
+        case 38:
+          _context4.prev = 38;
+          _context4.t0 = _context4["catch"](14);
+          console.error('Error updating post:', _context4.t0);
+          editBtn.disabled = false;
+
+        case 42:
         case "end":
           return _context4.stop();
       }
     }
-  });
-}
-
-;
-
-function savePost(postId) {
-  var currentDate, editTitleInput, editContentInput, response, updatePost, _editPostBtn2;
-
-  return regeneratorRuntime.async(function savePost$(_context5) {
-    while (1) {
-      switch (_context5.prev = _context5.next) {
-        case 0:
-          _context5.prev = 0;
-          console.log("Save mode activated");
-          currentDate = new Date();
-          editTitleInput = titleInput.value;
-          editContentInput = contentInput.value;
-          console.log("New title:", editTitleInput);
-          console.log("New content:", editContentInput);
-          articles[index].title = editTitleInput;
-          articles[index].content = editContentInput;
-          articles[index].date = currentDate.toISOString();
-          _context5.next = 12;
-          return regeneratorRuntime.awrap(fetch("/post/update/".concat(postId), {
-            method: 'PATCH',
-            credentials: "include",
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(articles[index])
-          }));
-
-        case 12:
-          response = _context5.sent;
-
-          if (!response.ok) {
-            _context5.next = 20;
-            break;
-          }
-
-          _context5.next = 16;
-          return regeneratorRuntime.awrap(response.json());
-
-        case 16:
-          updatePost = _context5.sent;
-          console.log(updatePost);
-          _context5.next = 21;
-          break;
-
-        case 20:
-          alert('Failed to edit and save post');
-
-        case 21:
-          console.log("Update title", articles[index].title);
-          console.log("Update content", articles[index].content);
-          _editPostBtn2 = document.querySelector('.edit-post-btn');
-          _editPostBtn2.textContent = "Edit";
-
-          _editPostBtn2.classList.remove("btn-primary");
-
-          _editPostBtn2.classList.add("btn-secondary");
-
-          edittingIndex = null; // Remove any existing event listeners
-
-          _editPostBtn2.removeEventListener("click", savePost);
-
-          _editPostBtn2.removeEventListener("click", editPost);
-
-          _editPostBtn2.addEventListener("click", savePost);
-
-          clearInput();
-          renderPost();
-          _context5.next = 39;
-          break;
-
-        case 35:
-          _context5.prev = 35;
-          _context5.t0 = _context5["catch"](0);
-          console.error('Error saving post:', _context5.t0);
-          alert('An error occurred while creating the post.');
-
-        case 39:
-        case "end":
-          return _context5.stop();
-      }
-    }
-  }, null, null, [[0, 35]]);
+  }, null, null, [[14, 38]]);
 }
 
 window.deletePost = function deletePost(postId) {
   var response, postElement, deletedPost, result;
-  return regeneratorRuntime.async(function deletePost$(_context6) {
+  return regeneratorRuntime.async(function deletePost$(_context5) {
     while (1) {
-      switch (_context6.prev = _context6.next) {
+      switch (_context5.prev = _context5.next) {
         case 0:
-          _context6.prev = 0;
+          _context5.prev = 0;
           console.log('postId to delete:', postId);
-          _context6.next = 4;
+          _context5.next = 4;
           return regeneratorRuntime.awrap(fetch("/post/delete/".concat(postId), {
             method: 'DELETE',
             credentials: 'include'
           }));
 
         case 4:
-          response = _context6.sent;
+          response = _context5.sent;
 
           if (!response.ok) {
-            _context6.next = 17;
+            _context5.next = 17;
             break;
           }
 
@@ -346,41 +373,41 @@ window.deletePost = function deletePost(postId) {
             console.error("Post element with ID post-".concat(postId, " not found in DOM"));
           }
 
-          _context6.next = 10;
+          _context5.next = 10;
           return regeneratorRuntime.awrap(response.json());
 
         case 10:
-          deletedPost = _context6.sent;
+          deletedPost = _context5.sent;
           console.log('Deleted post:', deletedPost);
           articles = articles.filter(function (article) {
             return article.postId !== parseInt(postId, 10);
           });
           console.log('Post deleted successfully');
           renderPost();
-          _context6.next = 22;
+          _context5.next = 22;
           break;
 
         case 17:
-          _context6.next = 19;
+          _context5.next = 19;
           return regeneratorRuntime.awrap(response.json());
 
         case 19:
-          result = _context6.sent;
+          result = _context5.sent;
           alert('Failed to remove post' + result.message);
           console.error('Failed to remove post:', result.message);
 
         case 22:
-          _context6.next = 27;
+          _context5.next = 27;
           break;
 
         case 24:
-          _context6.prev = 24;
-          _context6.t0 = _context6["catch"](0);
-          console.error('Failed to delete post', _context6.t0.message);
+          _context5.prev = 24;
+          _context5.t0 = _context5["catch"](0);
+          console.error('Failed to delete post', _context5.t0.message);
 
         case 27:
         case "end":
-          return _context6.stop();
+          return _context5.stop();
       }
     }
   }, null, null, [[0, 24]]);

@@ -133,26 +133,31 @@ var PostService = /** @class */ (function () {
         });
     };
     PostService.prototype.updatePost = function (postId, updatePostDto, id) {
+        var _a, _b;
         return __awaiter(this, void 0, Promise, function () {
             var post, error_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _c.trys.push([0, 3, , 4]);
                         return [4 /*yield*/, this.getPostById(postId)];
                     case 1:
-                        post = _a.sent();
+                        post = _c.sent();
+                        console.log('Updated post detail:', post);
+                        console.log('Update DTO:', updatePostDto);
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
-                        if (post.author.id !== id) {
-                            throw new common_1.ForbiddenException('You do not have permission to delete this post');
+                        console.log('Author id of updating post:', (_a = post.author) === null || _a === void 0 ? void 0 : _a.id);
+                        console.log('User who update the post:', id);
+                        if (((_b = post.author) === null || _b === void 0 ? void 0 : _b.id) !== id) {
+                            throw new common_1.ForbiddenException('You do not have permission to edit this post');
                         }
                         Object.assign(post, updatePostDto);
                         return [4 /*yield*/, this.postRepository.save(post)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                    case 2: return [2 /*return*/, _c.sent()];
                     case 3:
-                        error_4 = _a.sent();
+                        error_4 = _c.sent();
                         console.error('Failed to update post', error_4.message);
                         throw new common_1.InternalServerErrorException('Failed to update post');
                     case 4: return [2 /*return*/];
@@ -175,6 +180,8 @@ var PostService = /** @class */ (function () {
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
+                        console.log('Author id of updating post:', post.author.id);
+                        console.log('User who update the post:', id);
                         if (post.author.id !== id) {
                             throw new common_1.ForbiddenException("You don't have permission to delete this post");
                         }
