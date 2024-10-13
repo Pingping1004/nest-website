@@ -1,8 +1,8 @@
-import { Injectable, HttpStatus, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException, NotFoundException, UnauthorizedException, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { User } from './schema/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LoginUserDto, SignupUserDto } from './dto/user.dto';
+import { LoginUserDto, SignupUserDto, UpdatedUserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { Role } from './schema/user.entity';
 
@@ -90,4 +90,54 @@ export class UsersService {
             console.error('Failed to get all users', error.message);
         }
     }
+
+    async updateUser(id: number, adminName: string, updatedUserDto: UpdatedUserDto): Promise<User> {
+        try {
+            const adminUser = await this.findByUserName(adminName);
+
+            if (!adminUser) {
+                throw new UnauthorizedException('Admin user not found');
+            }
+
+            console.log('Admin who update', adminName);
+            const user = await this.findByUserId(id);
+
+            if (!user) {
+                throw new NotFoundException('User not found');
+            }
+
+            // console.log('Updated user detail', user);
+            Object.assign(user, updatedUserDto);
+            return await this.userRepository.save(user);
+        } catch (error) {
+            console.error('Failed to update user', error.message);
+            throw new InternalServerErrorException('Failed to update user');
+        }
+    }
+
+     async deleteUser(adminName: string, id: number): Promise<User> {
+        try {
+            const adminUser = await this.findByUserName(adminName);
+            console.log('Admin who delete', adminName);
+
+            if (adminUser.role !== Role.admin) {
+                throw new ForbiddenException('Only admins can delete users');
+            }
+
+            const user = await this.findByUserId(id);
+            console.log('Deleted user detail:', user);
+
+            if (!user) {
+                throw new NotFoundException('User not found');
+            }
+
+            if (user.role === Role.admin) {
+                throw new ForbiddenException('Cannot delete other admins');
+            }
+
+            return await this.userRepository.remove(user);
+        } catch (error) {
+            console.error('Failed to delete user', error.message);
+        }
+     }
 }

@@ -35,22 +35,7 @@
             <button class="btn btn-primary" id="create-post-btn">Post</button>
         </section>
 
-        <main class="main-content">
-            <% posts.forEach(function(post) { %>
-                <div>
-                    <h3><%= post.title %></h3>
-                    <p><%= post.content %></p>
-                    <p>Author ID: <%= post.author.id %></p>
-                    <p>Your UserID: <%= userId %></p>
-            
-                    <% if (post.author.id === userId) { %> <!-- Check if logged-in user is the post owner -->
-                        <!-- Show edit and delete buttons only to the post owner -->
-                        <button href="/feed/<%= post.id %>/edit" class="edit-post-btn btn btn-secondary">Edit</button>
-                        <button type="submit" class="delete-post-btn btn btn-danger">Delete</button>
-                    <% } %>
-                </div>
-            <% }); %>
-        </main>
+        <main class="main-content"></main>
     </div>
     <div class="user-profile"></div>
     <script defer type="module" src="/public/js/index.js"></script>

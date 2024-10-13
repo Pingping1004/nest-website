@@ -150,7 +150,6 @@ function editPost(postId) {
     editBtn.textContent = 'Save';
     editBtn.classList.remove('btn-secondary');
     editBtn.classList.add('btn-primary');
-    createPostBtn.disabled = true; // Disable create button
 
     // Change the UI to indicate editable mode
     titleElement.contentEditable = true;
@@ -199,14 +198,13 @@ async function savePost(postId) {
       editBtn.textContent = 'Edit';
       editBtn.classList.remove('btn-primary');
       editBtn.classList.add('btn-secondary');
-      createPostBtn.disabled = false; // Re-enable create button
 
       // Reset contentEditable to false
       titleElement.contentEditable = false;
       contentElement.contentEditable = false;
       clearInput();
     } else {
-      console.error('Failed to update post:', response.statusText);
+      throw new Error('Failed to update post:', response.statusText);
     }
   } catch (error) {
     console.error('Error saving post:', error.message);

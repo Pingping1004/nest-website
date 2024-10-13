@@ -26,3 +26,13 @@ export class LoginUserDto {
     @IsString()
     password: string;
 }
+
+export class UpdatedUserDto {
+    @IsOptional()
+    @IsString()
+    username: string;
+
+    @IsNotEmpty()
+    @IsString()
+    role?: string;
+}

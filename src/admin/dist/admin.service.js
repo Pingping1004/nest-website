@@ -1,22 +1,12 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -55,49 +45,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.JwtStrategy = void 0;
-var passport_jwt_1 = require("passport-jwt");
-var passport_1 = require("@nestjs/passport");
+exports.AdminService = void 0;
 var common_1 = require("@nestjs/common");
-var constant_1 = require("../constant");
-var JwtStrategy = /** @class */ (function (_super) {
-    __extends(JwtStrategy, _super);
-    function JwtStrategy(authService) {
-        var _this = _super.call(this, {
-            jwtFromRequest: passport_jwt_1.ExtractJwt.fromExtractors([
-                function (request) {
-                    var _a;
-                    return (_a = request === null || request === void 0 ? void 0 : request.cookies) === null || _a === void 0 ? void 0 : _a.access_token;
-                },
-            ]),
-            ignoreExpiration: false,
-            secretOrKey: constant_1.JwtConstant.secret
-        }) || this;
-        _this.authService = authService;
-        return _this;
+var typeorm_1 = require("@nestjs/typeorm");
+var user_entity_1 = require("../users/schema/user.entity");
+var AdminService = /** @class */ (function () {
+    function AdminService(usersService, userRepository) {
+        this.usersService = usersService;
+        this.userRepository = userRepository;
     }
-    JwtStrategy.prototype.validate = function (payload) {
-        return __awaiter(this, void 0, Promise, function () {
-            var user;
+    AdminService.prototype.updateRole = function (id, updateAdminDto) {
+        return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log('JWT payload:', payload);
-                        return [4 /*yield*/, this.authService.findUserById(payload.userId)];
-                    case 1:
-                        user = _a.sent();
-                        if (!user) {
-                            throw new common_1.UnauthorizedException('User not found');
-                        }
-                        console.log('JWT validtion user:', user);
-                        return [2 /*return*/, { userId: user.id, username: user.username, role: user.role }];
-                }
+                return [2 /*return*/, "This action updates a #" + id + " admin"];
             });
         });
     };
-    JwtStrategy = __decorate([
-        common_1.Injectable()
-    ], JwtStrategy);
-    return JwtStrategy;
-}(passport_1.PassportStrategy(passport_jwt_1.Strategy)));
-exports.JwtStrategy = JwtStrategy;
+    AdminService.prototype.remove = function (id) {
+        return "This action removes a #" + id + " admin";
+    };
+    AdminService = __decorate([
+        common_1.Injectable(),
+        __param(1, typeorm_1.InjectRepository(user_entity_1.User))
+    ], AdminService);
+    return AdminService;
+}());
+exports.AdminService = AdminService;
