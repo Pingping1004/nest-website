@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function fetchAllUsers() {
   try {
     console.log('fetchAllUsers function is activated for dashboard page');
-    const response = await fetch('/admin/api/dashboard/users');
+    const response = await fetch(`/admin/dashboard/users`);
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -47,12 +47,14 @@ function renderUsers(users) {
       <td class="role-cell" data-user-id="${user.id}">${user.role}</td>
       <td>
         <button class="edit-user-btn btn btn-secondary" data-user-id="${user.id}" data-editing="false">Edit</button>
-        <button class="delete-user-btn btn btn-danger" data-user-id="${user.id}">Delete</button>
+        ${user.role !== 'admin'
+          ?
+          `<button class="delete-user-btn btn btn-danger" data-user-id="${user.id}">Delete</button>`
+        : ''}
       </td>
     `;
 
     const editUserBtn = row.querySelector('.edit-user-btn');
-    // const roleCell = row.querySelector(`.role-cell[data-user-id="${user.id}]`);
     const deleteUserBtn = row.querySelector('.delete-user-btn');
 
     if (editUserBtn) {
@@ -62,11 +64,13 @@ function renderUsers(users) {
       });
     }
 
-    if (deleteUserBtn) {
-      deleteUserBtn.addEventListener('click', (event) => {
-        const userId = event.target.getAttribute('data-user-id');
-        deleteUsers(userId);
-      });
+    if (user.role !== 'admin') {
+      if (deleteUserBtn) {
+        deleteUserBtn.addEventListener('click', (event) => {
+          const userId = event.target.getAttribute('data-user-id');
+          deleteUsers(userId);
+        });
+      }
     }
 
     userTableBody.appendChild(row);
@@ -149,28 +153,18 @@ async function saveUpdate(userId, updatedRole) {
   }
 }
 
-async function deleteUsers(userId) {
+window.deleteUsers = async function deleteUsers(userId) {
   try {
     console.log(`Deleting user with ID: ${userId}`);
-    const response = await fetch(`admin/delete/${userId}`, {
+    const response = await fetch(`/admin/delete/${userId}`, {
       method: 'DELETE',
       credentials: 'include',
     });
 
     if (response.ok) {
-      const userElement = document.getElementById(`post-${postId}`);
-
-      if (userElement) {
-        userElement.remove();
-      } else {
-        console.error(`Post element with ID post-${postId} not found in DOM`);
-      }
-
       const deletedUser = await response.json();
       console.log('Delete user successfully', deletedUser);
-
-      members = members.filter((member) => member.id !== parseInt(userId, 10));
-      renderUsers();
+      fetchAllUsers();
     } else {
       const result = await response.json();
       console.error('Failed to remove user', result.message);

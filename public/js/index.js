@@ -10,6 +10,7 @@ let articles = [];
 let edittingIndex = null;
 let loggedInUserId = null;
 let postId = null;
+let loggedInUserRole = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchAllPosts();
@@ -24,10 +25,11 @@ async function fetchAllPosts() {
     }
 
     const data = await response.json();
-    let { posts, userId } = data;
+    let { posts, userId, role } = data;
 
     articles = posts; // Update the articles array with the latest posts
     loggedInUserId = userId;
+    loggedInUserRole = role;
     
     // If you want to log each postId from the posts array:
     posts.forEach(post => {
@@ -108,9 +110,16 @@ async function renderPost() {
         ? `<button id="edit-btn-${article.postId}" class="edit-post-btn btn btn-secondary" data-post-id="${article.postId}">Edit</button>
            <button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
         : ''}
+      ${loggedInUserRole === 'admin' && article.author.id !== loggedInUserId
+        ? `<button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
+      : ''}
+
+      ${article.author.id === loggedInUserId && loggedInUserRole === 'admin'
+        ? ''
+      : ''}
     </div>`;
 
-    if (article.author.id === loggedInUserId) {
+    if (article.author.id === loggedInUserId || loggedInUserRole === 'admin') {
       const editBtn = mainFeedList.querySelector('.edit-post-btn');
       if (editBtn) {
         editBtn.addEventListener('click', (event) => {

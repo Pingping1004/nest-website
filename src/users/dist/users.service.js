@@ -222,9 +222,6 @@ var UsersService = /** @class */ (function () {
                     case 1:
                         adminUser = _a.sent();
                         console.log('Admin who delete', adminName);
-                        if (adminUser.role !== user_entity_2.Role.admin) {
-                            throw new common_1.ForbiddenException('Only admins can delete users');
-                        }
                         return [4 /*yield*/, this.findByUserId(id)];
                     case 2:
                         user = _a.sent();
@@ -239,7 +236,7 @@ var UsersService = /** @class */ (function () {
                     case 3: return [2 /*return*/, _a.sent()];
                     case 4:
                         error_3 = _a.sent();
-                        console.error('Failed to delete user', error_3.message);
+                        console.error('Failed to delete user,', error_3.message);
                         return [3 /*break*/, 5];
                     case 5: return [2 /*return*/];
                 }

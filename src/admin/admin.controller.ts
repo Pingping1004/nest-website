@@ -23,6 +23,11 @@ export class AdminController {
       const users = await this.usersService.getAllUsers();
       const userId = req.user.userId;
       const role = req.user.role;
+
+      if (!userId || role !== Role.admin) {
+        return res.status(402).send('Forbidden: You do not have an access to this page');
+      }
+
       res.render('dashboard', { userId, role, users });
       // res.json({ userId, role, users });
       // return res.status(200).json({ userId, role, users });
@@ -34,7 +39,7 @@ export class AdminController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.admin)
-  @Get('api/dashboard/users') // Different endpoint for fetching JSON data
+  @Get('/dashboard/users') // Different endpoint for fetching JSON data
   async getAllUsersJson(@Req() req, @Res() res: Response) {
     try {
       const users = await this.usersService.getAllUsers();
@@ -68,7 +73,6 @@ export class AdminController {
       }
 
       console.log('Updated user detail', updatedUser);
-      // return res.redirect('admin/dashboard');
       return res.status(200).json({ message: 'User update successfully' });
     } catch (error) {
       console.error('Failed to update user in controller', error.message);
@@ -89,8 +93,8 @@ export class AdminController {
       }
 
       await this.usersService.deleteUser(adminName, userId);
-      // return res.status(200).json({ message: 'Delete user successfully', id });
-      return res.redirect('/admin/dashboard');
+      return res.status(200).json({ message: 'Delete user ID ' + userId + ' successfully'});
+      // return res.redirect('/admin/dashboard');
     } catch (error) {
       console.error('Failed to delete user in controller', error.message);
       throw new InternalServerErrorException('Failed to delete user');

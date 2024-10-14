@@ -16,7 +16,9 @@ export class Post {
     @Column({ default: '' })
     pictureContent?: string;
 
-    @ManyToOne(() => User, (user) => user.posts)
+    @ManyToOne(() => User, (user) => user.posts, {
+        onDelete: 'CASCADE', // Delete all related details
+    })
     @JoinColumn({ name: 'authorId' }) // Foreign key column in the database
     author: User; // User who created the post
 

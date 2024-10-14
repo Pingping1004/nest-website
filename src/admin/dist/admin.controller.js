@@ -67,6 +67,9 @@ var AdminController = /** @class */ (function () {
                         users = _a.sent();
                         userId = req.user.userId;
                         role = req.user.role;
+                        if (!userId || role !== user_entity_1.Role.admin) {
+                            return [2 /*return*/, res.status(402).send('Forbidden: You do not have an access to this page')];
+                        }
                         res.render('dashboard', { userId: userId, role: role, users: users });
                         return [3 /*break*/, 3];
                     case 2:
@@ -118,7 +121,6 @@ var AdminController = /** @class */ (function () {
                             return [2 /*return*/, res.status(404).json({ message: 'User not found' })];
                         }
                         console.log('Updated user detail', updatedUser);
-                        // return res.redirect('admin/dashboard');
                         return [2 /*return*/, res.status(200).json({ message: 'User update successfully' })];
                     case 2:
                         error_3 = _a.sent();
@@ -147,8 +149,7 @@ var AdminController = /** @class */ (function () {
                         return [4 /*yield*/, this.usersService.deleteUser(adminName, userId)];
                     case 2:
                         _b.sent();
-                        // return res.status(200).json({ message: 'Delete user successfully', id });
-                        return [2 /*return*/, res.redirect('/admin/dashboard')];
+                        return [2 /*return*/, res.status(200).json({ message: 'Delete user ID ' + userId + ' successfully' })];
                     case 3:
                         error_4 = _b.sent();
                         console.error('Failed to delete user in controller', error_4.message);
@@ -167,7 +168,7 @@ var AdminController = /** @class */ (function () {
     __decorate([
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard, role_auth_guard_1.RolesGuard),
         roles_decorator_1.Roles(user_entity_1.Role.admin),
-        common_1.Get('api/dashboard/users') // Different endpoint for fetching JSON data
+        common_1.Get('/dashboard/users') // Different endpoint for fetching JSON data
         ,
         __param(0, common_1.Req()), __param(1, common_1.Res())
     ], AdminController.prototype, "getAllUsersJson");

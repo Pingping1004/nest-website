@@ -41,10 +41,11 @@ export class PostController {
         try {
             const posts = await this.postService.getAllPosts();
             const userId = req.user.userId;
+            const role = req.user.role;
             console.log('userId before get all post and search post owner:', userId);
             console.log('Post to render backend controller', posts);
             // res.render('index', { posts, userId });
-            return res.status(200).json({ posts, userId });
+            return res.status(200).json({ posts, userId, role });
         } catch (error) {
             console.error('Failed to get post in controller', error.message);
             throw new InternalServerErrorException('Failed to retrieve posts');
@@ -81,6 +82,7 @@ export class PostController {
         try {
             const userId = req.user?.userId;
             const post = await this.postService.getPostById(postId);
+            const role = req.user.role;
             const authorId = post.author.id;
             console.log('Author ID of the post:', authorId);
 
@@ -88,7 +90,7 @@ export class PostController {
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            if (authorId !== req.user.userId) {
+            if (authorId !== req.user.userId && role !== 'admin') {
                 return res.status(403).json({ message: 'You are not allowed to delete this post.' });
             }
 

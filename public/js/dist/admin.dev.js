@@ -19,7 +19,7 @@ function fetchAllUsers() {
           _context.prev = 0;
           console.log('fetchAllUsers function is activated for dashboard page');
           _context.next = 4;
-          return regeneratorRuntime.awrap(fetch('/admin/api/dashboard/users'));
+          return regeneratorRuntime.awrap(fetch("/admin/dashboard/users"));
 
         case 4:
           response = _context.sent;
@@ -79,9 +79,8 @@ function renderUsers(users) {
 
   users.forEach(function (user) {
     var row = document.createElement('tr');
-    row.innerHTML = "\n      <td>".concat(user.id, "</td>\n      <td>").concat(user.username, "</td>\n      <td class=\"role-cell\" data-user-id=\"").concat(user.id, "\">").concat(user.role, "</td>\n      <td>\n        <button class=\"edit-user-btn btn btn-secondary\" data-user-id=\"").concat(user.id, "\" data-editing=\"false\">Edit</button>\n        <button class=\"delete-user-btn btn btn-danger\" data-user-id=\"").concat(user.id, "\">Delete</button>\n      </td>\n    ");
-    var editUserBtn = row.querySelector('.edit-user-btn'); // const roleCell = row.querySelector(`.role-cell[data-user-id="${user.id}]`);
-
+    row.innerHTML = "\n      <td>".concat(user.id, "</td>\n      <td>").concat(user.username, "</td>\n      <td class=\"role-cell\" data-user-id=\"").concat(user.id, "\">").concat(user.role, "</td>\n      <td>\n        <button class=\"edit-user-btn btn btn-secondary\" data-user-id=\"").concat(user.id, "\" data-editing=\"false\">Edit</button>\n        ").concat(user.role !== 'admin' ? "<button class=\"delete-user-btn btn btn-danger\" data-user-id=\"".concat(user.id, "\">Delete</button>") : '', "\n      </td>\n    ");
+    var editUserBtn = row.querySelector('.edit-user-btn');
     var deleteUserBtn = row.querySelector('.delete-user-btn');
 
     if (editUserBtn) {
@@ -91,11 +90,13 @@ function renderUsers(users) {
       });
     }
 
-    if (deleteUserBtn) {
-      deleteUserBtn.addEventListener('click', function (event) {
-        var userId = event.target.getAttribute('data-user-id');
-        deleteUsers(userId);
-      });
+    if (user.role !== 'admin') {
+      if (deleteUserBtn) {
+        deleteUserBtn.addEventListener('click', function (event) {
+          var userId = event.target.getAttribute('data-user-id');
+          deleteUsers(userId);
+        });
+      }
     }
 
     userTableBody.appendChild(row);
@@ -227,8 +228,8 @@ function saveUpdate(userId, updatedRole) {
   }, null, null, [[0, 16]]);
 }
 
-function deleteUsers(userId) {
-  var response, userElement, deletedUser, result;
+window.deleteUsers = function deleteUsers(userId) {
+  var response, deletedUser, result;
   return regeneratorRuntime.async(function deleteUsers$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
@@ -236,7 +237,7 @@ function deleteUsers(userId) {
           _context4.prev = 0;
           console.log("Deleting user with ID: ".concat(userId));
           _context4.next = 4;
-          return regeneratorRuntime.awrap(fetch("admin/delete/".concat(userId), {
+          return regeneratorRuntime.awrap(fetch("/admin/delete/".concat(userId), {
             method: 'DELETE',
             credentials: 'include'
           }));
@@ -245,52 +246,41 @@ function deleteUsers(userId) {
           response = _context4.sent;
 
           if (!response.ok) {
-            _context4.next = 16;
+            _context4.next = 13;
             break;
           }
 
-          userElement = document.getElementById("post-".concat(postId));
-
-          if (userElement) {
-            userElement.remove();
-          } else {
-            console.error("Post element with ID post-".concat(postId, " not found in DOM"));
-          }
-
-          _context4.next = 10;
+          _context4.next = 8;
           return regeneratorRuntime.awrap(response.json());
 
-        case 10:
+        case 8:
           deletedUser = _context4.sent;
           console.log('Delete user successfully', deletedUser);
-          members = members.filter(function (member) {
-            return member.id !== parseInt(userId, 10);
-          });
-          renderUsers();
-          _context4.next = 20;
+          fetchAllUsers();
+          _context4.next = 17;
           break;
 
-        case 16:
-          _context4.next = 18;
+        case 13:
+          _context4.next = 15;
           return regeneratorRuntime.awrap(response.json());
 
-        case 18:
+        case 15:
           result = _context4.sent;
           console.error('Failed to remove user', result.message);
 
-        case 20:
-          _context4.next = 25;
+        case 17:
+          _context4.next = 22;
           break;
 
-        case 22:
-          _context4.prev = 22;
+        case 19:
+          _context4.prev = 19;
           _context4.t0 = _context4["catch"](0);
           console.error('Failed to delete user', _context4.t0.message);
 
-        case 25:
+        case 22:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[0, 22]]);
-}
+  }, null, null, [[0, 19]]);
+};

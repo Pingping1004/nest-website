@@ -96,10 +96,6 @@ export class PostService {
             console.log('Author id of updating post:', post.author.id);
             console.log('User who update the post:', id);
 
-            if (post.author.id !== id) {
-                throw new ForbiddenException(`You don't have permission to delete this post`);
-            }
-
             return await this.postRepository.remove(post);
         } catch (error) {
             console.error('Failed to delete post', error.message);

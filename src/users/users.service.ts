@@ -120,10 +120,6 @@ export class UsersService {
             const adminUser = await this.findByUserName(adminName);
             console.log('Admin who delete', adminName);
 
-            if (adminUser.role !== Role.admin) {
-                throw new ForbiddenException('Only admins can delete users');
-            }
-
             const user = await this.findByUserId(id);
             console.log('Deleted user detail:', user);
 
@@ -137,7 +133,7 @@ export class UsersService {
 
             return await this.userRepository.remove(user);
         } catch (error) {
-            console.error('Failed to delete user', error.message);
+            console.error('Failed to delete user,', error.message);
         }
      }
 }
