@@ -19,12 +19,15 @@ var User = /** @class */ (function () {
     }
     __decorate([
         typeorm_1.PrimaryGeneratedColumn()
-    ], User.prototype, "id");
+    ], User.prototype, "userId");
     __decorate([
         typeorm_1.Column({ unique: true })
     ], User.prototype, "username");
     __decorate([
-        typeorm_1.Column({ length: 70 })
+        typeorm_1.Column({ length: 70, nullable: true })
+    ], User.prototype, "displayName");
+    __decorate([
+        typeorm_1.Column({ length: 70, nullable: true })
     ], User.prototype, "password");
     __decorate([
         typeorm_1.Column({ nullable: true })

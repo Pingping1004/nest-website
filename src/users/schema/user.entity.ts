@@ -9,12 +9,15 @@ import { Post } from '../../post/schema/post.entity';
 @Entity('user')
 export class User {
     @PrimaryGeneratedColumn()
-    id: number;
+    userId: number;
 
     @Column({ unique: true })
     username: string;
 
-    @Column({ length: 70 })
+    @Column({ length: 70, nullable: true })
+    displayName?: string;
+
+    @Column({ length: 70, nullable: true })
     password?: string;
 
     @Column({ nullable: true })

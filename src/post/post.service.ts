@@ -3,6 +3,7 @@ import { CreatePostDto, UpdatePostDto} from './dto/post.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './schema/post.entity';
+import { Picture } from '../post/schema/picture.entity';
 import { User } from '../users/schema/user.entity';
 
 @Injectable()
@@ -10,19 +11,68 @@ export class PostService {
     constructor(
         @InjectRepository(Post)
         private readonly postRepository: Repository<Post>,
+
+        @InjectRepository(Picture)
+        private readonly picturesRepository: Repository<Picture>,
     ) {}
 
-    async createPost(createPostDto: CreatePostDto, id: number): Promise<Post> {
+    // async createPost(createPostDto: CreatePostDto, userId: number): Promise<Post> {
+    //     try {
+    //         const post = this.postRepository.create({
+    //             ...createPostDto,
+    //             author: { userId },
+    //             // pictures: [],
+    //         });
+
+    //         if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
+    //             const pictures = createPostDto.pictureContent.map((pictureData) => {
+    //                 const picture = new Picture();
+    //                 picture.pictureUrl = pictureData.pictureUrl;
+    //                 picture.post = post;
+    //                 return picture;
+    //             });
+    //             post.pictures = pictures;
+    //         }
+
+    //         console.log('Author ID of owner:', post.author);
+    //         console.log('Post in picture', createPostDto.pictureContent);
+    //         console.log('Pictures being saved:', post.pictures);
+    //         const newPost = await this.postRepository.save(post);
+    //         console.log('New created post:', newPost);
+    //         return newPost;
+    //     } catch (error) {
+    //         console.error('Failed to create post', error.message);
+    //         throw new InternalServerErrorException('Failed to create post');
+    //     }
+    // }
+
+    async createPost(createPostDto: CreatePostDto, userId: number): Promise<Post> {
         try {
             const post = this.postRepository.create({
                 ...createPostDto,
-                author: { id },
+                author: { userId },
+                pictures: [],
             });
 
-            console.log('Author ID of owner:', post.author);
+            if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
+                const pictures = createPostDto.pictureContent.map((file) => {
+                    const picture = new Picture();
+                    picture.pictureUrl = file.path; // Ensure file.path is correct
+                    picture.post = post; // Associate with the post
+                    return picture;
+                });
+
+                // Assign the pictures to the post
+                post.pictures = pictures;
+            }
+
+            console.log('Create Post DTO:', createPostDto);
             const newPost = await this.postRepository.save(post);
-            console.log('New created post:', newPost);
-            return newPost;
+
+            return await this.postRepository.findOne({
+                where: { postId: newPost.postId },
+                relations: ['pictures'],
+            })
         } catch (error) {
             console.error('Failed to create post', error.message);
             throw new InternalServerErrorException('Failed to create post');
@@ -31,9 +81,10 @@ export class PostService {
 
     async getAllPosts(): Promise<Post[]> {
         try {
-            return await this.postRepository.find({ relations: ['author'] });
+            return await this.postRepository.find({ relations: ['author', 'pictures'] });
         } catch (error) {
             console.error('Failed to render all post', error.message);
+            throw new InternalServerErrorException('Failed to retrieve posts');
         }
     }
 
@@ -42,7 +93,7 @@ export class PostService {
             // console.log('Searching for post from userId:', id);
             const post = await this.postRepository.findOne({ 
                 where: { postId },
-                relations: ['author'],
+                relations: ['author', 'pictures'],
             });
 
             if (!post) {
@@ -56,7 +107,7 @@ export class PostService {
         }
     }
 
-    async updatePost(postId: number, updatePostDto: UpdatePostDto, id: number): Promise<Post | null> {
+    async updatePost(postId: number, updatePostDto: UpdatePostDto, userId: number): Promise<Post | null> {
         try {
             const post = await this.getPostById(postId);
             console.log('Updated post detail:', post);
@@ -66,10 +117,10 @@ export class PostService {
                 throw new NotFoundException('Post not found');
             }
 
-            console.log('Author id of updating post:', post.author?.id);
-            console.log('User who update the post:', id);
+            console.log('Author id of updating post:', post.author?.userId);
+            console.log('User who update the post:', userId);
 
-            if (post.author?.id !== id) {
+            if (post.author?.userId !== userId) {
                 throw new ForbiddenException('You do not have permission to edit this post');
             }
 
@@ -81,7 +132,7 @@ export class PostService {
         }
     }
 
-    async deletePost(postId: number, id: number): Promise<Post> {
+    async deletePost(postId: number, userId: number): Promise<Post> {
         try {
             console.log('postId to delete:', postId);
             
@@ -93,12 +144,52 @@ export class PostService {
                 throw new NotFoundException('Post not found');
             }
 
-            console.log('Author id of updating post:', post.author.id);
-            console.log('User who update the post:', id);
+            console.log('Author id of updating post:', post.author.userId);
+            console.log('User who delete the post:', userId);
 
             return await this.postRepository.remove(post);
         } catch (error) {
             console.error('Failed to delete post', error.message);
         }
+    }
+
+    async uploadPictures(postId: number, pictureUrls: string[]): Promise<Post> {
+        const post = await this.postRepository.findOne({
+            where: { postId },
+            relations: ['pictures'],
+        });
+
+        if (!post) {
+            throw new Error('Post not found');
+        }
+
+        const pictures = pictureUrls.map(url => {
+            const picture = new Picture();
+            picture.pictureUrl = url;
+            picture.post = post;
+            return picture;
+        });
+        await this.picturesRepository.save(pictures);
+        const updatedPost = await this.postRepository.findOne({
+            where: { postId },
+            relations: ['pictures'],
+        });
+        return updatedPost;
+    }
+
+    async addPictureToPost(postId: number, pictureUrl: string): Promise<Picture> {
+        const post = await this.postRepository.findOne({
+            where: { postId },
+        });
+
+        if (!post) {
+            throw new NotFoundException('Post not found');
+        }
+
+        const picture = new Picture();
+        picture.pictureUrl = pictureUrl;
+        picture.post = post;
+
+        return await this.picturesRepository.save(picture);
     }
 }

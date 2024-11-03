@@ -1,9 +1,20 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, Req, Res, UseGuards, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, Req, Res, UseGuards, UseInterceptors, NotFoundException, InternalServerErrorException, UploadedFiles, UploadedFile } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreatePostDto, UpdatePostDto } from './dto/post.dto';
 import { UsersService } from '../users/users.service';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import { User } from '../users/schema/user.entity';
+
+// interface AuthenticatedUser {
+//     userId: number;
+//     username: string;
+//     role: string;
+// }
 
 @Controller('post')
 export class PostController {
@@ -12,23 +23,47 @@ export class PostController {
         private readonly userService: UsersService,
     ) {}
 
+    // @Post('create')
+    // @UseGuards(JwtAuthGuard)
+    // async createPost(@Body() createPostDto: CreatePostDto, @Req() req) {
+    //     console.log('User ID from request:', req.user);
+    //     try {
+    //         const userId = req.user.userId;
+    //         console.log('userId before search the post owner:', userId);
+    //         const user = await this.userService.findByUserId(userId);
+            
+    //         if (!user) {
+    //             throw new NotFoundException('User not found');
+    //         }
+            
+    //         const post = await this.postService.createPost(createPostDto, userId);
+    //         console.log('Post to create:', post)
+    //         console.log('Author ID from request:', post.author.id);
+    //         return post;
+    //     } catch (error) {
+    //         console.error('Failed to get post in controller', error.message);
+    //         throw new InternalServerErrorException('Failed to create post');
+    //     }
+    // }
+
     @Post('create')
     @UseGuards(JwtAuthGuard)
-    async createPost(@Body() createPostDto: CreatePostDto, @Req() req) {
-        console.log('User ID from request:', req.user);
+    @UseInterceptors(FilesInterceptor('files'))
+    async createPost(@Req() req, @Res() res, @Body() createPostDto: CreatePostDto, @UploadedFiles() files: Express.Multer.File[]) {
         try {
             const userId = req.user.userId;
-            console.log('userId before search the post owner:', userId);
+            console.log('UserID', userId)
             const user = await this.userService.findByUserId(userId);
-            
+
             if (!user) {
                 throw new NotFoundException('User not found');
             }
-            
+
+            createPostDto.pictureContent = files;
+
             const post = await this.postService.createPost(createPostDto, userId);
-            console.log('Post to create:', post)
-            console.log('Author ID from request:', post.author.id);
-            return post;
+            console.log('Created post in controller', post);
+            return res.status(201).json({ message: 'Post created successfully', post });
         } catch (error) {
             console.error('Failed to get post in controller', error.message);
             throw new InternalServerErrorException('Failed to create post');
@@ -42,9 +77,8 @@ export class PostController {
             const posts = await this.postService.getAllPosts();
             const userId = req.user.userId;
             const role = req.user.role;
-            console.log('userId before get all post and search post owner:', userId);
-            console.log('Post to render backend controller', posts);
-            // res.render('index', { posts, userId });
+
+            console.log('User ID before get all post and search post owner:', userId);
             return res.status(200).json({ posts, userId, role });
         } catch (error) {
             console.error('Failed to get post in controller', error.message);
@@ -83,7 +117,7 @@ export class PostController {
             const userId = req.user?.userId;
             const post = await this.postService.getPostById(postId);
             const role = req.user.role;
-            const authorId = post.author.id;
+            const authorId = post.author.userId;
             console.log('Author ID of the post:', authorId);
 
             if (!post) {

@@ -9,6 +9,7 @@ exports.__esModule = true;
 exports.Post = void 0;
 var typeorm_1 = require("typeorm");
 var user_entity_1 = require("../../users/schema/user.entity");
+var picture_entity_1 = require("../schema/picture.entity");
 var Post = /** @class */ (function () {
     function Post() {
     }
@@ -22,16 +23,20 @@ var Post = /** @class */ (function () {
         typeorm_1.Column()
     ], Post.prototype, "content");
     __decorate([
-        typeorm_1.Column({ "default": '' })
-    ], Post.prototype, "pictureContent");
+        typeorm_1.OneToMany(function () { return picture_entity_1.Picture; }, function (picture) { return picture.post; }, {
+            cascade: true,
+            eager: true
+        })
+    ], Post.prototype, "pictures");
     __decorate([
         typeorm_1.ManyToOne(function () { return user_entity_1.User; }, function (user) { return user.posts; }, {
-            onDelete: 'CASCADE'
+            onDelete: 'CASCADE',
+            eager: true
         }),
         typeorm_1.JoinColumn({ name: 'authorId' }) // Foreign key column in the database
     ], Post.prototype, "author");
     __decorate([
-        typeorm_1.Column({ type: 'timestamp', "default": function () { return 'CURRENT_TIMESTAMP '; } })
+        typeorm_1.Column({ type: 'timestamp', "default": function () { return 'CURRENT_TIMESTAMP'; } })
     ], Post.prototype, "date");
     Post = __decorate([
         typeorm_1.Entity('post'),

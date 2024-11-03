@@ -60,29 +60,71 @@ exports.PostService = void 0;
 var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var post_entity_1 = require("./schema/post.entity");
+var picture_entity_1 = require("../post/schema/picture.entity");
 var PostService = /** @class */ (function () {
-    function PostService(postRepository) {
+    function PostService(postRepository, picturesRepository) {
         this.postRepository = postRepository;
+        this.picturesRepository = picturesRepository;
     }
-    PostService.prototype.createPost = function (createPostDto, id) {
+    // async createPost(createPostDto: CreatePostDto, userId: number): Promise<Post> {
+    //     try {
+    //         const post = this.postRepository.create({
+    //             ...createPostDto,
+    //             author: { userId },
+    //             // pictures: [],
+    //         });
+    //         if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
+    //             const pictures = createPostDto.pictureContent.map((pictureData) => {
+    //                 const picture = new Picture();
+    //                 picture.pictureUrl = pictureData.pictureUrl;
+    //                 picture.post = post;
+    //                 return picture;
+    //             });
+    //             post.pictures = pictures;
+    //         }
+    //         console.log('Author ID of owner:', post.author);
+    //         console.log('Post in picture', createPostDto.pictureContent);
+    //         console.log('Pictures being saved:', post.pictures);
+    //         const newPost = await this.postRepository.save(post);
+    //         console.log('New created post:', newPost);
+    //         return newPost;
+    //     } catch (error) {
+    //         console.error('Failed to create post', error.message);
+    //         throw new InternalServerErrorException('Failed to create post');
+    //     }
+    // }
+    PostService.prototype.createPost = function (createPostDto, userId) {
         return __awaiter(this, void 0, Promise, function () {
-            var post, newPost, error_1;
+            var post_1, pictures, newPost, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        post = this.postRepository.create(__assign(__assign({}, createPostDto), { author: { id: id } }));
-                        console.log('Author ID of owner:', post.author);
-                        return [4 /*yield*/, this.postRepository.save(post)];
+                        _a.trys.push([0, 3, , 4]);
+                        post_1 = this.postRepository.create(__assign(__assign({}, createPostDto), { author: { userId: userId }, pictures: [] }));
+                        if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
+                            pictures = createPostDto.pictureContent.map(function (file) {
+                                var picture = new picture_entity_1.Picture();
+                                picture.pictureUrl = file.path; // Ensure file.path is correct
+                                picture.post = post_1; // Associate with the post
+                                return picture;
+                            });
+                            // Assign the pictures to the post
+                            post_1.pictures = pictures;
+                        }
+                        console.log('Create Post DTO:', createPostDto);
+                        return [4 /*yield*/, this.postRepository.save(post_1)];
                     case 1:
                         newPost = _a.sent();
-                        console.log('New created post:', newPost);
-                        return [2 /*return*/, newPost];
-                    case 2:
+                        return [4 /*yield*/, this.postRepository.findOne({
+                                where: { postId: newPost.postId },
+                                relations: ['pictures']
+                            })];
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
                         error_1 = _a.sent();
                         console.error('Failed to create post', error_1.message);
                         throw new common_1.InternalServerErrorException('Failed to create post');
-                    case 3: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -94,12 +136,12 @@ var PostService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.postRepository.find({ relations: ['author'] })];
+                        return [4 /*yield*/, this.postRepository.find({ relations: ['author', 'pictures'] })];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
                         error_2 = _a.sent();
                         console.error('Failed to render all post', error_2.message);
-                        return [3 /*break*/, 3];
+                        throw new common_1.InternalServerErrorException('Failed to retrieve posts');
                     case 3: return [2 /*return*/];
                 }
             });
@@ -114,7 +156,7 @@ var PostService = /** @class */ (function () {
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.postRepository.findOne({
                                 where: { postId: postId },
-                                relations: ['author']
+                                relations: ['author', 'pictures']
                             })];
                     case 1:
                         post = _a.sent();
@@ -132,7 +174,7 @@ var PostService = /** @class */ (function () {
             });
         });
     };
-    PostService.prototype.updatePost = function (postId, updatePostDto, id) {
+    PostService.prototype.updatePost = function (postId, updatePostDto, userId) {
         var _a, _b;
         return __awaiter(this, void 0, Promise, function () {
             var post, error_4;
@@ -148,9 +190,9 @@ var PostService = /** @class */ (function () {
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
-                        console.log('Author id of updating post:', (_a = post.author) === null || _a === void 0 ? void 0 : _a.id);
-                        console.log('User who update the post:', id);
-                        if (((_b = post.author) === null || _b === void 0 ? void 0 : _b.id) !== id) {
+                        console.log('Author id of updating post:', (_a = post.author) === null || _a === void 0 ? void 0 : _a.userId);
+                        console.log('User who update the post:', userId);
+                        if (((_b = post.author) === null || _b === void 0 ? void 0 : _b.userId) !== userId) {
                             throw new common_1.ForbiddenException('You do not have permission to edit this post');
                         }
                         Object.assign(post, updatePostDto);
@@ -165,7 +207,7 @@ var PostService = /** @class */ (function () {
             });
         });
     };
-    PostService.prototype.deletePost = function (postId, id) {
+    PostService.prototype.deletePost = function (postId, userId) {
         return __awaiter(this, void 0, Promise, function () {
             var post, error_5;
             return __generator(this, function (_a) {
@@ -180,8 +222,8 @@ var PostService = /** @class */ (function () {
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
-                        console.log('Author id of updating post:', post.author.id);
-                        console.log('User who update the post:', id);
+                        console.log('Author id of updating post:', post.author.userId);
+                        console.log('User who delete the post:', userId);
                         return [4 /*yield*/, this.postRepository.remove(post)];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
@@ -193,9 +235,66 @@ var PostService = /** @class */ (function () {
             });
         });
     };
+    PostService.prototype.uploadPictures = function (postId, pictureUrls) {
+        return __awaiter(this, void 0, Promise, function () {
+            var post, pictures, updatedPost;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.postRepository.findOne({
+                            where: { postId: postId },
+                            relations: ['pictures']
+                        })];
+                    case 1:
+                        post = _a.sent();
+                        if (!post) {
+                            throw new Error('Post not found');
+                        }
+                        pictures = pictureUrls.map(function (url) {
+                            var picture = new picture_entity_1.Picture();
+                            picture.pictureUrl = url;
+                            picture.post = post;
+                            return picture;
+                        });
+                        return [4 /*yield*/, this.picturesRepository.save(pictures)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.postRepository.findOne({
+                                where: { postId: postId },
+                                relations: ['pictures']
+                            })];
+                    case 3:
+                        updatedPost = _a.sent();
+                        return [2 /*return*/, updatedPost];
+                }
+            });
+        });
+    };
+    PostService.prototype.addPictureToPost = function (postId, pictureUrl) {
+        return __awaiter(this, void 0, Promise, function () {
+            var post, picture;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.postRepository.findOne({
+                            where: { postId: postId }
+                        })];
+                    case 1:
+                        post = _a.sent();
+                        if (!post) {
+                            throw new common_1.NotFoundException('Post not found');
+                        }
+                        picture = new picture_entity_1.Picture();
+                        picture.pictureUrl = pictureUrl;
+                        picture.post = post;
+                        return [4 /*yield*/, this.picturesRepository.save(picture)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     PostService = __decorate([
         common_1.Injectable(),
-        __param(0, typeorm_1.InjectRepository(post_entity_1.Post))
+        __param(0, typeorm_1.InjectRepository(post_entity_1.Post)),
+        __param(1, typeorm_1.InjectRepository(picture_entity_1.Picture))
     ], PostService);
     return PostService;
 }());

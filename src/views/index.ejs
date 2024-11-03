@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../public/css/styles.css">
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.6/purify.min.js"></script>
-
 
 </head>
 
@@ -18,10 +16,10 @@
         <header class="header">
             <div class="left-panel">
                 <h3>Hello EJS!</h3>
-                <p>User ID: <%= userId %></p>
+                <p>User ID: <%= userID %></p>
             </div>
             <div class="right-panel">
-                <% if (userId) { %>
+                <% if (userID) { %>
                     <button class="logout-btn btn btn-primary">Logout</button>
                     <% } else { %>
                         <button class="signup-login-btn btn btn-primary">Signup/Login</button>
@@ -32,34 +30,15 @@
         <section class="input-post">
             <input class="input-box" type="text" placeholder="Enter Title" id="title-input">
             <input class="input-box" name="content" placeholder="What's on your mind" id="content-input">
+            <input type="file" id="post-picture-input" name="pictures" accept="image/*" multiple />
             <button class="btn btn-primary" id="create-post-btn">Post</button>
         </section>
 
-        <main class="main-content">
-            <!-- <% posts.forEach(function(post) { %>
-                <div class="main-feed-list">
-                    <h3><%= post.title %></h3>
-                    <p><%= post.content %></p>
-                    <p>Author ID: <%= post.author.id %></p>
-                    <p>Your UserID: <%= userId %></p>
-                    <p>Post ID: <%= post.postId %></p>
-            
-                    <% if (post.author.id === userId) { %> 
-                        <button href="/feed/<%= post.id %>/edit" class="edit-post-btn btn btn-secondary">Edit</button>
-                        <button class="delete-post-btn btn btn-danger">Delete</button>
-                    <% } %>
-                </div>
-            <% }); %> -->
-        </main>
+        <main class="main-content"></main>
     </div>
     <div class="user-profile"></div>
     <script defer type="module" src="../../public/js/index.js"></script>
     <script defer type="module" src="../../public/js/login.js"></script>
-
-    <!-- <script>
-        const loggedInUserId = userId;
-        const articles = JSON.stringify(posts);
-    </script> -->
 </body>
 
 </html>

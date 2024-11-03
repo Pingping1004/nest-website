@@ -2,6 +2,7 @@
 
 var titleInput = document.querySelector("#title-input");
 var contentInput = document.querySelector("#content-input");
+var postPicture = document.querySelector('#post-picture-input');
 var createPostBtn = document.querySelector("#create-post-btn");
 var mainFeed = document.querySelector(".main-content");
 var editPostBtn = document.querySelectorAll(".edit-post-btn");
@@ -67,83 +68,128 @@ function fetchAllPosts() {
       }
     }
   }, null, null, [[0, 18]]);
-}
+} // async function addPost() {
+//   const currentDate = new Date();
+//   const postPicture = document.querySelector('#post-picture-input');
+//   const articleData = {
+//     title: titleInput.value,
+//     content: contentInput.value,
+//     picture: postPicture.files,
+//     date: currentDate,
+//   };
+//   if (titleInput.value === '') {
+//     alert(`You can't post will empty content :)`);
+//     return;
+//   }
+//   try {
+//     const response = await fetch('/post/create', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(articleData),
+//     });
+//     if (response.ok) {
+//         const newPost = await response.json();
+//         articles.push(newPost);  // Add the new post to your local articles array
+//         console.log(articles);
+//         await fetchAllPosts();
+//         clearInput();
+//     } else {
+//         alert('Failed to create post');
+//     }
+//   } catch (error) {
+//       console.error('Error creating post:', error);
+//       alert('An error occurred while creating the post.');
+//   }
+// }
+
 
 function addPost() {
-  var currentDate, articleData, response, newPost;
+  var currentDate, formData, i, response, newPost, errorResponse;
   return regeneratorRuntime.async(function addPost$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
           currentDate = new Date();
-          articleData = {
-            title: titleInput.value,
-            content: contentInput.value,
-            date: currentDate
-          };
+          formData = new FormData();
 
           if (!(titleInput.value === '')) {
             _context2.next = 5;
             break;
           }
 
-          alert("You can't post will empty content :)");
+          alert("You can't post with empty content");
           return _context2.abrupt("return");
 
         case 5:
-          _context2.prev = 5;
-          _context2.next = 8;
+          formData.append('title', titleInput.value);
+          formData.append('content', contentInput.value);
+          formData.append('date', currentDate.toISOString());
+
+          if (postPicture && postPicture.files.length > 0) {
+            for (i = 0; i < postPicture.files.length; i++) {
+              formData.append('files', postPicture.files[i]);
+              console.log('Upload file in post:', postPicture.files[i]);
+            }
+          }
+
+          _context2.prev = 9;
+          _context2.next = 12;
           return regeneratorRuntime.awrap(fetch('/post/create', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(articleData)
+            body: formData
           }));
 
-        case 8:
+        case 12:
           response = _context2.sent;
 
           if (!response.ok) {
-            _context2.next = 20;
+            _context2.next = 24;
             break;
           }
 
-          _context2.next = 12;
+          _context2.next = 16;
           return regeneratorRuntime.awrap(response.json());
 
-        case 12:
+        case 16:
           newPost = _context2.sent;
-          articles.push(newPost); // Add the new post to your local articles array
-
-          console.log(articles);
-          _context2.next = 17;
+          articles.push(newPost);
+          console.log('Uploaded picture in post', postPicture.files);
+          _context2.next = 21;
           return regeneratorRuntime.awrap(fetchAllPosts());
 
-        case 17:
-          clearInput();
-          _context2.next = 21;
-          break;
-
-        case 20:
-          alert('Failed to create post');
-
         case 21:
-          _context2.next = 27;
+          clearInput();
+          _context2.next = 29;
           break;
 
-        case 23:
-          _context2.prev = 23;
-          _context2.t0 = _context2["catch"](5);
-          console.error('Error creating post:', _context2.t0);
-          alert('An error occurred while creating the post.');
+        case 24:
+          _context2.next = 26;
+          return regeneratorRuntime.awrap(response.json());
 
-        case 27:
+        case 26:
+          errorResponse = _context2.sent;
+          // Get error response details if available
+          console.error('Failed to create post:', errorResponse);
+          alert('Failed to create post: ' + errorResponse.message || 'Unknown error');
+
+        case 29:
+          _context2.next = 35;
+          break;
+
+        case 31:
+          _context2.prev = 31;
+          _context2.t0 = _context2["catch"](9);
+          console.error('Error createing post:', _context2.t0);
+          alert('An error occurred while creating the post');
+
+        case 35:
         case "end":
           return _context2.stop();
       }
     }
-  }, null, null, [[5, 23]]);
+  }, null, null, [[9, 31]]);
 }
 
 createPostBtn.addEventListener("click", addPost);
@@ -151,6 +197,7 @@ createPostBtn.addEventListener("click", addPost);
 function clearInput() {
   titleInput.value = "";
   contentInput.value = "";
+  postPicture.value = "";
 }
 
 function renderPost() {
@@ -163,11 +210,14 @@ function renderPost() {
             var mainFeedList = document.createElement("div");
             mainFeedList.classList.add("main-feed-list");
             mainFeedList.id = "post-".concat(article.postId);
-            console.log('Article UserID:', article.author.id);
+            console.log('Article UserID:', article.author.userId);
             console.log('Logged in userID:', loggedInUserId);
-            mainFeedList.innerHTML = "\n    <div id=\"post-".concat(article.postId, "\">\n      <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n      <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.id, "</p>\n      <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      ").concat(article.author.id === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n           <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n      ").concat(loggedInUserRole === 'admin' && article.author.id !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n\n      ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n    </div>");
+            console.log('Picture to render in post', article.pictures);
+            mainFeedList.innerHTML = "\n<div id=\"post-".concat(article.postId, "\">\n  <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n  <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n  <p class=\"post-author-id\">Author ID: ").concat(article.author.userId, "</p>\n  <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n  <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n  <div class=\"post-pictures\">\n      ").concat(article.pictures.map(function (picture) {
+              return "<img src=\"".concat("http://localhost:3000/".concat(picture.pictureUrl), "\" alt=\"Post picture\" />");
+            }).join(''), "\n  </div>\n  ").concat(article.author.userId === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n       <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n  ").concat(loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n  ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n</div>");
 
-            if (article.author.id === loggedInUserId || loggedInUserRole === 'admin') {
+            if (article.author.userId === loggedInUserId || loggedInUserRole === 'admin') {
               var editBtn = mainFeedList.querySelector('.edit-post-btn');
 
               if (editBtn) {
@@ -375,9 +425,3 @@ window.deletePost = function deletePost(postId) {
     }
   }, null, null, [[0, 24]]);
 };
-
-signUpLoginBtn.addEventListener('click', function () {
-  if (signUpLoginBtn) {
-    window.location.href = '/signup';
-  }
-});

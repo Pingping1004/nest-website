@@ -10,6 +10,10 @@ import { GoogleStrategy } from './auth/strategy/google.strategy';
 import { PostModule } from './post/post.module';
 import { Post } from './post/schema/post.entity';
 import { AdminModule } from './admin/admin.module';
+import { Picture } from '../src/post/schema/picture.entity'
+import { MulterModule } from '@nestjs/platform-express'
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Module({
   imports: [
@@ -30,12 +34,14 @@ import { AdminModule } from './admin/admin.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Post],
+      entities: [User, Post, Picture],
       synchronize: true,
       // logging: true,
     }),
-    PostModule,
-    AdminModule
+    AdminModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
   ],
 
   controllers: [AppController],

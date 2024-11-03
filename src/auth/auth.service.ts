@@ -26,7 +26,7 @@ export class AuthService {
         const user = await this.userService.findByUserName(username);
         if (user && (await bcrypt.compare(password, user.password))) {
             return {
-                userId: user.id,
+                userId: user.userId,
                 username: user.username,
                 role: user.role,
                 user,
@@ -47,14 +47,19 @@ export class AuthService {
             throw new Error('User not found');
         }
 
-        const payload = { username: foundUser.username, userId: foundUser.id, role: foundUser.role };
+        const payload = { username: foundUser.username, userId: foundUser.userId, role: foundUser.role };
         const accessToken = this.jwtService.sign(payload);
         console.log('Generated token payload:', payload);
 
         return {
             accessToken,
             message: 'Login successful',
-            user: foundUser,
+            user: {
+                userId: foundUser.userId,
+                username: foundUser.username,
+                role: foundUser.role,
+                profilePicture: foundUser.profilePicture,
+            },
         };
     }
 

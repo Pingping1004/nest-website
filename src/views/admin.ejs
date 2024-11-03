@@ -16,11 +16,11 @@
         <header class="header">
             <div class="left-panel">
                 <h3>Hello EJS Admin page!</h3>
-                <p>User ID: <%= userId %></p>
+                <p>User ID: <%= userID %></p>
                 <p>User role: <%= role %></p>
             </div>
             <div class="right-panel">
-                <% if (userId) { %>
+                <% if (userID) { %>
                     <a href="/admin/dashboard">Dashboard</a>
                     <button class="logout-btn btn btn-primary">Logout</button>
                     <% } else { %>

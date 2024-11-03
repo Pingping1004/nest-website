@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Render, HttpException, HttpStatus, UseGuards , Req, Res, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Render, HttpException, HttpStatus, UseGuards , Req, Res, SetMetadata } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -10,11 +10,12 @@ import { RolesGuard } from './role-auth.guard';
 import { PostService } from '../post/post.service';
 import { Role } from '../users/schema/user.entity';
 import { Roles } from './roles.decorator';
+import { LoginUserDto } from '../users/dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(
-        private readonly authservice: AuthService,
+        private readonly authService: AuthService,
         private readonly postService: PostService,
     ) {}
 
@@ -23,12 +24,11 @@ export class AuthController {
     async login(@Req() req, @Res({ passthrough: true }) res: Response) {
         try {
             console.log('Req user object from login', req.user);
-            const { accessToken } = await this.authservice.login(req.user);
+            const { accessToken } = await this.authService.login(req.user);
 
             //save to cookie
             res.cookie('access_token', accessToken, {
                 httpOnly: true,
-                // secure: process.env.NODE_ENV === 'production',
             });
 
             const userId = req.user.userId;
@@ -43,43 +43,44 @@ export class AuthController {
         }
     }
 
-    @Get('index/:id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('index/:userId')
+    @UseGuards(JwtAuthGuard)
     @Roles(Role.user, Role.admin)
-    async renderAuthIndex(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
-        const userIdFromParam = parseInt(id, 10);
+    async renderAuthIndex(@Param('userId') userId: string, @Req() req: any, @Res() res: Response) {
+        console.log('ID from URL param before parsing:', userId);
+        const userIdFromParam = parseInt(userId, 10);
 
             // Check if parsing was successful
         if (isNaN(userIdFromParam)) {
-            console.error('Failed to parse user ID from URL parameter:', id);
+            console.error('Failed to parse user ID from URL parameter:', userId);
             return res.status(400).send('Invalid user ID');
         }
 
-        const userId = req.user.userId;
+        const userID = req.user.userId;
         const role = req.user.role;
         const posts = await this.postService.getAllPosts();
 
-        console.log('User ID from url:', userIdFromParam);
-        console.log('req user:', req.user);
-        console.log('Req user userID with userId:', req.user.userId);
-        console.log('Post render:', posts);
+        console.log('User ID from url:', typeof userIdFromParam, userIdFromParam);
+        console.log('req user object:', req.user);
+        console.log('Req user userId:', typeof req.user.userId, req.user.userId);
+        // console.log('Post render:', posts);
 
-        if (userIdFromParam !== req.user.userId) {
+        if (userIdFromParam !== userID) {
             return res.status(403).send('Forbidden');
         }
         
-        res.render('index', { userId, role, posts });
+        res.render('index', { userID, role, posts });
     }
 
-    @Get('admin/index/:id')
+    @Get('admin/index/:userId')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.admin)
-    async renderAdminAuthIndex(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
-        const userIdFromParam = parseInt(id, 10);
+    async renderAdminAuthIndex(@Param('userId') userId: string, @Req() req: any, @Res() res: Response) {
+        const userIdFromParam = parseInt(userId, 10);
 
         // Check if parsing was successful
         if (isNaN(userIdFromParam)) {
-            console.error('Failed to parse user ID from URL parameter:', id);
+            console.error('Failed to parse user ID for admin from URL parameter:', userId);
             return res.status(400).send('Invalid user ID');
         }
 
@@ -88,22 +89,22 @@ export class AuthController {
         }
 
         const user = req.user;
-        const userId = req.user.userId;
+        const userID = req.user.userId;
         const role = req.user.role;
-        console.log('Admin user ID from url:', userIdFromParam);
-        console.log('req admin user:', req.user);
-        console.log('Req admin user with userId:', req.user.userId);
+        // console.log('Admin user ID from url:', userIdFromParam);
+        // console.log('req admin user:', req.user);
+        // console.log('Req admin user with userId:', req.user.userId);
 
         if (userIdFromParam !== req.user.userId) {
             return res.status(403).send('Forbidden');
         }
-        res.render('admin', { userId, role, user });
+        res.render('admin', { userID, role, user });
     }
 
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
     async googleAuthRedirect(@Req() req, @Res({ passthrough: true }) res: Response) {
-        const { accessToken } = await this.authservice.googleLogin(req);
+        const { accessToken } = await this.authService.googleLogin(req);
         //save to cookie
         res.cookie('access_token', accessToken, {
             httpOnly: true,

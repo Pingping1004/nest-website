@@ -1,16 +1,23 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { PictureDto } from './picture.dto';
+import { User } from '../../users/schema/user.entity';
 
 export class CreatePostDto {
   @IsNotEmpty()
   @IsString()
   title: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  content: string;
+  content?: string;
 
-  @IsString()
-  pictureContent?: string;
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => PictureDto)
+  // pictureContent?: PictureDto[];
+  pictureContent?: Express.Multer.File[]
 }
 
 export class UpdatePostDto {
@@ -22,6 +29,8 @@ export class UpdatePostDto {
   @IsString()
   content?: string;
 
-  @IsString()
-  pictureContent?: string;
+  @IsArray()
+  @IsOptional()
+  @Type(() => PictureDto)
+  pictureContent?: PictureDto[];
 }

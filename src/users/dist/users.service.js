@@ -144,21 +144,21 @@ var UsersService = /** @class */ (function () {
             });
         });
     };
-    UsersService.prototype.findByUserId = function (id) {
+    UsersService.prototype.findByUserId = function (userId) {
         return __awaiter(this, void 0, Promise, function () {
             var user;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log('Searching for user with ID:', id);
+                        console.log('Searching for user with ID:', userId);
                         return [4 /*yield*/, this.userRepository.findOne({
-                                where: ({ id: id })
+                                where: ({ userId: userId })
                             })];
                     case 1:
                         user = _a.sent();
                         console.log('User found:', user);
                         if (!user) {
-                            throw new common_1.NotFoundException("User with ID " + id + " is not found");
+                            throw new common_1.NotFoundException("User with ID " + userId + " is not found");
                         }
                         return [2 /*return*/, user];
                 }
@@ -178,7 +178,7 @@ var UsersService = /** @class */ (function () {
             });
         });
     };
-    UsersService.prototype.updateUser = function (id, adminName, updatedUserDto) {
+    UsersService.prototype.updateUser = function (userId, adminName, updatedUserDto) {
         return __awaiter(this, void 0, Promise, function () {
             var adminUser, user, error_2;
             return __generator(this, function (_a) {
@@ -192,7 +192,7 @@ var UsersService = /** @class */ (function () {
                             throw new common_1.UnauthorizedException('Admin user not found');
                         }
                         console.log('Admin who update', adminName);
-                        return [4 /*yield*/, this.findByUserId(id)];
+                        return [4 /*yield*/, this.findByUserId(userId)];
                     case 2:
                         user = _a.sent();
                         if (!user) {
@@ -211,7 +211,7 @@ var UsersService = /** @class */ (function () {
             });
         });
     };
-    UsersService.prototype.deleteUser = function (adminName, id) {
+    UsersService.prototype.deleteUser = function (adminName, userId) {
         return __awaiter(this, void 0, Promise, function () {
             var adminUser, user, error_3;
             return __generator(this, function (_a) {
@@ -222,7 +222,7 @@ var UsersService = /** @class */ (function () {
                     case 1:
                         adminUser = _a.sent();
                         console.log('Admin who delete', adminName);
-                        return [4 /*yield*/, this.findByUserId(id)];
+                        return [4 /*yield*/, this.findByUserId(userId)];
                     case 2:
                         user = _a.sent();
                         console.log('Deleted user detail:', user);
@@ -239,6 +239,51 @@ var UsersService = /** @class */ (function () {
                         console.error('Failed to delete user,', error_3.message);
                         return [3 /*break*/, 5];
                     case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    UsersService.prototype.updateProfile = function (userId, updatedUserDto) {
+        return __awaiter(this, void 0, void 0, function () {
+            var user;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.userRepository.findOne({
+                            where: { userId: userId }
+                        })];
+                    case 1:
+                        user = _a.sent();
+                        if (!user) {
+                            throw new common_1.NotFoundException('User not found');
+                        }
+                        user.displayName = updatedUserDto.displayName;
+                        return [4 /*yield*/, this.userRepository.save(user)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    UsersService.prototype.uploadProfilePicture = function (userId, profilePictureUrl) {
+        return __awaiter(this, void 0, Promise, function () {
+            var user, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.findByUserId(userId)];
+                    case 1:
+                        user = _a.sent();
+                        if (!user) {
+                            throw new common_1.NotFoundException('User not found');
+                        }
+                        user.profilePicture = profilePictureUrl;
+                        return [4 /*yield*/, this.userRepository.save(user)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
+                        error_4 = _a.sent();
+                        console.error('Failed to upload profile picture');
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

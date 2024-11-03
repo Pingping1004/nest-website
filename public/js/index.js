@@ -1,5 +1,6 @@
 const titleInput = document.querySelector("#title-input");
 const contentInput = document.querySelector("#content-input");
+const postPicture = document.querySelector('#post-picture-input');
 const createPostBtn = document.querySelector("#create-post-btn");
 const mainFeed = document.querySelector(".main-content");
 const editPostBtn = document.querySelectorAll(".edit-post-btn");
@@ -43,40 +44,84 @@ async function fetchAllPosts() {
   }
 }
 
+// async function addPost() {
+//   const currentDate = new Date();
+//   const postPicture = document.querySelector('#post-picture-input');
+//   const articleData = {
+//     title: titleInput.value,
+//     content: contentInput.value,
+//     picture: postPicture.files,
+//     date: currentDate,
+//   };
+
+//   if (titleInput.value === '') {
+//     alert(`You can't post will empty content :)`);
+//     return;
+//   }
+
+//   try {
+//     const response = await fetch('/post/create', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(articleData),
+//     });
+
+//     if (response.ok) {
+//         const newPost = await response.json();
+//         articles.push(newPost);  // Add the new post to your local articles array
+//         console.log(articles);
+//         await fetchAllPosts();
+//         clearInput();
+//     } else {
+//         alert('Failed to create post');
+//     }
+//   } catch (error) {
+//       console.error('Error creating post:', error);
+//       alert('An error occurred while creating the post.');
+//   }
+// }
+
 async function addPost() {
   const currentDate = new Date();
-  const articleData = {
-    title: titleInput.value,
-    content: contentInput.value,
-    date: currentDate,
-  };
-
+  const formData = new FormData();
+  
   if (titleInput.value === '') {
-    alert(`You can't post will empty content :)`);
+    alert(`You can't post with empty content`);
     return;
+  }
+  formData.append('title', titleInput.value); 
+  formData.append('content', contentInput.value);
+  formData.append('date', currentDate.toISOString());
+
+  if (postPicture && postPicture.files.length > 0) {
+    for (let i = 0; i < postPicture.files.length; i ++) {
+      formData.append('files', postPicture.files[i]);
+      console.log('Upload file in post:', postPicture.files[i]);
+    }
   }
 
   try {
     const response = await fetch('/post/create', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(articleData),
+      body: formData,
     });
 
     if (response.ok) {
-        const newPost = await response.json();
-        articles.push(newPost);  // Add the new post to your local articles array
-        console.log(articles);
-        await fetchAllPosts();
-        clearInput();
+      const newPost = await response.json();
+      articles.push(newPost);
+      console.log('Uploaded picture in post', postPicture.files);
+      await fetchAllPosts();
+      clearInput();
     } else {
-        alert('Failed to create post');
+      const errorResponse = await response.json(); // Get error response details if available
+      console.error('Failed to create post:', errorResponse);
+      alert('Failed to create post: ' + errorResponse.message || 'Unknown error');
     }
   } catch (error) {
-      console.error('Error creating post:', error);
-      alert('An error occurred while creating the post.');
+    console.error('Error createing post:', error);
+    alert('An error occurred while creating the post');
   }
 }
 
@@ -85,6 +130,7 @@ createPostBtn.addEventListener("click", addPost);
 function clearInput() {
   titleInput.value = "";
   contentInput.value = "";
+  postPicture.value = "";
 }
 
 async function renderPost() {
@@ -96,30 +142,32 @@ async function renderPost() {
 
     mainFeedList.id = `post-${article.postId}`;
 
-    console.log('Article UserID:', article.author.id);
+    console.log('Article UserID:', article.author.userId);
     console.log('Logged in userID:', loggedInUserId);
+    console.log('Picture to render in post', article.pictures);
 
     mainFeedList.innerHTML = `
-    <div id="post-${article.postId}">
-      <h3 class="article-title" id="title-input-${article.postId}">${article.title}</h3>
-      <p class="article-content" id="content-input-${article.postId}">${article.content}</p>
-      <p class="post-author-id">Author ID: ${article.author.id}</p>
-      <p class="post-id">Post ID: ${article.postId}</p>
-      <p class="login-user-id">Login ID: ${loggedInUserId}</p>
-      ${article.author.id === loggedInUserId
-        ? `<button id="edit-btn-${article.postId}" class="edit-post-btn btn btn-secondary" data-post-id="${article.postId}">Edit</button>
-           <button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
-        : ''}
-      ${loggedInUserRole === 'admin' && article.author.id !== loggedInUserId
-        ? `<button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
-      : ''}
+<div id="post-${article.postId}">
+  <h3 class="article-title" id="title-input-${article.postId}">${article.title}</h3>
+  <p class="article-content" id="content-input-${article.postId}">${article.content}</p>
+  <p class="post-author-id">Author ID: ${article.author.userId}</p>
+  <p class="post-id">Post ID: ${article.postId}</p>
+  <p class="login-user-id">Login ID: ${loggedInUserId}</p>
+  <div class="post-pictures">
+      ${article.pictures.map(picture => `<img src="${`http://localhost:3000/${picture.pictureUrl}`}" alt="Post picture" />`).join('')}
+  </div>
+  ${article.author.userId === loggedInUserId
+    ? `<button id="edit-btn-${article.postId}" class="edit-post-btn btn btn-secondary" data-post-id="${article.postId}">Edit</button>
+       <button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
+    : ''}
+  ${loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId
+    ? `<button id="delete-btn-${article.postId}" class="delete-post-btn btn btn-danger" data-post-id="${article.postId}">Delete</button>`
+    : ''}
+  ${article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : ''}
+</div>`;
 
-      ${article.author.id === loggedInUserId && loggedInUserRole === 'admin'
-        ? ''
-      : ''}
-    </div>`;
 
-    if (article.author.id === loggedInUserId || loggedInUserRole === 'admin') {
+    if (article.author.userId === loggedInUserId || loggedInUserRole === 'admin') {
       const editBtn = mainFeedList.querySelector('.edit-post-btn');
       if (editBtn) {
         editBtn.addEventListener('click', (event) => {
@@ -251,9 +299,3 @@ window.deletePost = async function deletePost(postId) {
       console.error('Failed to delete post', error.message);
   }
 }
-
-signUpLoginBtn.addEventListener('click', () => {
-  if (signUpLoginBtn) {
-    window.location.href = '/signup'
-  }
-});

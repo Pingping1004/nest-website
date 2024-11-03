@@ -8,13 +8,9 @@ export class SignupUserDto {
     @IsString()
     password: string;
   
-    @IsOptional()
+    @IsOptional()s
     @IsString()
     role?: string;
-  
-    @IsOptional()
-    @IsString()
-    profilePicture?: string;
 }
 
 export class LoginUserDto {
@@ -35,4 +31,11 @@ export class UpdatedUserDto {
     @IsNotEmpty()
     @IsString()
     role?: string;
+
+    @IsString()
+    displayName: string;
+
+    @IsOptional()
+    @IsString()
+    porfilePicture?: string;
 }

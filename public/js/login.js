@@ -21,7 +21,7 @@ if (loginForm) {
 
 export async function loginUser(users) {
   try {
-    const response = await fetch('http://localhost:3000/auth/login', {
+    const response = await fetch('/auth/login', {
       method: 'POST',
       body: JSON.stringify(users),
       headers: {
@@ -48,7 +48,7 @@ export async function loginUser(users) {
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
     try {
-      const response = await fetch('http://localhost:3000/auth/logout', {
+      const response = await fetch('/auth/logout', {
         method: 'GET',
         credentials: 'include',
       });

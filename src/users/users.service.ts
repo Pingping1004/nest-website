@@ -70,15 +70,15 @@ export class UsersService {
         return user;
     }
 
-    async findByUserId(id: number): Promise<User | null> {
-        console.log('Searching for user with ID:', id);
+    async findByUserId(userId: number): Promise<User | null> {
+        console.log('Searching for user with ID:', userId);
         const user = await this.userRepository.findOne({
-            where: ({ id }),
+            where: ({ userId }),
         })
 
         console.log('User found:', user);
         if (!user) {
-            throw new NotFoundException(`User with ID ${id} is not found`);
+            throw new NotFoundException(`User with ID ${userId} is not found`);
         }
         return user;
     }
@@ -91,7 +91,7 @@ export class UsersService {
         }
     }
 
-    async updateUser(id: number, adminName: string, updatedUserDto: UpdatedUserDto): Promise<User> {
+    async updateUser(userId: number, adminName: string, updatedUserDto: UpdatedUserDto): Promise<User> {
         try {
             const adminUser = await this.findByUserName(adminName);
 
@@ -100,7 +100,7 @@ export class UsersService {
             }
 
             console.log('Admin who update', adminName);
-            const user = await this.findByUserId(id);
+            const user = await this.findByUserId(userId);
 
             if (!user) {
                 throw new NotFoundException('User not found');
@@ -115,12 +115,12 @@ export class UsersService {
         }
     }
 
-     async deleteUser(adminName: string, id: number): Promise<User> {
+     async deleteUser(adminName: string, userId: number): Promise<User> {
         try {
             const adminUser = await this.findByUserName(adminName);
             console.log('Admin who delete', adminName);
 
-            const user = await this.findByUserId(id);
+            const user = await this.findByUserId(userId);
             console.log('Deleted user detail:', user);
 
             if (!user) {
@@ -134,6 +134,34 @@ export class UsersService {
             return await this.userRepository.remove(user);
         } catch (error) {
             console.error('Failed to delete user,', error.message);
+        }
+     }
+
+     async updateProfile(userId: number, updatedUserDto: UpdatedUserDto) {
+        const user = await this.userRepository.findOne({
+            where: { userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        user.displayName = updatedUserDto.displayName;
+        return await this.userRepository.save(user);
+     }
+
+     async uploadProfilePicture(userId: number, profilePictureUrl: string): Promise<User> {
+        try {
+            const user = await this.findByUserId(userId);
+
+            if (!user) {
+                throw new NotFoundException('User not found');
+            }
+
+            user.profilePicture = profilePictureUrl;
+            return await this.userRepository.save(user);
+            
+        } catch (error) {
+            console.error('Failed to upload profile picture');
         }
      }
 }

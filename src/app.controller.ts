@@ -6,14 +6,6 @@ import { GoogleAuthGuard } from './auth/google-auth.guard';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  @Get('index')
-  renderIndex(@Req() req: any, @Res() res: Response) {
-    // const userId = req.user ? req.user.sub : null;
-    // console.log('EJS rendering for USER_ID:', userId);
-    res.render('index');
-  }
-
   @Get('/signup')
   async renderSignup(@Res() res: Response) {
       console.log('Signup page is rendering');

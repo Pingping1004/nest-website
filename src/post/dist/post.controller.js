@@ -48,40 +48,63 @@ exports.__esModule = true;
 exports.PostController = void 0;
 var common_1 = require("@nestjs/common");
 var jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+var platform_express_1 = require("@nestjs/platform-express");
+// interface AuthenticatedUser {
+//     userId: number;
+//     username: string;
+//     role: string;
+// }
 var PostController = /** @class */ (function () {
     function PostController(postService, userService) {
         this.postService = postService;
         this.userService = userService;
     }
-    PostController.prototype.createPost = function (createPostDto, req) {
+    // @Post('create')
+    // @UseGuards(JwtAuthGuard)
+    // async createPost(@Body() createPostDto: CreatePostDto, @Req() req) {
+    //     console.log('User ID from request:', req.user);
+    //     try {
+    //         const userId = req.user.userId;
+    //         console.log('userId before search the post owner:', userId);
+    //         const user = await this.userService.findByUserId(userId);
+    //         if (!user) {
+    //             throw new NotFoundException('User not found');
+    //         }
+    //         const post = await this.postService.createPost(createPostDto, userId);
+    //         console.log('Post to create:', post)
+    //         console.log('Author ID from request:', post.author.id);
+    //         return post;
+    //     } catch (error) {
+    //         console.error('Failed to get post in controller', error.message);
+    //         throw new InternalServerErrorException('Failed to create post');
+    //     }
+    // }
+    PostController.prototype.createPost = function (req, res, createPostDto, files) {
         return __awaiter(this, void 0, void 0, function () {
             var userId, user, post, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log('User ID from request:', req.user);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 4, , 5]);
+                        _a.trys.push([0, 3, , 4]);
                         userId = req.user.userId;
-                        console.log('userId before search the post owner:', userId);
+                        console.log('UserID', userId);
                         return [4 /*yield*/, this.userService.findByUserId(userId)];
-                    case 2:
+                    case 1:
                         user = _a.sent();
                         if (!user) {
                             throw new common_1.NotFoundException('User not found');
                         }
+                        createPostDto.pictureContent = files;
                         return [4 /*yield*/, this.postService.createPost(createPostDto, userId)];
-                    case 3:
+                    case 2:
                         post = _a.sent();
-                        console.log('Post to create:', post);
-                        console.log('Author ID from request:', post.author.id);
-                        return [2 /*return*/, post];
-                    case 4:
+                        console.log('Created post in controller', post);
+                        return [2 /*return*/, res.status(201).json({ message: 'Post created successfully', post: post })];
+                    case 3:
                         error_1 = _a.sent();
                         console.error('Failed to get post in controller', error_1.message);
                         throw new common_1.InternalServerErrorException('Failed to create post');
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -98,9 +121,7 @@ var PostController = /** @class */ (function () {
                         posts = _a.sent();
                         userId = req.user.userId;
                         role = req.user.role;
-                        console.log('userId before get all post and search post owner:', userId);
-                        console.log('Post to render backend controller', posts);
-                        // res.render('index', { posts, userId });
+                        console.log('User ID before get all post and search post owner:', userId);
                         return [2 /*return*/, res.status(200).json({ posts: posts, userId: userId, role: role })];
                     case 2:
                         error_2 = _a.sent();
@@ -150,7 +171,7 @@ var PostController = /** @class */ (function () {
                     case 1:
                         post = _b.sent();
                         role = req.user.role;
-                        authorId = post.author.id;
+                        authorId = post.author.userId;
                         console.log('Author ID of the post:', authorId);
                         if (!post) {
                             return [2 /*return*/, res.status(404).json({ message: 'Post not found' })];
@@ -174,7 +195,8 @@ var PostController = /** @class */ (function () {
     __decorate([
         common_1.Post('create'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-        __param(0, common_1.Body()), __param(1, common_1.Req())
+        common_1.UseInterceptors(platform_express_1.FilesInterceptor('files')),
+        __param(0, common_1.Req()), __param(1, common_1.Res()), __param(2, common_1.Body()), __param(3, common_1.UploadedFiles())
     ], PostController.prototype, "createPost");
     __decorate([
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),

@@ -8,6 +8,14 @@ export function authenticateUser(data) {
 
     localStorage.setItem("user", JSON.stringify(users));
 
+    // Check if userId exists in the data before redirecting
+    if (!data.userId) {
+      console.error('User ID is missing in the response data.');
+      return;
+    }
+    
+    console.log('Redirecting to:', users.role === 'admin'? `/auth/admin/index/${data.userId}`: `/auth/index/${data.userId}`);
+    
     if (users.role === "admin") {
       window.location.href = `/auth/admin/index/${data.userId}`;
     } else {
