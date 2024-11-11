@@ -11,9 +11,11 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(cookieParser());
   app.setBaseViewsDir(path.join(__dirname, 'views'));
-  app.use('/public', express.static(join(__dirname, '..', 'public')));
   app.use('/node_modules', express.static(join(__dirname, '../node_modules')));
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+  // app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+  app.useStaticAssets(path.join(__dirname, '..', 'public'), {
+    prefix: '/public',
+  });
   app.setViewEngine('ejs');
   // app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.listen(3000);

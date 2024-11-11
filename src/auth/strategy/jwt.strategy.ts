@@ -8,6 +8,7 @@ interface JwtPayload {
     userId: number;
     username: string;
     role: string;
+    displayName: string;
 }
 
 @Injectable()
@@ -34,6 +35,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             throw new UnauthorizedException('User not found');
         }
         console.log('JWT validtion user:', user);
-        return { userId: user.userId, username: user.username, role: user.role };
+        return { userId: user.userId, username: user.username, role: user.role, displayName: user.displayName };
     }
 }

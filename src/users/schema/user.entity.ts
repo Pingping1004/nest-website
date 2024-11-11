@@ -3,7 +3,7 @@ export enum Role {
     admin = 'admin',
 }
 
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, BeforeInsert, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from '../../post/schema/post.entity';
 
 @Entity('user')
@@ -16,6 +16,12 @@ export class User {
 
     @Column({ length: 70, nullable: true })
     displayName?: string;
+    @BeforeInsert()
+    setDefaultDisplayName() {
+        if (!this.displayName) {
+            this.displayName = this.username; // Set displayName to username if it's not provided
+        }
+    }
 
     @Column({ length: 70, nullable: true })
     password?: string;

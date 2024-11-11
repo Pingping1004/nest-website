@@ -16,36 +16,6 @@ export class PostService {
         private readonly picturesRepository: Repository<Picture>,
     ) {}
 
-    // async createPost(createPostDto: CreatePostDto, userId: number): Promise<Post> {
-    //     try {
-    //         const post = this.postRepository.create({
-    //             ...createPostDto,
-    //             author: { userId },
-    //             // pictures: [],
-    //         });
-
-    //         if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
-    //             const pictures = createPostDto.pictureContent.map((pictureData) => {
-    //                 const picture = new Picture();
-    //                 picture.pictureUrl = pictureData.pictureUrl;
-    //                 picture.post = post;
-    //                 return picture;
-    //             });
-    //             post.pictures = pictures;
-    //         }
-
-    //         console.log('Author ID of owner:', post.author);
-    //         console.log('Post in picture', createPostDto.pictureContent);
-    //         console.log('Pictures being saved:', post.pictures);
-    //         const newPost = await this.postRepository.save(post);
-    //         console.log('New created post:', newPost);
-    //         return newPost;
-    //     } catch (error) {
-    //         console.error('Failed to create post', error.message);
-    //         throw new InternalServerErrorException('Failed to create post');
-    //     }
-    // }
-
     async createPost(createPostDto: CreatePostDto, userId: number): Promise<Post> {
         try {
             const post = this.postRepository.create({
@@ -55,9 +25,9 @@ export class PostService {
             });
 
             if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
-                const pictures = createPostDto.pictureContent.map((file) => {
+                const pictures = createPostDto.pictureContent.map((filePath) => {
                     const picture = new Picture();
-                    picture.pictureUrl = file.path; // Ensure file.path is correct
+                    picture.pictureUrl = filePath; // Ensure file.path is correct
                     picture.post = post; // Associate with the post
                     return picture;
                 });
@@ -153,43 +123,43 @@ export class PostService {
         }
     }
 
-    async uploadPictures(postId: number, pictureUrls: string[]): Promise<Post> {
-        const post = await this.postRepository.findOne({
-            where: { postId },
-            relations: ['pictures'],
-        });
+    // async uploadPictures(postId: number, pictureUrls: string[]): Promise<Post> {
+    //     const post = await this.postRepository.findOne({
+    //         where: { postId },
+    //         relations: ['pictures'],
+    //     });
 
-        if (!post) {
-            throw new Error('Post not found');
-        }
+    //     if (!post) {
+    //         throw new Error('Post not found');
+    //     }
 
-        const pictures = pictureUrls.map(url => {
-            const picture = new Picture();
-            picture.pictureUrl = url;
-            picture.post = post;
-            return picture;
-        });
-        await this.picturesRepository.save(pictures);
-        const updatedPost = await this.postRepository.findOne({
-            where: { postId },
-            relations: ['pictures'],
-        });
-        return updatedPost;
-    }
+    //     const pictures = pictureUrls.map(url => {
+    //         const picture = new Picture();
+    //         picture.pictureUrl = url;
+    //         picture.post = post;
+    //         return picture;
+    //     });
+    //     await this.picturesRepository.save(pictures);
+    //     const updatedPost = await this.postRepository.findOne({
+    //         where: { postId },
+    //         relations: ['pictures'],
+    //     });
+    //     return updatedPost;
+    // }
 
-    async addPictureToPost(postId: number, pictureUrl: string): Promise<Picture> {
-        const post = await this.postRepository.findOne({
-            where: { postId },
-        });
+    // async addPictureToPost(postId: number, pictureUrl: string): Promise<Picture> {
+    //     const post = await this.postRepository.findOne({
+    //         where: { postId },
+    //     });
 
-        if (!post) {
-            throw new NotFoundException('Post not found');
-        }
+    //     if (!post) {
+    //         throw new NotFoundException('Post not found');
+    //     }
 
-        const picture = new Picture();
-        picture.pictureUrl = pictureUrl;
-        picture.post = post;
+    //     const picture = new Picture();
+    //     picture.pictureUrl = pictureUrl;
+    //     picture.post = post;
 
-        return await this.picturesRepository.save(picture);
-    }
+    //     return await this.picturesRepository.save(picture);
+    // }
 }

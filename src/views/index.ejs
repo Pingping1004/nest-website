@@ -15,11 +15,21 @@
     <div class="container">
         <header class="header">
             <div class="left-panel">
-                <h3>Hello EJS!</h3>
+                <!-- <h3>Hello EJS!</h3> -->
+                <% if (user.displayName) { %>
+                    <h3><%= user.displayName %>'s profile!</h3>
+                <% } else { %>
+                    <h3><%= user.username %>'s profile!</h3>
+                <% } %>                
                 <p>User ID: <%= userID %></p>
+                <p>User role: <%= role %></p>
+                <a href="/user/profile">Profile</a>
             </div>
             <div class="right-panel">
                 <% if (userID) { %>
+                    <div>
+                        <img id="user-profile-picture" width="100px" height="100" src="/public/<%= user.profilePicture %>" alt="Profile picture">
+                    </div>
                     <button class="logout-btn btn btn-primary">Logout</button>
                     <% } else { %>
                         <button class="signup-login-btn btn btn-primary">Signup/Login</button>

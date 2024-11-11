@@ -9,6 +9,9 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { User } from '../users/schema/user.entity';
+import { existsSync, mkdirSync } from 'fs';
+import { plainToClass, plainToInstance } from 'class-transformer'
+import { validateOrReject } from 'class-validator';
 
 // interface AuthenticatedUser {
 //     userId: number;
@@ -48,18 +51,42 @@ export class PostController {
 
     @Post('create')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FilesInterceptor('files'))
+    // @UseInterceptors(FilesInterceptor('files'))
+    @UseInterceptors(
+        FilesInterceptor('files', 10, {
+            storage: diskStorage({
+                destination: (req, file, cb) => {
+                    const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'pictures');
+                    
+                    // Create directory if it does not exist
+                    if (!existsSync(uploadPath)) {
+                        mkdirSync(uploadPath, { recursive: true });
+                    }
+                    
+                    cb(null, uploadPath); // Use the correct upload path
+                },
+                filename: (req, file, callback) => {
+                    const ext = path.extname(file.originalname);
+                    const fileName = `${Date.now()}${ext}`;
+                    callback(null, fileName);
+                },
+            }),
+            limits: { fileSize: 1024 * 1024 * 10}, // 10 MB file size limit
+        }),
+    )
     async createPost(@Req() req, @Res() res, @Body() createPostDto: CreatePostDto, @UploadedFiles() files: Express.Multer.File[]) {
         try {
             const userId = req.user.userId;
-            console.log('UserID', userId)
+            console.log('UserID', userId);
             const user = await this.userService.findByUserId(userId);
 
             if (!user) {
                 throw new NotFoundException('User not found');
             }
 
-            createPostDto.pictureContent = files;
+            // createPostDto.pictureContent = files;
+            createPostDto.pictureContent = files.map(file => `/uploads/pictures/${file.filename}`);
+
 
             const post = await this.postService.createPost(createPostDto, userId);
             console.log('Created post in controller', post);

@@ -15,9 +15,10 @@ export class CreatePostDto {
   @IsArray()
   @IsOptional()
   @ValidateNested({ each: true })
-  @Type(() => PictureDto)
+  // @Type(() => PictureDto)
   // pictureContent?: PictureDto[];
-  pictureContent?: Express.Multer.File[]
+  // pictureContent?: Express.Multer.File[];
+  pictureContent?: string[];
 }
 
 export class UpdatePostDto {

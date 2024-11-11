@@ -11,12 +11,14 @@ import { PostService } from '../post/post.service';
 import { Role } from '../users/schema/user.entity';
 import { Roles } from './roles.decorator';
 import { LoginUserDto } from '../users/dto/user.dto';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly postService: PostService,
+        private readonly userService: UsersService,
     ) {}
 
     @UseGuards(LocalAuthGuard)
@@ -56,20 +58,20 @@ export class AuthController {
             return res.status(400).send('Invalid user ID');
         }
 
-        const userID = req.user.userId;
+        const userIdFromToken = req.user.userId;
         const role = req.user.role;
+        const fullUser = await this.userService.findByUserId(userIdFromToken);
+
+        if (!fullUser) {
+            return res.status(404).send('User not found');
+        }
         const posts = await this.postService.getAllPosts();
 
-        console.log('User ID from url:', typeof userIdFromParam, userIdFromParam);
-        console.log('req user object:', req.user);
-        console.log('Req user userId:', typeof req.user.userId, req.user.userId);
-        // console.log('Post render:', posts);
-
-        if (userIdFromParam !== userID) {
+        if (userIdFromParam !== userIdFromToken) {
             return res.status(403).send('Forbidden');
         }
         
-        res.render('index', { userID, role, posts });
+        res.render('index', { userID: userIdFromToken, role, posts, user: fullUser });
     }
 
     @Get('admin/index/:userId')
@@ -89,16 +91,20 @@ export class AuthController {
         }
 
         const user = req.user;
-        const userID = req.user.userId;
+        const userIdFromToken = req.user.userId;
         const role = req.user.role;
-        // console.log('Admin user ID from url:', userIdFromParam);
-        // console.log('req admin user:', req.user);
-        // console.log('Req admin user with userId:', req.user.userId);
+        const fullUser = await this.userService.findByUserId(userIdFromToken);
+        console.log('Full user profile object in admin auth', fullUser);
+
+        if (!fullUser) {
+            return res.status(404).send('User not found');
+        }
+        const posts = await this.postService.getAllPosts();
 
         if (userIdFromParam !== req.user.userId) {
             return res.status(403).send('Forbidden');
         }
-        res.render('admin', { userID, role, user });
+        res.render('admin', { userID: userIdFromToken, role, posts, user: fullUser });
     }
 
     @Get('google/callback')

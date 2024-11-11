@@ -137,19 +137,19 @@ export class UsersService {
         }
      }
 
-     async updateProfile(userId: number, updatedUserDto: UpdatedUserDto) {
-        const user = await this.userRepository.findOne({
-            where: { userId },
-        });
+    //  async updateProfile(userId: number, updatedUserDto: UpdatedUserDto) {
+    //     const user = await this.userRepository.findOne({
+    //         where: { userId },
+    //     });
 
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-        user.displayName = updatedUserDto.displayName;
-        return await this.userRepository.save(user);
-     }
+    //     if (!user) {
+    //         throw new NotFoundException('User not found');
+    //     }
+    //     user.displayName = updatedUserDto.displayName;
+    //     return await this.userRepository.save(user);
+    //  }
 
-     async uploadProfilePicture(userId: number, profilePictureUrl: string): Promise<User> {
+     async updateProfile(userId: number, updatedUserDto: UpdatedUserDto, profilePictureUrl: string): Promise<User> {
         try {
             const user = await this.findByUserId(userId);
 
@@ -157,11 +157,14 @@ export class UsersService {
                 throw new NotFoundException('User not found');
             }
 
+            user.displayName = updatedUserDto.displayName || user.displayName;
             user.profilePicture = profilePictureUrl;
-            return await this.userRepository.save(user);
+            await this.userRepository.save(user);
+            return user;
             
         } catch (error) {
             console.error('Failed to upload profile picture');
+            throw new InternalServerErrorException('Could not update profile');
         }
-     }
+    }
 }

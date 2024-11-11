@@ -13,12 +13,13 @@ var edittingIndex = null;
 var loggedInUserId = null;
 var postId = null;
 var loggedInUserRole = null;
+var users = null;
 document.addEventListener('DOMContentLoaded', function () {
   fetchAllPosts();
 });
 
 function fetchAllPosts() {
-  var response, data, posts, userId, role;
+  var response, data, posts, userId, role, user;
   return regeneratorRuntime.async(function fetchAllPosts$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -43,67 +44,33 @@ function fetchAllPosts() {
 
         case 8:
           data = _context.sent;
-          posts = data.posts, userId = data.userId, role = data.role;
+          posts = data.posts, userId = data.userId, role = data.role, user = data.user;
           articles = posts; // Update the articles array with the latest posts
 
           loggedInUserId = userId;
-          loggedInUserRole = role; // If you want to log each postId from the posts array:
+          loggedInUserRole = role;
+          users = user; // If you want to log each postId from the posts array:
 
           posts.forEach(function (post) {
             console.log('Post ID:', post.postId); // Extract and log the postId from each post
           });
           console.log('All render posts:', articles);
           renderPost();
-          _context.next = 21;
+          _context.next = 22;
           break;
 
-        case 18:
-          _context.prev = 18;
+        case 19:
+          _context.prev = 19;
           _context.t0 = _context["catch"](0);
           console.error('Error fetching all posts:', _context.t0.message);
 
-        case 21:
+        case 22:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 18]]);
-} // async function addPost() {
-//   const currentDate = new Date();
-//   const postPicture = document.querySelector('#post-picture-input');
-//   const articleData = {
-//     title: titleInput.value,
-//     content: contentInput.value,
-//     picture: postPicture.files,
-//     date: currentDate,
-//   };
-//   if (titleInput.value === '') {
-//     alert(`You can't post will empty content :)`);
-//     return;
-//   }
-//   try {
-//     const response = await fetch('/post/create', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(articleData),
-//     });
-//     if (response.ok) {
-//         const newPost = await response.json();
-//         articles.push(newPost);  // Add the new post to your local articles array
-//         console.log(articles);
-//         await fetchAllPosts();
-//         clearInput();
-//     } else {
-//         alert('Failed to create post');
-//     }
-//   } catch (error) {
-//       console.error('Error creating post:', error);
-//       alert('An error occurred while creating the post.');
-//   }
-// }
-
+  }, null, null, [[0, 19]]);
+}
 
 function addPost() {
   var currentDate, formData, i, response, newPost, errorResponse;
@@ -213,8 +180,8 @@ function renderPost() {
             console.log('Article UserID:', article.author.userId);
             console.log('Logged in userID:', loggedInUserId);
             console.log('Picture to render in post', article.pictures);
-            mainFeedList.innerHTML = "\n<div id=\"post-".concat(article.postId, "\">\n  <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n  <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n  <p class=\"post-author-id\">Author ID: ").concat(article.author.userId, "</p>\n  <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n  <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n  <div class=\"post-pictures\">\n      ").concat(article.pictures.map(function (picture) {
-              return "<img src=\"".concat("http://localhost:3000/".concat(picture.pictureUrl), "\" alt=\"Post picture\" />");
+            mainFeedList.innerHTML = "\n<div id=\"post-".concat(article.postId, "\">\n  <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n  <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n  <p class=\"post-author-id\">Author ID: ").concat(article.author.userId, "</p>\n  <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n  <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n  <div class=\"post-pictures\">\n    ").concat(article.pictures.map(function (picture) {
+              return "<img src=\"/public/".concat(picture.pictureUrl, "\" alt=\"Post picture\" />");
             }).join(''), "\n  </div>\n  ").concat(article.author.userId === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n       <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n  ").concat(loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n  ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n</div>");
 
             if (article.author.userId === loggedInUserId || loggedInUserRole === 'admin') {

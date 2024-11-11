@@ -12,6 +12,7 @@ let edittingIndex = null;
 let loggedInUserId = null;
 let postId = null;
 let loggedInUserRole = null;
+let users = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchAllPosts();
@@ -26,11 +27,12 @@ async function fetchAllPosts() {
     }
 
     const data = await response.json();
-    let { posts, userId, role } = data;
+    let { posts, userId, role, user } = data;
 
     articles = posts; // Update the articles array with the latest posts
     loggedInUserId = userId;
     loggedInUserRole = role;
+    users = user;
     
     // If you want to log each postId from the posts array:
     posts.forEach(post => {
@@ -43,45 +45,6 @@ async function fetchAllPosts() {
       console.error('Error fetching all posts:', error.message);
   }
 }
-
-// async function addPost() {
-//   const currentDate = new Date();
-//   const postPicture = document.querySelector('#post-picture-input');
-//   const articleData = {
-//     title: titleInput.value,
-//     content: contentInput.value,
-//     picture: postPicture.files,
-//     date: currentDate,
-//   };
-
-//   if (titleInput.value === '') {
-//     alert(`You can't post will empty content :)`);
-//     return;
-//   }
-
-//   try {
-//     const response = await fetch('/post/create', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(articleData),
-//     });
-
-//     if (response.ok) {
-//         const newPost = await response.json();
-//         articles.push(newPost);  // Add the new post to your local articles array
-//         console.log(articles);
-//         await fetchAllPosts();
-//         clearInput();
-//     } else {
-//         alert('Failed to create post');
-//     }
-//   } catch (error) {
-//       console.error('Error creating post:', error);
-//       alert('An error occurred while creating the post.');
-//   }
-// }
 
 async function addPost() {
   const currentDate = new Date();
@@ -154,7 +117,7 @@ async function renderPost() {
   <p class="post-id">Post ID: ${article.postId}</p>
   <p class="login-user-id">Login ID: ${loggedInUserId}</p>
   <div class="post-pictures">
-      ${article.pictures.map(picture => `<img src="${`http://localhost:3000/${picture.pictureUrl}`}" alt="Post picture" />`).join('')}
+    ${article.pictures.map(picture => `<img src="/public/${picture.pictureUrl}" alt="Post picture" />`).join('')}
   </div>
   ${article.author.userId === loggedInUserId
     ? `<button id="edit-btn-${article.postId}" class="edit-post-btn btn btn-secondary" data-post-id="${article.postId}">Edit</button>

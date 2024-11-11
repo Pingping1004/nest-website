@@ -21,6 +21,10 @@ export class LoginUserDto {
     @IsNotEmpty()
     @IsString()
     password: string;
+
+    @IsOptional()
+    @IsString()
+    profilePicture?: string;
 }
 
 export class UpdatedUserDto {
@@ -37,5 +41,5 @@ export class UpdatedUserDto {
 
     @IsOptional()
     @IsString()
-    porfilePicture?: string;
+    profilePicture?: string;
 }
