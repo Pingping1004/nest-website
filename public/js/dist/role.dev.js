@@ -14,8 +14,8 @@ function authenticateUser(data) {
   };
   localStorage.setItem("user", JSON.stringify(users)); // Check if userId exists in the data before redirecting
 
-  if (!data.userId) {
-    console.error('User ID is missing in the response data.');
+  if (!data.userId || !data.role) {
+    console.error('User ID or role is missing in the response data.');
     return;
   }
 

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { LoginUserDto, SignupUserDto, UpdatedUserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { Role } from './schema/user.entity';
+import { stringify } from 'querystring';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,14 @@ export class UsersService {
             console.error('Error creating user:', error.message, error.stack);
             throw new HttpException('Failed to create new user', HttpStatus.BAD_REQUEST);
         }
+    }
+
+    async createUserForGoogleSignup(signupUserDto: SignupUserDto): Promise<User> {
+        const newUser = this.userRepository.create({
+            ...signupUserDto,
+            role: signupUserDto.role as Role,
+        });
+        return this.userRepository.save(newUser);
     }
 
     async validateUser(username: string, password: string): Promise<User | null> {
@@ -82,6 +91,14 @@ export class UsersService {
         }
         return user;
     }
+
+    async findByGoogleId(googleId: string): Promise<User | null> {
+        const user = await this.userRepository.findOne({ where: { googleId } });
+        if (!user) {
+            console.log(`No user found with googleId: ${googleId}`);
+        }
+        return user; // Returns null if no user is found
+    }    
 
     async getAllUsers(): Promise<User[]> {
         try {
@@ -136,18 +153,6 @@ export class UsersService {
             console.error('Failed to delete user,', error.message);
         }
      }
-
-    //  async updateProfile(userId: number, updatedUserDto: UpdatedUserDto) {
-    //     const user = await this.userRepository.findOne({
-    //         where: { userId },
-    //     });
-
-    //     if (!user) {
-    //         throw new NotFoundException('User not found');
-    //     }
-    //     user.displayName = updatedUserDto.displayName;
-    //     return await this.userRepository.save(user);
-    //  }
 
      async updateProfile(userId: number, updatedUserDto: UpdatedUserDto, profilePictureUrl: string): Promise<User> {
         try {

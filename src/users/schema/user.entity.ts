@@ -11,15 +11,24 @@ export class User {
     @PrimaryGeneratedColumn()
     userId: number;
 
-    @Column({ unique: true })
+    @Column({ nullable: true })
     username: string;
+
+    @Column({ unique: true, nullable: true, default: null })
+    email?: string | null;
+    @BeforeInsert()
+    setDefaultEmail() {
+        if (!this.email) {
+            this.email = `placeholder${Math.floor(Math.random() * 100000)}@example.com`;
+        }
+    }
 
     @Column({ length: 70, nullable: true })
     displayName?: string;
     @BeforeInsert()
     setDefaultDisplayName() {
         if (!this.displayName) {
-            this.displayName = this.username; // Set displayName to username if it's not provided
+            this.displayName = this.username;
         }
     }
 
@@ -32,8 +41,14 @@ export class User {
     @Column({ type: 'enum', enum: Role, default: Role.user })
     role: Role;
 
-    @Column()
+    @Column({ unique: true, nullable: true, default: null })
     googleId?: string;
+    @BeforeInsert()
+    setDefaultGoogleId() {
+        if (!this.googleId) {
+            this.googleId =  `placeholder_google_id_${Math.floor(Math.random() * 100000)}`;
+        }
+    }
 
     @OneToMany(() => Post, post => post.author)
     posts: Post[];

@@ -9,21 +9,7 @@ var _role = require("./role.js");
 
 var loginForm = document.querySelector('#loginform');
 var logoutBtn = document.querySelector('.logout-btn');
-
-if (loginForm) {
-  loginForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var formData = new FormData(event.target);
-    var users = {
-      username: formData.get('username'),
-      password: formData.get('password'),
-      role: formData.get("role")
-    };
-    loginUser(users);
-  });
-} else {
-  console.error('Login form not found');
-}
+var googleLoginBtn = document.querySelector('#google-login-btn');
 
 function loginUser(users) {
   var response, errorText, data;
@@ -81,6 +67,21 @@ function loginUser(users) {
       }
     }
   }, null, null, [[0, 18]]);
+}
+
+if (loginForm) {
+  loginForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var formData = new FormData(event.target);
+    var users = {
+      username: formData.get('username'),
+      password: formData.get('password'),
+      role: formData.get("role")
+    };
+    loginUser(users);
+  });
+} else {
+  console.error('Login form not found');
 }
 
 if (logoutBtn) {

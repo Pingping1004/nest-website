@@ -36,7 +36,6 @@ export class AuthController {
             const userId = req.user.userId;
             const role = req.user.role;
 
-            console.log('userId from login using userId:', userId);
             console.log('Role from login user:', role);
             res.json({ userId, role });
         } catch (error) {
@@ -110,14 +109,23 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(GoogleAuthGuard)
     async googleAuthRedirect(@Req() req, @Res({ passthrough: true }) res: Response) {
-        const { accessToken } = await this.authService.googleLogin(req);
-        //save to cookie
-        res.cookie('access_token', accessToken, {
-            httpOnly: true,
-        });
-        return {
-            accessToken,
-            message: 'Google authentication successful'
+        try {
+            const { user, accessToken } = await this.authService.googleLogin(req);
+            const userId = user.userId;
+            console.log('user and userId for google login', user, userId);
+            const redirectUrl = user.role === 'admin' ? `/auth/admin/index/${userId}` : `/auth/index/${userId}`;
+            
+            //save to cookie
+            res.cookie('access_token', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 3600000,
+            }); 
+            
+            return res.redirect(redirectUrl);
+        } catch (error) {
+            console.error('Error in Google auth redirect:', error);
+            return res.status(500).send('Internal server error during Google authentication');
         }
     }
 

@@ -5,6 +5,8 @@ import { User } from '../users/schema/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SignupUserDto } from '../users/dto/user.dto';
+import { Role } from'../users/schema/user.entity'
 
 export interface UserPayload {
     userId: number;
@@ -68,12 +70,14 @@ export class AuthService {
             throw new Error('Google login failed: No user information received');
         }
 
-        const { username, role, profilePicture, googleId } = req.user;
-        let user = await this.userService.findByUserName(username);
+        const { username, email, role, profilePicture, googleId } = req.user;
+        // let user = await this.userService.findByUserName(username);
+        let user = await this.userService.findByGoogleId(googleId);
 
         if (!user) {
             user = this.userRepository.create({
                 username,
+                email,
                 role,
                 profilePicture,
                 googleId,
@@ -82,7 +86,7 @@ export class AuthService {
             await this.userRepository.save(user);
         }
 
-        const payload = { username: user.username};
+        const payload = { username: user.username, userId: user.userId, role: user.role };
         return {
             accessToken: this.jwtService.sign(payload),
             user,

@@ -2,22 +2,7 @@ import { authenticateUser } from './role.js';
 
 const loginForm = document.querySelector('#loginform');
 const logoutBtn = document.querySelector('.logout-btn');
-
-if (loginForm) {
-  loginForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const users = {
-      username: formData.get('username'),
-      password: formData.get('password'),
-      role: formData.get("role"),
-    };
-
-    loginUser(users);
-  });
-} else {
-  console.error('Login form not found');
-}
+const googleLoginBtn = document.querySelector('#google-login-btn');
 
 export async function loginUser(users) {
   try {
@@ -43,6 +28,22 @@ export async function loginUser(users) {
   } catch (error) {
     console.error('Error:', error.message);
   }
+}
+
+if (loginForm) {
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const users = {
+      username: formData.get('username'),
+      password: formData.get('password'),
+      role: formData.get("role"),
+    };
+
+    loginUser(users);
+  });
+} else {
+  console.error('Login form not found');
 }
 
 if (logoutBtn) {

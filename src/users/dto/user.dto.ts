@@ -1,16 +1,27 @@
-import { isNotEmpty, IsNotEmpty, IsOptional, isString, IsString } from 'class-validator';
+import { IsEmail, isNotEmpty, IsNotEmpty, IsOptional, isString, IsString } from 'class-validator';
 export class SignupUserDto {
+    @IsOptional()
+    @IsString()
+    googleId?: string;
+
+    @IsEmail()
+    email?: string;
+
     @IsNotEmpty()
     @IsString()
     username: string;
   
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    password: string;
+    password?: string;
   
-    @IsOptional()s
+    @IsOptional()
     @IsString()
     role?: string;
+
+    @IsOptional()
+    @IsString()
+    profilePicture?: string;
 }
 
 export class LoginUserDto {
