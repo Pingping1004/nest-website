@@ -41,14 +41,6 @@ export class UsersService {
         }
     }
 
-    async createUserForGoogleSignup(signupUserDto: SignupUserDto): Promise<User> {
-        const newUser = this.userRepository.create({
-            ...signupUserDto,
-            role: signupUserDto.role as Role,
-        });
-        return this.userRepository.save(newUser);
-    }
-
     async validateUser(username: string, password: string): Promise<User | null> {
         console.log(`Validating user: ${username}`);
         const user = await this.userRepository.findOne({

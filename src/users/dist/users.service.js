@@ -97,15 +97,6 @@ var UsersService = /** @class */ (function () {
             });
         });
     };
-    UsersService.prototype.createUserForGoogleSignup = function (signupUserDto) {
-        return __awaiter(this, void 0, Promise, function () {
-            var newUser;
-            return __generator(this, function (_a) {
-                newUser = this.userRepository.create(__assign(__assign({}, signupUserDto), { role: signupUserDto.role }));
-                return [2 /*return*/, this.userRepository.save(newUser)];
-            });
-        });
-    };
     UsersService.prototype.validateUser = function (username, password) {
         return __awaiter(this, void 0, Promise, function () {
             var user, isMatch;
