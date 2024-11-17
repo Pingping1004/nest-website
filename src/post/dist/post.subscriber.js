@@ -49,7 +49,7 @@ exports.PostSubscriber = void 0;
 var typeorm_1 = require("typeorm");
 var record_entity_1 = require("../admin/record/entities/record.entity"); // Adjust the path to the new Record entity
 var typeorm_2 = require("@nestjs/typeorm");
-var user_entity_1 = require("../users/schema/user.entity");
+var post_entity_1 = require("../post/schema/post.entity");
 var PostSubscriber = /** @class */ (function () {
     function PostSubscriber(postRepository) {
         this.postRepository = postRepository;
@@ -57,7 +57,7 @@ var PostSubscriber = /** @class */ (function () {
     }
     PostSubscriber.prototype.listenTo = function () {
         console.log('Subscriber listening to User and Post entities');
-        return user_entity_1.User;
+        return post_entity_1.Post;
     };
     // Record for INSERT operation
     PostSubscriber.prototype.afterInsert = function (event) {

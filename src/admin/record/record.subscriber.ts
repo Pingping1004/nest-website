@@ -16,7 +16,7 @@ export class RecordSubscriber implements EntitySubscriberInterface {
 
     listenTo(): Function | string {
         console.log('Subscriber listening to User and Post entities');
-        return Post;
+        return User;
     }
 
     // Record for INSERT operation

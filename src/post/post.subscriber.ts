@@ -16,7 +16,7 @@ export class PostSubscriber implements EntitySubscriberInterface {
 
     listenTo(): Function | string {
         console.log('Subscriber listening to User and Post entities');
-        return User;
+        return Post;
     }
 
     // Record for INSERT operation
