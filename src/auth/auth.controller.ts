@@ -64,7 +64,8 @@ export class AuthController {
         if (!fullUser) {
             return res.status(404).send('User not found');
         }
-        const posts = await this.postService.getAllPosts();
+        const posts = await this.postService.getPostForUser();
+        console.log('All render post for user:', posts);
 
         if (userIdFromParam !== userIdFromToken) {
             return res.status(403).send('Forbidden');

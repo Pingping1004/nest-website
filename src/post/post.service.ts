@@ -53,8 +53,22 @@ export class PostService {
         try {
             return await this.postRepository.find({ relations: ['author', 'pictures'] });
         } catch (error) {
-            console.error('Failed to render all post', error.message);
+            console.error('Failed to render all posts', error.message);
             throw new InternalServerErrorException('Failed to retrieve posts');
+        }
+    }
+
+    async getPostForUser(): Promise<Post[]> {
+        try {
+            return await this.postRepository.find({
+                where: {
+                    audience: 'user',  // Filtering by 'admin' audience
+                },
+                relations: ['author', 'pictures'],  // Including the 'author' and 'pictures' relations
+            });
+        } catch (error) {
+            console.error('Failed to render posts for admin', error.message);
+            throw new InternalServerErrorException('Failed to retrieve posts for admin');
         }
     }
 
@@ -122,44 +136,4 @@ export class PostService {
             console.error('Failed to delete post', error.message);
         }
     }
-
-    // async uploadPictures(postId: number, pictureUrls: string[]): Promise<Post> {
-    //     const post = await this.postRepository.findOne({
-    //         where: { postId },
-    //         relations: ['pictures'],
-    //     });
-
-    //     if (!post) {
-    //         throw new Error('Post not found');
-    //     }
-
-    //     const pictures = pictureUrls.map(url => {
-    //         const picture = new Picture();
-    //         picture.pictureUrl = url;
-    //         picture.post = post;
-    //         return picture;
-    //     });
-    //     await this.picturesRepository.save(pictures);
-    //     const updatedPost = await this.postRepository.findOne({
-    //         where: { postId },
-    //         relations: ['pictures'],
-    //     });
-    //     return updatedPost;
-    // }
-
-    // async addPictureToPost(postId: number, pictureUrl: string): Promise<Picture> {
-    //     const post = await this.postRepository.findOne({
-    //         where: { postId },
-    //     });
-
-    //     if (!post) {
-    //         throw new NotFoundException('Post not found');
-    //     }
-
-    //     const picture = new Picture();
-    //     picture.pictureUrl = pictureUrl;
-    //     picture.post = post;
-
-    //     return await this.picturesRepository.save(picture);
-    // }
 }

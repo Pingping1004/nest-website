@@ -6,6 +6,7 @@ const mainFeed = document.querySelector(".main-content");
 const editPostBtn = document.querySelectorAll(".edit-post-btn");
 const signUpLoginBtn = document.querySelector('.signup-login-btn');
 const logoutBtn = document.querySelector('.logout-btn');
+const postAudience = document.querySelector('.post-audience');
 
 let articles = [];
 let edittingIndex = null;
@@ -56,6 +57,7 @@ async function addPost() {
   }
   formData.append('title', titleInput.value); 
   formData.append('content', contentInput.value);
+  formData.append('audience', postAudience.value);
   formData.append('date', currentDate.toISOString());
 
   if (postPicture && postPicture.files.length > 0) {

@@ -39,7 +39,14 @@
         <section class="input-post">
             <input class="input-box" type="text" placeholder="Enter Title" id="title-input">
             <input class="input-box" name="content" placeholder="What's on your mind" id="content-input">
+            <br>
+            
             <input type="file" id="post-picture-input" name="pictures" accept="image/*" multiple />
+            <select name="audience" class="post-audience" id="">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+
             <button class="btn btn-primary" id="create-post-btn">Post</button>
         </section>
 

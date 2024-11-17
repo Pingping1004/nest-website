@@ -30,4 +30,7 @@ export class Post {
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     date: Date;
+
+    @Column({ default: 'user'})
+    audience: string;
 }

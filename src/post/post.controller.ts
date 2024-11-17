@@ -13,41 +13,12 @@ import { existsSync, mkdirSync } from 'fs';
 import { plainToClass, plainToInstance } from 'class-transformer'
 import { validateOrReject } from 'class-validator';
 
-// interface AuthenticatedUser {
-//     userId: number;
-//     username: string;
-//     role: string;
-// }
-
 @Controller('post')
 export class PostController {
     constructor(
         private readonly postService: PostService,
         private readonly userService: UsersService,
     ) {}
-
-    // @Post('create')
-    // @UseGuards(JwtAuthGuard)
-    // async createPost(@Body() createPostDto: CreatePostDto, @Req() req) {
-    //     console.log('User ID from request:', req.user);
-    //     try {
-    //         const userId = req.user.userId;
-    //         console.log('userId before search the post owner:', userId);
-    //         const user = await this.userService.findByUserId(userId);
-            
-    //         if (!user) {
-    //             throw new NotFoundException('User not found');
-    //         }
-            
-    //         const post = await this.postService.createPost(createPostDto, userId);
-    //         console.log('Post to create:', post)
-    //         console.log('Author ID from request:', post.author.id);
-    //         return post;
-    //     } catch (error) {
-    //         console.error('Failed to get post in controller', error.message);
-    //         throw new InternalServerErrorException('Failed to create post');
-    //     }
-    // }
 
     @Post('create')
     @UseGuards(JwtAuthGuard)
@@ -101,9 +72,14 @@ export class PostController {
     @Get('feed')
     async getAllPost(@Req() req, @Res() res: Response) {
         try {
-            const posts = await this.postService.getAllPosts();
-            const userId = req.user.userId;
             const role = req.user.role;
+            let posts;
+            if (role === 'admin') {
+                posts = await this.postService.getAllPosts();
+            } else {
+                posts = await this.postService.getPostForUser();
+            }
+            const userId = req.user.userId;
 
             console.log('User ID before get all post and search post owner:', userId);
             return res.status(200).json({ posts, userId, role });
