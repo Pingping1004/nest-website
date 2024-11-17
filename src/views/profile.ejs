@@ -20,9 +20,17 @@
                 <% } else { %>
                     <h3><%= user.username %>'s profile!</h3>
                 <% } %>
+
+                <% if (user.role === 'admin') { %>
+                    <a href="/auth/admin/index/<%= userID %>">Index</a>
+                <% } else { %>
+                    <a href="/auth/index/<%= userID %>">Index</a>
+                <% } %>
                 
                 <p>User ID: <%= userID %></p>
-                <a href="/index"></a>
+                <% if (user.role === 'admin') { %>
+                    <a href="/admin/activity-log">Activity Log</a>
+                <% } %>
             </div>
         </header>
 

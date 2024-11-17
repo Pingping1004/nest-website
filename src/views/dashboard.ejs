@@ -19,13 +19,15 @@
                 </p>
                 <p>User role: <%= role %>
                 </p>
+                <a href="/auth/admin/index/<%= userId %>">Index</a>
+                <a href="/admin/activity-log">Activity Log</a>
             </div>
             <div class="right-panel">
                 <% if (users) { %>
                     <button class="logout-btn btn btn-primary">Logout</button>
                     <% } else { %>
                         <button class="signup-login-btn btn btn-primary">Signup/Login</button>
-                        <% } %>
+                    <% } %>
             </div>
         </header>
 
@@ -41,29 +43,12 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="user-table tbody">
-                        <!-- <% users.forEach(function(user) { %>
-                            <tr>
-                                <td>
-                                    <%= user.id %>
-                                </td>
-                                <td>
-                                    <%= user.username %>
-                                </td>
-                                <td>
-                                    <%= user.role %>
-                                </td>
-                                <td>
-                                    <button class="edit-user-btn btn btn-secondary" data-user-id="<%= user.id %>">Edit</button>
-                                    <button class="delete-user-btn btn btn-danger" data-user-id="<%= user.id %>">Delete</button>
-                                </td>
-                            </tr>
-                            <% }) %> -->
-                    </tbody>
+                    <tbody class="user-table tbody"></tbody>
                 </table>
             </main>
         </section>
     </div>
+    <script defer type="module" src="../../public/js/login.js"></script>
     <script defer type="module" src="../../public/js/admin.js"></script>
 </body>
 

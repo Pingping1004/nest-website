@@ -8,11 +8,14 @@ import { Roles } from '../auth/roles.decorator';
 import { Role } from '../users/schema/user.entity';
 import { RolesGuard } from '../auth/role-auth.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RecordService } from './record/record.service';
+import { format } from 'date-fns';
 
 @Controller('admin')
 export class AdminController {
   constructor(
     private readonly usersService: UsersService,
+    private readonly recordService: RecordService,
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -60,11 +63,8 @@ export class AdminController {
   @Patch('update/:userId')
   async updateUser(@Param('userId', ParseIntPipe) userId: number, @Body() updatedUserDto: UpdatedUserDto, @Req() req, @Res() res) {
     try {
-
-      const adminName = req.user.name;
       const updatedUser = await this.usersService.updateUser(
         userId,
-        adminName,
         updatedUserDto,
       )
 
@@ -85,19 +85,42 @@ export class AdminController {
   @Delete('delete/:userId')
   async deleteUser(@Param('userId') userId: number, @Req() req, @Res() res) {
     try {
-      const adminName = req.user?.name;
       const deletedUser = await this.usersService.findByUserId(userId);
 
       if (!deletedUser) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      await this.usersService.deleteUser(adminName, userId);
+      await this.usersService.deleteUser(userId);
       return res.status(200).json({ message: 'Delete user ID ' + userId + ' successfully'});
       // return res.redirect('/admin/dashboard');
     } catch (error) {
       console.error('Failed to delete user in controller', error.message);
       throw new InternalServerErrorException('Failed to delete user');
+    }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin)
+  @Get('/activity-log')
+  async renderAllRecords(@Req() req, @Res() res) {
+    try {
+      const user = req.user;
+      const userId = req.user.userId;
+      const role = req.user.role;
+      const records = await this.recordService.getAllRecords();
+
+        // Create a new array with formatted dates
+        const formattedRecords = records.map(record => ({
+          ...record,
+          formattedDate: format(record.date, 'HH:mm - dd/MM/yy'),
+      }));
+
+      console.log('Record on page:', records);
+      res.render('record', { user, records: formattedRecords, userId, role })
+    } catch (error) {
+      console.error('Failed to render activity logs', error.message);
+      res.status(500).send('Internal Server Error');
     }
   }
 }

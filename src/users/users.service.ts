@@ -100,15 +100,8 @@ export class UsersService {
         }
     }
 
-    async updateUser(userId: number, adminName: string, updatedUserDto: UpdatedUserDto): Promise<User> {
+    async updateUser(userId: number, updatedUserDto: UpdatedUserDto): Promise<User> {
         try {
-            const adminUser = await this.findByUserName(adminName);
-
-            if (!adminUser) {
-                throw new UnauthorizedException('Admin user not found');
-            }
-
-            console.log('Admin who update', adminName);
             const user = await this.findByUserId(userId);
 
             if (!user) {
@@ -124,11 +117,8 @@ export class UsersService {
         }
     }
 
-     async deleteUser(adminName: string, userId: number): Promise<User> {
+     async deleteUser(userId: number): Promise<User> {
         try {
-            const adminUser = await this.findByUserName(adminName);
-            console.log('Admin who delete', adminName);
-
             const user = await this.findByUserId(userId);
             console.log('Deleted user detail:', user);
 

@@ -194,22 +194,15 @@ var UsersService = /** @class */ (function () {
             });
         });
     };
-    UsersService.prototype.updateUser = function (userId, adminName, updatedUserDto) {
+    UsersService.prototype.updateUser = function (userId, updatedUserDto) {
         return __awaiter(this, void 0, Promise, function () {
-            var adminUser, user, error_2;
+            var user, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 4, , 5]);
-                        return [4 /*yield*/, this.findByUserName(adminName)];
-                    case 1:
-                        adminUser = _a.sent();
-                        if (!adminUser) {
-                            throw new common_1.UnauthorizedException('Admin user not found');
-                        }
-                        console.log('Admin who update', adminName);
+                        _a.trys.push([0, 3, , 4]);
                         return [4 /*yield*/, this.findByUserId(userId)];
-                    case 2:
+                    case 1:
                         user = _a.sent();
                         if (!user) {
                             throw new common_1.NotFoundException('User not found');
@@ -217,29 +210,25 @@ var UsersService = /** @class */ (function () {
                         // console.log('Updated user detail', user);
                         Object.assign(user, updatedUserDto);
                         return [4 /*yield*/, this.userRepository.save(user)];
-                    case 3: return [2 /*return*/, _a.sent()];
-                    case 4:
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
                         error_2 = _a.sent();
                         console.error('Failed to update user', error_2.message);
                         throw new common_1.InternalServerErrorException('Failed to update user');
-                    case 5: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
     };
-    UsersService.prototype.deleteUser = function (adminName, userId) {
+    UsersService.prototype.deleteUser = function (userId) {
         return __awaiter(this, void 0, Promise, function () {
-            var adminUser, user, error_3;
+            var user, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 4, , 5]);
-                        return [4 /*yield*/, this.findByUserName(adminName)];
-                    case 1:
-                        adminUser = _a.sent();
-                        console.log('Admin who delete', adminName);
+                        _a.trys.push([0, 3, , 4]);
                         return [4 /*yield*/, this.findByUserId(userId)];
-                    case 2:
+                    case 1:
                         user = _a.sent();
                         console.log('Deleted user detail:', user);
                         if (!user) {
@@ -249,12 +238,12 @@ var UsersService = /** @class */ (function () {
                             throw new common_1.ForbiddenException('Cannot delete other admins');
                         }
                         return [4 /*yield*/, this.userRepository.remove(user)];
-                    case 3: return [2 /*return*/, _a.sent()];
-                    case 4:
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
                         error_3 = _a.sent();
                         console.error('Failed to delete user,', error_3.message);
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

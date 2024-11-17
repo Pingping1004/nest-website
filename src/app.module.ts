@@ -14,6 +14,9 @@ import { Picture } from '../src/post/schema/picture.entity'
 import { MulterModule } from '@nestjs/platform-express'
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { RecordModule } from './admin/record/record.module';
+import { Records } from './admin/record/entities/record.entity';
+import { RecordSubscriber } from './admin/record/record.subscriber';
 
 @Module({
   imports: [
@@ -26,6 +29,7 @@ import { extname } from 'path';
     AuthModule,
     UsersModule,
     PostModule,
+    RecordModule,
     // Connect to typeorm database
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -34,10 +38,12 @@ import { extname } from 'path';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Post, Picture],
-      synchronize: true,
+      entities: [User, Post, Picture, Records],
+      synchronize: false,
+      subscribers: [RecordSubscriber],
       // logging: true,
     }),
+    TypeOrmModule.forFeature([User, Records]),
     AdminModule,
     MulterModule.register({
       dest: './uploads',
@@ -45,6 +51,6 @@ import { extname } from 'path';
   ],
 
   controllers: [AppController],
-  providers: [AppService, GoogleStrategy],
+  providers: [AppService, GoogleStrategy, RecordSubscriber],
 })
 export class AppModule {}

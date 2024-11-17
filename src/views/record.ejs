@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User profile</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../public/css/styles.css">
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="left-panel">
+                <h3>Activity logs</h3>
+                <% if (user.displayName) { %>
+                    <h3><%= user.displayName %>'s profile!</h3>
+                <% } else { %>
+                    <h3><%= user.username %>'s profile!</h3>
+                <% } %>
+                <p>User ID: <%= userId %></p>
+                <a href="/auth/admin/index/<%= userId %>">Index</a>
+                <a href="/user/profile">Profile</a>
+                <a href="/admin/dashboard">Dashboard</a>
+            </div>
+            <div class="right-panel">
+                <% if (userId) { %>
+                    <img id="user-profile-picture" width="100px" height="100" src="/public/<%= user.profilePicture %>" alt="Profile picture">
+                    <button class="logout-btn btn btn-primary">Logout</button>
+                    <% } else { %>
+                        <button class="signup-login-btn btn btn-primary">Signup/Login</button>
+                    <% } %>
+            </div>
+        </header>
+
+        <main class="record-table-element">
+            <table class="record-table table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Action</th>
+                        <th>Entity ID</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody class="record-table-body">
+                    <% records.forEach(record => { %>
+                    <tr>
+                        <td><%= record.recordId %></td>
+                        <td><%= record.action %></td>
+                        <td><%= record.entityId %></td>
+                        <!-- <td><%= record.date.toISOString() %></td> -->
+                         <td><%= record.formattedDate %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <!-- <script defer type="module" src="../../public/js/index.js"></script> -->
+    <script defer type="module" src="../../public/js/login.js"></script>
+</body>
+
+</html>
