@@ -183,7 +183,7 @@ var AdminController = /** @class */ (function () {
                     case 1:
                         records = _a.sent();
                         formattedRecords = records.map(function (record) { return (__assign(__assign({}, record), { formattedDate: date_fns_1.format(record.date, 'HH:mm - dd/MM/yy') })); });
-                        console.log('Record on page:', records);
+                        // console.log('Record on page:', records);
                         res.render('record', { user: user, records: formattedRecords, userId: userId, role: role });
                         return [3 /*break*/, 3];
                     case 2:
@@ -224,7 +224,7 @@ var AdminController = /** @class */ (function () {
     __decorate([
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard, role_auth_guard_1.RolesGuard),
         roles_decorator_1.Roles(user_entity_1.Role.admin),
-        common_1.Get('/activity-log'),
+        common_1.Get('activity-log'),
         __param(0, common_1.Req()), __param(1, common_1.Res())
     ], AdminController.prototype, "renderAllRecords");
     AdminController = __decorate([

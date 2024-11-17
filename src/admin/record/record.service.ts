@@ -13,7 +13,7 @@ export class RecordService {
     async getAllRecords(): Promise<Records[]> {
         try {
             const records = await this.recordRepository.find();
-            console.log('Fetched all records:', records);
+            // console.log('Fetched all records:', records);
             return records;
         } catch (error) {
             console.error('Failed to get all activity record:', error.message);

@@ -5,6 +5,7 @@ export enum Role {
 
 import { Column, Entity, OneToMany, BeforeInsert, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from '../../post/schema/post.entity';
+import { Records } from '../../admin/record/entities/record.entity';
 
 @Entity('user')
 export class User {
@@ -52,4 +53,7 @@ export class User {
 
     @OneToMany(() => Post, post => post.author)
     posts: Post[];
+
+    // @OneToMany(() => Records, (record) => record.user)
+    // records: Records[];
 }

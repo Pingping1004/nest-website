@@ -41,8 +41,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <!-- <th>User</th> -->
                         <th>Action</th>
-                        <th>Entity ID</th>
                         <th>Timestamp</th>
                     </tr>
                 </thead>
@@ -50,9 +50,8 @@
                     <% records.forEach(record => { %>
                     <tr>
                         <td><%= record.recordId %></td>
+                        <!-- <td><%= record.user %></td> -->
                         <td><%= record.action %></td>
-                        <td><%= record.entityId %></td>
-                        <!-- <td><%= record.date.toISOString() %></td> -->
                          <td><%= record.formattedDate %></td>
                     </tr>
                     <% }) %>

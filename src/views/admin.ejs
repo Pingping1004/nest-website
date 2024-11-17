@@ -23,11 +23,11 @@
                 <p>User ID: <%= userID %></p>
                 <p>User role: <%= role %></p>
                 <a href="/user/profile">Profile</a>
+                <a href="/admin/dashboard">Dashboard</a>
                 <a href="/admin/activity-log">Activity Log</a>
             </div>
             <div class="right-panel">
                 <% if (userID) { %>
-                    <a href="/admin/dashboard">Dashboard</a>
                     <img id="user-profile-picture" width="100px" height="100" src="/public/<%= user.profilePicture %>" alt="Profile picture">
                     <button class="logout-btn btn btn-primary">Logout</button>
                     <% } else { %>
@@ -39,6 +39,7 @@
         <section class="input-post">
             <input class="input-box" type="text" placeholder="Enter Title" id="title-input">
             <input class="input-box" name="content" placeholder="What's on your mind" id="content-input">
+            <input type="file" id="post-picture-input" name="pictures" accept="image/*" multiple />
             <button class="btn btn-primary" id="create-post-btn">Post</button>
         </section>
 

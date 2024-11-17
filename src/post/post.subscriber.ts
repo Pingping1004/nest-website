@@ -1,22 +1,22 @@
 import { EventSubscriber, EntitySubscriberInterface, InsertEvent, UpdateEvent, RemoveEvent } from 'typeorm';
-import { Records } from './entities/record.entity'; // Adjust the path to the new Record entity
+import { Records } from '../admin/record/entities/record.entity'; // Adjust the path to the new Record entity
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../users/schema/user.entity';
-import { Post } from '../../post/schema/post.entity';
+import { User } from '../users/schema/user.entity';
+import { Post } from '../post/schema/post.entity';
 
 @EventSubscriber()
-export class RecordSubscriber implements EntitySubscriberInterface {
+export class PostSubscriber implements EntitySubscriberInterface {
     constructor(
         @InjectRepository(Records)
-        private recordRepository: Repository<Records>,
+        private postRepository: Repository<Post>,
     ) {
         console.log('RecordSubscriber initialized');
     }
 
     listenTo(): Function | string {
         console.log('Subscriber listening to User and Post entities');
-        return Post;
+        return User;
     }
 
     // Record for INSERT operation

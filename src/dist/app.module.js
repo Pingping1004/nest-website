@@ -24,6 +24,8 @@ var platform_express_1 = require("@nestjs/platform-express");
 var record_module_1 = require("./admin/record/record.module");
 var record_entity_1 = require("./admin/record/entities/record.entity");
 var record_subscriber_1 = require("./admin/record/record.subscriber");
+var post_subscriber_1 = require("./post/post.subscriber");
+var admin_controller_1 = require("./admin/admin.controller");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -37,6 +39,7 @@ var AppModule = /** @class */ (function () {
                     envFilePath: '.env'
                 }),
                 auth_module_1.AuthModule,
+                admin_module_1.AdminModule,
                 users_module_1.UsersModule,
                 post_module_1.PostModule,
                 record_module_1.RecordModule,
@@ -50,16 +53,16 @@ var AppModule = /** @class */ (function () {
                     database: process.env.DB_DATABASE,
                     entities: [user_entity_1.User, post_entity_1.Post, picture_entity_1.Picture, record_entity_1.Records],
                     synchronize: false,
-                    subscribers: [record_subscriber_1.RecordSubscriber]
+                    subscribers: [record_subscriber_1.RecordSubscriber, post_subscriber_1.PostSubscriber]
                 }),
-                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, record_entity_1.Records]),
+                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, post_entity_1.Post, record_entity_1.Records]),
                 admin_module_1.AdminModule,
                 platform_express_1.MulterModule.register({
                     dest: './uploads'
                 }),
             ],
-            controllers: [app_controller_1.AppController],
-            providers: [app_service_1.AppService, google_strategy_1.GoogleStrategy, record_subscriber_1.RecordSubscriber]
+            controllers: [app_controller_1.AppController, admin_controller_1.AdminController],
+            providers: [app_service_1.AppService, google_strategy_1.GoogleStrategy, record_subscriber_1.RecordSubscriber, post_subscriber_1.PostSubscriber]
         })
     ], AppModule);
     return AppModule;

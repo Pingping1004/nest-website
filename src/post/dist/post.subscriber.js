@@ -45,22 +45,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.RecordSubscriber = void 0;
+exports.PostSubscriber = void 0;
 var typeorm_1 = require("typeorm");
-var record_entity_1 = require("./entities/record.entity"); // Adjust the path to the new Record entity
+var record_entity_1 = require("../admin/record/entities/record.entity"); // Adjust the path to the new Record entity
 var typeorm_2 = require("@nestjs/typeorm");
-var post_entity_1 = require("../../post/schema/post.entity");
-var RecordSubscriber = /** @class */ (function () {
-    function RecordSubscriber(recordRepository) {
-        this.recordRepository = recordRepository;
+var user_entity_1 = require("../users/schema/user.entity");
+var PostSubscriber = /** @class */ (function () {
+    function PostSubscriber(postRepository) {
+        this.postRepository = postRepository;
         console.log('RecordSubscriber initialized');
     }
-    RecordSubscriber.prototype.listenTo = function () {
+    PostSubscriber.prototype.listenTo = function () {
         console.log('Subscriber listening to User and Post entities');
-        return post_entity_1.Post;
+        return user_entity_1.User;
     };
     // Record for INSERT operation
-    RecordSubscriber.prototype.afterInsert = function (event) {
+    PostSubscriber.prototype.afterInsert = function (event) {
         return __awaiter(this, void 0, void 0, function () {
             var record, error_1;
             return __generator(this, function (_a) {
@@ -87,7 +87,7 @@ var RecordSubscriber = /** @class */ (function () {
         });
     };
     // Record for UPDATE operation
-    RecordSubscriber.prototype.afterUpdate = function (event) {
+    PostSubscriber.prototype.afterUpdate = function (event) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
             var record, error_2;
@@ -119,7 +119,7 @@ var RecordSubscriber = /** @class */ (function () {
         });
     };
     // Record for REMOVE operation
-    RecordSubscriber.prototype.afterRemove = function (event) {
+    PostSubscriber.prototype.afterRemove = function (event) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
             var record, error_3;
@@ -146,10 +146,10 @@ var RecordSubscriber = /** @class */ (function () {
             });
         });
     };
-    RecordSubscriber = __decorate([
+    PostSubscriber = __decorate([
         typeorm_1.EventSubscriber(),
         __param(0, typeorm_2.InjectRepository(record_entity_1.Records))
-    ], RecordSubscriber);
-    return RecordSubscriber;
+    ], PostSubscriber);
+    return PostSubscriber;
 }());
-exports.RecordSubscriber = RecordSubscriber;
+exports.PostSubscriber = PostSubscriber;

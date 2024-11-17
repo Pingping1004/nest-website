@@ -74,7 +74,7 @@ var RecordService = /** @class */ (function () {
                         return [4 /*yield*/, this.recordRepository.find()];
                     case 1:
                         records = _a.sent();
-                        console.log('Fetched all records:', records);
+                        // console.log('Fetched all records:', records);
                         return [2 /*return*/, records];
                     case 2:
                         error_1 = _a.sent();

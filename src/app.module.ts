@@ -17,6 +17,8 @@ import { extname } from 'path';
 import { RecordModule } from './admin/record/record.module';
 import { Records } from './admin/record/entities/record.entity';
 import { RecordSubscriber } from './admin/record/record.subscriber';
+import { PostSubscriber } from './post/post.subscriber';
+import { AdminController } from './admin/admin.controller';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { RecordSubscriber } from './admin/record/record.subscriber';
     }),
 
     AuthModule,
+    AdminModule,
     UsersModule,
     PostModule,
     RecordModule,
@@ -40,17 +43,17 @@ import { RecordSubscriber } from './admin/record/record.subscriber';
       database: process.env.DB_DATABASE,
       entities: [User, Post, Picture, Records],
       synchronize: false,
-      subscribers: [RecordSubscriber],
+      subscribers: [RecordSubscriber, PostSubscriber],
       // logging: true,
     }),
-    TypeOrmModule.forFeature([User, Records]),
+    TypeOrmModule.forFeature([User, Post, Records]),
     AdminModule,
     MulterModule.register({
       dest: './uploads',
     }),
   ],
 
-  controllers: [AppController],
-  providers: [AppService, GoogleStrategy, RecordSubscriber],
+  controllers: [AppController, AdminController],
+  providers: [AppService, GoogleStrategy, RecordSubscriber, PostSubscriber],
 })
 export class AppModule {}

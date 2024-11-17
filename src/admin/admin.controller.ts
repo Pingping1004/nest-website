@@ -102,7 +102,7 @@ export class AdminController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.admin)
-  @Get('/activity-log')
+  @Get('activity-log')
   async renderAllRecords(@Req() req, @Res() res) {
     try {
       const user = req.user;
@@ -116,7 +116,7 @@ export class AdminController {
           formattedDate: format(record.date, 'HH:mm - dd/MM/yy'),
       }));
 
-      console.log('Record on page:', records);
+      // console.log('Record on page:', records);
       res.render('record', { user, records: formattedRecords, userId, role })
     } catch (error) {
       console.error('Failed to render activity logs', error.message);
