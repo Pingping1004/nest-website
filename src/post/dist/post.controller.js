@@ -90,11 +90,12 @@ var PostController = /** @class */ (function () {
     };
     PostController.prototype.getAllPost = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var role, posts, userId, error_2;
+            var user, role, posts, userId, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 5, , 6]);
+                        user = req.user;
                         role = req.user.role;
                         posts = void 0;
                         if (!(role === 'admin')) return [3 /*break*/, 2];
@@ -102,7 +103,7 @@ var PostController = /** @class */ (function () {
                     case 1:
                         posts = _a.sent();
                         return [3 /*break*/, 4];
-                    case 2: return [4 /*yield*/, this.postService.getPostForUser()];
+                    case 2: return [4 /*yield*/, this.postService.getPostForUser(user)];
                     case 3:
                         posts = _a.sent();
                         _a.label = 4;

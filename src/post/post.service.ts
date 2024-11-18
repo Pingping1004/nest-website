@@ -58,12 +58,13 @@ export class PostService {
         }
     }
 
-    async getPostForUser(): Promise<Post[]> {
+    async getPostForUser(user: User): Promise<Post[]> {
         try {
             return await this.postRepository.find({
-                where: {
-                    audience: 'user',  // Filtering by 'admin' audience
-                },
+                where: [
+                    { audience: 'user' }, 
+                    { author: user }, // Filtering by 'admin' audience
+                ],
                 relations: ['author', 'pictures'],  // Including the 'author' and 'pictures' relations
             });
         } catch (error) {

@@ -57,6 +57,7 @@ export class AuthController {
             return res.status(400).send('Invalid user ID');
         }
 
+        const user = req.user;
         const userIdFromToken = req.user.userId;
         const role = req.user.role;
         const fullUser = await this.userService.findByUserId(userIdFromToken);
@@ -64,7 +65,7 @@ export class AuthController {
         if (!fullUser) {
             return res.status(404).send('User not found');
         }
-        const posts = await this.postService.getPostForUser();
+        const posts = await this.postService.getPostForUser(user);
         console.log('All render post for user:', posts);
 
         if (userIdFromParam !== userIdFromToken) {

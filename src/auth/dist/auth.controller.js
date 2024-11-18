@@ -90,7 +90,7 @@ var AuthController = /** @class */ (function () {
     };
     AuthController.prototype.renderAuthIndex = function (userId, req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var userIdFromParam, userIdFromToken, role, fullUser, posts;
+            var userIdFromParam, user, userIdFromToken, role, fullUser, posts;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -101,6 +101,7 @@ var AuthController = /** @class */ (function () {
                             console.error('Failed to parse user ID from URL parameter:', userId);
                             return [2 /*return*/, res.status(400).send('Invalid user ID')];
                         }
+                        user = req.user;
                         userIdFromToken = req.user.userId;
                         role = req.user.role;
                         return [4 /*yield*/, this.userService.findByUserId(userIdFromToken)];
@@ -109,7 +110,7 @@ var AuthController = /** @class */ (function () {
                         if (!fullUser) {
                             return [2 /*return*/, res.status(404).send('User not found')];
                         }
-                        return [4 /*yield*/, this.postService.getPostForUser()];
+                        return [4 /*yield*/, this.postService.getPostForUser(user)];
                     case 2:
                         posts = _a.sent();
                         console.log('All render post for user:', posts);

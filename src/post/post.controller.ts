@@ -72,12 +72,13 @@ export class PostController {
     @Get('feed')
     async getAllPost(@Req() req, @Res() res: Response) {
         try {
+            const user = req.user;
             const role = req.user.role;
             let posts;
             if (role === 'admin') {
                 posts = await this.postService.getAllPosts();
             } else {
-                posts = await this.postService.getPostForUser();
+                posts = await this.postService.getPostForUser(user);
             }
             const userId = req.user.userId;
 

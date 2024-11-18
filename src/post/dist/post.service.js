@@ -120,7 +120,7 @@ var PostService = /** @class */ (function () {
             });
         });
     };
-    PostService.prototype.getPostForUser = function () {
+    PostService.prototype.getPostForUser = function (user) {
         return __awaiter(this, void 0, Promise, function () {
             var error_3;
             return __generator(this, function (_a) {
@@ -128,9 +128,10 @@ var PostService = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.postRepository.find({
-                                where: {
-                                    audience: 'user'
-                                },
+                                where: [
+                                    { audience: 'user' },
+                                    { author: user },
+                                ],
                                 relations: ['author', 'pictures']
                             })];
                     case 1: return [2 /*return*/, _a.sent()];
