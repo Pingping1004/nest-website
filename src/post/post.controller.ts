@@ -139,4 +139,27 @@ export class PostController {
             throw new InternalServerErrorException('Failed to delete post');
         }
     }
+
+    @Patch('update/likecount/:postId')
+    @UseGuards(JwtAuthGuard)
+    async updatePostLikeCount(@Param('postId') postId: number, @Body() updatePostDto: UpdatePostDto, @Req() req, @Res() res) {
+        try {
+            const userId = req.user.userId;
+            console.log('User ID who like post:', userId);
+            const updatedPost = await this.postService.updatePostLike(
+                postId,
+                updatePostDto.postLikeCount,
+                userId,
+            )
+
+            if (!updatedPost) {
+                return res.status(404).json({ message: 'Post not found or you do not have permission to edit' })
+            }
+
+            return res.status(200).json(updatedPost);
+        } catch (error) {
+            console.error('Failed to update post in controller', error.message);
+            return res.status(500).json({ message: 'Failed to update post' });
+        }
+    }
 }

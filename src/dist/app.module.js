@@ -18,6 +18,7 @@ var user_entity_1 = require("./users/schema/user.entity");
 var google_strategy_1 = require("./auth/strategy/google.strategy");
 var post_module_1 = require("./post/post.module");
 var post_entity_1 = require("./post/schema/post.entity");
+var comment_entity_1 = require("./post/comment/comment.entity");
 var admin_module_1 = require("./admin/admin.module");
 var picture_entity_1 = require("../src/post/schema/picture.entity");
 var platform_express_1 = require("@nestjs/platform-express");
@@ -51,11 +52,11 @@ var AppModule = /** @class */ (function () {
                     username: process.env.DB_USERNAME,
                     password: process.env.DB_PASSWORD,
                     database: process.env.DB_DATABASE,
-                    entities: [user_entity_1.User, post_entity_1.Post, picture_entity_1.Picture, record_entity_1.Records],
+                    entities: [user_entity_1.User, post_entity_1.Post, picture_entity_1.Picture, record_entity_1.Records, comment_entity_1.Comment],
                     synchronize: false,
                     subscribers: [record_subscriber_1.RecordSubscriber, post_subscriber_1.PostSubscriber]
                 }),
-                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, post_entity_1.Post, record_entity_1.Records]),
+                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, post_entity_1.Post, record_entity_1.Records, comment_entity_1.Comment]),
                 admin_module_1.AdminModule,
                 platform_express_1.MulterModule.register({
                     dest: './uploads'

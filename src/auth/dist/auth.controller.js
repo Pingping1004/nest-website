@@ -125,7 +125,7 @@ var AuthController = /** @class */ (function () {
     };
     AuthController.prototype.renderAdminAuthIndex = function (userId, req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var userIdFromParam, user, userIdFromToken, role, fullUser, posts;
+            var userIdFromParam, userIdFromToken, role, fullUser, posts;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -138,7 +138,6 @@ var AuthController = /** @class */ (function () {
                         if (req.user.role !== 'admin') {
                             return [2 /*return*/, res.status(403).send('Forbidden: Admin access only')];
                         }
-                        user = req.user;
                         userIdFromToken = req.user.userId;
                         role = req.user.role;
                         return [4 /*yield*/, this.userService.findByUserId(userIdFromToken)];

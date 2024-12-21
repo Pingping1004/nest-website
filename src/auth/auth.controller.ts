@@ -91,7 +91,7 @@ export class AuthController {
             return res.status(403).send('Forbidden: Admin access only');
         }
 
-        const user = req.user;
+        // const user = req.user;
         const userIdFromToken = req.user.userId;
         const role = req.user.role;
         const fullUser = await this.userService.findByUserId(userIdFromToken);

@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, OneToMany } from "typeorm";
 import { User } from '../../users/schema/user.entity';
 import { Picture } from '../schema/picture.entity';
+import { Comment } from "../comment/comment.entity";
 
 @Entity('post')
 @Index('IDX_AUTHOR_ID', ["author"])
@@ -33,4 +34,13 @@ export class Post {
 
     @Column({ default: 'user'})
     audience: string;
+
+    @Column({ default: 0 })
+    postLikeCount: number;
+
+    @OneToMany(() => Comment, (comment) => comment.post, {
+        onDelete: 'CASCADE',
+        eager: true,
+    })
+    comments: Comment[];
 }

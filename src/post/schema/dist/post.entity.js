@@ -10,6 +10,7 @@ exports.Post = void 0;
 var typeorm_1 = require("typeorm");
 var user_entity_1 = require("../../users/schema/user.entity");
 var picture_entity_1 = require("../schema/picture.entity");
+var comment_entity_1 = require("../comment/comment.entity");
 var Post = /** @class */ (function () {
     function Post() {
     }
@@ -41,6 +42,15 @@ var Post = /** @class */ (function () {
     __decorate([
         typeorm_1.Column({ "default": 'user' })
     ], Post.prototype, "audience");
+    __decorate([
+        typeorm_1.Column({ "default": 0 })
+    ], Post.prototype, "postLikeCount");
+    __decorate([
+        typeorm_1.OneToMany(function () { return comment_entity_1.Comment; }, function (comment) { return comment.post; }, {
+            onDelete: 'CASCADE',
+            eager: true
+        })
+    ], Post.prototype, "comments");
     Post = __decorate([
         typeorm_1.Entity('post'),
         typeorm_1.Index('IDX_AUTHOR_ID', ["author"])

@@ -21,7 +21,9 @@ export class PostService {
             const post = this.postRepository.create({
                 ...createPostDto,
                 author: { userId },
+                postLikeCount: 0,
                 pictures: [],
+                comments: [],
             });
 
             if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
@@ -135,6 +137,23 @@ export class PostService {
             return await this.postRepository.remove(post);
         } catch (error) {
             console.error('Failed to delete post', error.message);
+        }
+    }
+
+    async updatePostLike(postId: number, newLikeCount: number, userId: number): Promise<Post> {
+        try {
+            const post = await this.getPostById(postId);
+            console.log('Updated post detail:', post);
+
+            if (!post) {
+                throw new NotFoundException('Post not found');
+            }
+
+            console.log('User who likes post', userId);
+            post.postLikeCount = newLikeCount;
+            return await this.postRepository.save(post);
+        } catch (error) {
+            console.error('Failed to update post like count', error.message);
         }
     }
 }

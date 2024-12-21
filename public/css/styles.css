@@ -80,3 +80,16 @@ body {
     border-radius: 1rem;
     /* justify-self: center; */
 }
+.post-like-btn {
+    border: none; /* Remove the border */
+    background: none; /* Remove background */
+    padding: 0; /* Remove padding */
+    cursor: pointer; /* Change cursor to pointer for a clickable effect */
+}
+  
+.like-post {
+    display: block;
+    width: 24px; /* Adjust as per your image size */
+    height: 24px;
+}
+  

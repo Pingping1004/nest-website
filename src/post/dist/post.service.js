@@ -73,7 +73,7 @@ var PostService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        post_1 = this.postRepository.create(__assign(__assign({}, createPostDto), { author: { userId: userId }, pictures: [] }));
+                        post_1 = this.postRepository.create(__assign(__assign({}, createPostDto), { author: { userId: userId }, postLikeCount: 0, pictures: [], comments: [] }));
                         if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
                             pictures = createPostDto.pictureContent.map(function (filePath) {
                                 var picture = new picture_entity_1.Picture();
@@ -226,6 +226,33 @@ var PostService = /** @class */ (function () {
                     case 3:
                         error_6 = _a.sent();
                         console.error('Failed to delete post', error_6.message);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    PostService.prototype.updatePostLike = function (postId, newLikeCount, userId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var post, error_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.getPostById(postId)];
+                    case 1:
+                        post = _a.sent();
+                        console.log('Updated post detail:', post);
+                        if (!post) {
+                            throw new common_1.NotFoundException('Post not found');
+                        }
+                        console.log('User who likes post', userId);
+                        post.postLikeCount = newLikeCount;
+                        return [4 /*yield*/, this.postRepository.save(post)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
+                        error_7 = _a.sent();
+                        console.error('Failed to update post like count', error_7.message);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }

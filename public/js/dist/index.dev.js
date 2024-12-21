@@ -1,11 +1,11 @@
 "use strict";
 
-var titleInput = document.querySelector("#title-input");
-var contentInput = document.querySelector("#content-input");
+var titleInput = document.querySelector('#title-input');
+var contentInput = document.querySelector('#content-input');
 var postPicture = document.querySelector('#post-picture-input');
-var createPostBtn = document.querySelector("#create-post-btn");
-var mainFeed = document.querySelector(".main-content");
-var editPostBtn = document.querySelectorAll(".edit-post-btn");
+var createPostBtn = document.querySelector('#create-post-btn');
+var mainFeed = document.querySelector('.main-content');
+var editPostBtn = document.querySelectorAll('.edit-post-btn');
 var signUpLoginBtn = document.querySelector('.signup-login-btn');
 var logoutBtn = document.querySelector('.logout-btn');
 var postAudience = document.querySelector('.post-audience');
@@ -15,6 +15,7 @@ var loggedInUserId = null;
 var postId = null;
 var loggedInUserRole = null;
 var users = null;
+var likeCount = {};
 document.addEventListener('DOMContentLoaded', function () {
   fetchAllPosts();
 });
@@ -74,27 +75,29 @@ function fetchAllPosts() {
 }
 
 function addPost() {
-  var currentDate, formData, i, response, newPost, errorResponse;
+  var currentDate, formData, likeCount, i, response, newPost, errorResponse;
   return regeneratorRuntime.async(function addPost$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
           currentDate = new Date();
           formData = new FormData();
+          likeCount = 0;
 
           if (!(titleInput.value === '')) {
-            _context2.next = 5;
+            _context2.next = 6;
             break;
           }
 
           alert("You can't post with empty content");
           return _context2.abrupt("return");
 
-        case 5:
+        case 6:
           formData.append('title', titleInput.value);
           formData.append('content', contentInput.value);
           formData.append('audience', postAudience.value);
           formData.append('date', currentDate.toISOString());
+          formData.append('likeCount', likeCount);
 
           if (postPicture && postPicture.files.length > 0) {
             for (i = 0; i < postPicture.files.length; i++) {
@@ -103,88 +106,92 @@ function addPost() {
             }
           }
 
-          _context2.prev = 10;
-          _context2.next = 13;
+          _context2.prev = 12;
+          _context2.next = 15;
           return regeneratorRuntime.awrap(fetch('/post/create', {
             method: 'POST',
             body: formData
           }));
 
-        case 13:
+        case 15:
           response = _context2.sent;
 
           if (!response.ok) {
-            _context2.next = 25;
+            _context2.next = 27;
             break;
           }
 
-          _context2.next = 17;
+          _context2.next = 19;
           return regeneratorRuntime.awrap(response.json());
 
-        case 17:
+        case 19:
           newPost = _context2.sent;
           articles.push(newPost);
           console.log('Uploaded picture in post', postPicture.files);
-          _context2.next = 22;
+          _context2.next = 24;
           return regeneratorRuntime.awrap(fetchAllPosts());
 
-        case 22:
+        case 24:
           clearInput();
-          _context2.next = 30;
+          _context2.next = 32;
           break;
 
-        case 25:
-          _context2.next = 27;
+        case 27:
+          _context2.next = 29;
           return regeneratorRuntime.awrap(response.json());
 
-        case 27:
+        case 29:
           errorResponse = _context2.sent;
           // Get error response details if available
           console.error('Failed to create post:', errorResponse);
           alert('Failed to create post: ' + errorResponse.message || 'Unknown error');
 
-        case 30:
-          _context2.next = 36;
+        case 32:
+          _context2.next = 38;
           break;
 
-        case 32:
-          _context2.prev = 32;
-          _context2.t0 = _context2["catch"](10);
+        case 34:
+          _context2.prev = 34;
+          _context2.t0 = _context2["catch"](12);
           console.error('Error createing post:', _context2.t0);
           alert('An error occurred while creating the post');
 
-        case 36:
+        case 38:
         case "end":
           return _context2.stop();
       }
     }
-  }, null, null, [[10, 32]]);
+  }, null, null, [[12, 34]]);
 }
 
-createPostBtn.addEventListener("click", addPost);
+createPostBtn.addEventListener('click', addPost);
 
 function clearInput() {
-  titleInput.value = "";
-  contentInput.value = "";
-  postPicture.value = "";
+  titleInput.value = '';
+  contentInput.value = '';
+  postPicture.value = '';
 }
 
 function renderPost() {
+  var initialLike,
+      _args3 = arguments;
   return regeneratorRuntime.async(function renderPost$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          mainFeed.innerHTML = "";
+          initialLike = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : 0;
+          mainFeed.innerHTML = '';
           articles.forEach(function (article) {
-            var mainFeedList = document.createElement("div");
-            mainFeedList.classList.add("main-feed-list");
+            var mainFeedList = document.createElement('div');
+            mainFeedList.classList.add('main-feed-list');
             mainFeedList.id = "post-".concat(article.postId);
             console.log('Article UserID:', article.author.userId);
             console.log('Logged in userID:', loggedInUserId);
             console.log('Picture to render in post', article.pictures);
-            mainFeedList.innerHTML = "\n<div id=\"post-".concat(article.postId, "\">\n  <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n  <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n  <p class=\"post-author-id\">Author ID: ").concat(article.author.userId, "</p>\n  <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n  <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n  <div class=\"post-pictures\">\n    ").concat(article.pictures.map(function (picture) {
+            likeCount[postId] = initialLike;
+            mainFeedList.innerHTML = "\n    <div id=\"post-".concat(article.postId, "\">\n      <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n      <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.userId, "</p>\n      <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      <div class=\"post-pictures\">\n        ").concat(article.pictures.map(function (picture) {
               return "<img src=\"/public/".concat(picture.pictureUrl, "\" alt=\"Post picture\" />");
-            }).join(''), "\n  </div>\n  ").concat(article.author.userId === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n       <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n  ").concat(loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n  ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n</div>");
+            }).join(''), "\n      </div>\n      <div id=\"post-engagement").concat(article.postId, "\">\n        <button id=\"post-like-btn-").concat(article.postId, "\" class=\"post-like-btn ").concat(article.postLikeCount > 0 ? 'liked' : 'unliked', "\" data-post-id=\"").concat(article.postId, "\">\n          <img src=\"").concat(article.postLikeCount > 0 ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg', "\" alt=\"post like button\">\n        </button>\n        <p class=\"article-like-count\" id=\"like-count-").concat(article.postId, "\">").concat(article.postLikeCount, "</p>\n      </div>\n\n        ").concat(article.author.userId === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n        <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    ").concat(loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n  </div>\n  ");
 
             if (article.author.userId === loggedInUserId || loggedInUserRole === 'admin') {
               var editBtn = mainFeedList.querySelector('.edit-post-btn');
@@ -202,15 +209,26 @@ function renderPost() {
               if (deleteBtn) {
                 deleteBtn.addEventListener('click', function (event) {
                   var postId = event.target.getAttribute('data-post-id');
+                  console.log("Delete mode activated for postId: ".concat(postId));
                   deletePost(postId);
                 });
               }
             }
 
+            mainFeedList.addEventListener('click', function (event) {
+              var postLikeBtn = event.target.closest('.post-like-btn');
+
+              if (postLikeBtn) {
+                var _postId = postLikeBtn.getAttribute('data-post-id');
+
+                console.log('Post like button is activated for postId:', _postId);
+                likePost(_postId);
+              }
+            });
             mainFeed.append(mainFeedList);
           });
 
-        case 2:
+        case 3:
         case "end":
           return _context3.stop();
       }
@@ -224,7 +242,7 @@ function editPost(postId) {
   var titleElement = postElement.querySelector('.article-title');
   var contentElement = postElement.querySelector('.article-content');
   var isEditing = editBtn.textContent === 'Save';
-  console.log("Edit mode activated on the postId:", postId);
+  console.log('Edit mode activated on the postId:', postId);
 
   if (isEditing) {
     // If already in "Save" mode, call the save function
@@ -394,3 +412,95 @@ window.deletePost = function deletePost(postId) {
     }
   }, null, null, [[0, 24]]);
 };
+
+function likePost(postId) {
+  var postLikeBtn, likeCountElement, img, isLiked, currentCount, updatedCount, response, updatedPostLikeCountData, revertCount;
+  return regeneratorRuntime.async(function likePost$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          console.log('Like post activated on postId', postId);
+          postLikeBtn = document.getElementById("post-like-btn-".concat(postId));
+          likeCountElement = document.querySelector("#like-count-".concat(postId));
+
+          if (!(!postLikeBtn || !likeCountElement)) {
+            _context6.next = 6;
+            break;
+          }
+
+          console.error('Post like button or like count element not found');
+          return _context6.abrupt("return");
+
+        case 6:
+          img = postLikeBtn.querySelector('img');
+          isLiked = postLikeBtn.classList.contains('liked'); // Current count from UI
+
+          currentCount = parseInt(likeCountElement.textContent) || 0; // Update UI Optimistically
+
+          updatedCount = isLiked ? currentCount - 1 : currentCount + 1;
+          updatedCount = Math.max(updatedCount, 0); // Ensure count doesn't go below 0
+          // Toggle Button State
+
+          postLikeBtn.classList.toggle('liked', !isLiked);
+          postLikeBtn.classList.toggle('unliked', isLiked);
+          img.src = isLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg'; // Update Count in UI
+
+          likeCountElement.textContent = updatedCount;
+          _context6.prev = 15;
+          _context6.next = 18;
+          return regeneratorRuntime.awrap(fetch("/post/update/likecount/".concat(postId), {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              postLikeCount: updatedCount
+            }) // Correct property name
+
+          }));
+
+        case 18:
+          response = _context6.sent;
+
+          if (!response.ok) {
+            _context6.next = 27;
+            break;
+          }
+
+          _context6.next = 22;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 22:
+          updatedPostLikeCountData = _context6.sent;
+          console.log('Update like count successfully:', updatedPostLikeCountData); // Update UI with server-confirmed count
+
+          likeCountElement.textContent = updatedPostLikeCountData.postLikeCount;
+          _context6.next = 28;
+          break;
+
+        case 27:
+          throw new Error("Failed to update post like count: ".concat(response.statusText));
+
+        case 28:
+          _context6.next = 38;
+          break;
+
+        case 30:
+          _context6.prev = 30;
+          _context6.t0 = _context6["catch"](15);
+          console.error('Failed to update post like count:', _context6.t0.message); // Revert UI Changes on Failure
+
+          revertCount = isLiked ? currentCount : currentCount - 1;
+          likeCountElement.textContent = revertCount;
+          postLikeBtn.classList.toggle('liked', isLiked);
+          postLikeBtn.classList.toggle('unliked', !isLiked);
+          img.src = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+
+        case 38:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  }, null, null, [[15, 30]]);
+}

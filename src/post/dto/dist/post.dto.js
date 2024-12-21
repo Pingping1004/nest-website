@@ -30,6 +30,15 @@ var CreatePostDto = /** @class */ (function () {
         class_validator_1.IsOptional(),
         class_validator_1.ValidateNested({ each: true })
     ], CreatePostDto.prototype, "pictureContent");
+    __decorate([
+        class_validator_1.IsOptional(),
+        class_validator_1.IsNumber()
+    ], CreatePostDto.prototype, "postLikeCount");
+    __decorate([
+        class_validator_1.IsArray(),
+        class_validator_1.IsString({ each: true }),
+        class_validator_1.IsOptional()
+    ], CreatePostDto.prototype, "comment");
     return CreatePostDto;
 }());
 exports.CreatePostDto = CreatePostDto;
@@ -53,6 +62,15 @@ var UpdatePostDto = /** @class */ (function () {
         class_validator_1.IsOptional(),
         class_transformer_1.Type(function () { return picture_dto_1.PictureDto; })
     ], UpdatePostDto.prototype, "pictureContent");
+    __decorate([
+        class_validator_1.IsNotEmpty(),
+        class_validator_1.IsNumber()
+    ], UpdatePostDto.prototype, "postLikeCount");
+    __decorate([
+        class_validator_1.IsArray(),
+        class_validator_1.IsString(),
+        class_validator_1.IsOptional()
+    ], UpdatePostDto.prototype, "comment");
     return UpdatePostDto;
 }());
 exports.UpdatePostDto = UpdatePostDto;

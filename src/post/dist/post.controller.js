@@ -180,6 +180,31 @@ var PostController = /** @class */ (function () {
             });
         });
     };
+    PostController.prototype.updatePostLikeCount = function (postId, updatePostDto, req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var userId, updatedPost, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        userId = req.user.userId;
+                        console.log('User ID who like post:', userId);
+                        return [4 /*yield*/, this.postService.updatePostLike(postId, updatePostDto.postLikeCount, userId)];
+                    case 1:
+                        updatedPost = _a.sent();
+                        if (!updatedPost) {
+                            return [2 /*return*/, res.status(404).json({ message: 'Post not found or you do not have permission to edit' })];
+                        }
+                        return [2 /*return*/, res.status(200).json(updatedPost)];
+                    case 2:
+                        error_5 = _a.sent();
+                        console.error('Failed to update post in controller', error_5.message);
+                        return [2 /*return*/, res.status(500).json({ message: 'Failed to update post' })];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     __decorate([
         common_1.Post('create'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard)
@@ -220,6 +245,11 @@ var PostController = /** @class */ (function () {
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
         __param(0, common_1.Param('postId')), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], PostController.prototype, "deletePost");
+    __decorate([
+        common_1.Patch('update/likecount/:postId'),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        __param(0, common_1.Param('postId')), __param(1, common_1.Body()), __param(2, common_1.Req()), __param(3, common_1.Res())
+    ], PostController.prototype, "updatePostLikeCount");
     PostController = __decorate([
         common_1.Controller('post')
     ], PostController);
