@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, Req, Res, UseGuards, UseInterceptors, NotFoundException, InternalServerErrorException, UploadedFiles, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, Req, Res, UseGuards, BadRequestException, UseInterceptors, NotFoundException, InternalServerErrorException, UploadedFiles, UploadedFile } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -12,12 +12,18 @@ import { User } from '../users/schema/user.entity';
 import { existsSync, mkdirSync } from 'fs';
 import { plainToClass, plainToInstance } from 'class-transformer'
 import { validateOrReject } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PostLike } from './like/postLike.entity';
 
 @Controller('post')
 export class PostController {
     constructor(
         private readonly postService: PostService,
         private readonly userService: UsersService,
+
+        @InjectRepository(PostLike)
+        private readonly postLikeRepository: Repository<PostLike>,
     ) {}
 
     @Post('create')
@@ -75,15 +81,31 @@ export class PostController {
             const user = req.user;
             const role = req.user.role;
             let posts;
+
             if (role === 'admin') {
                 posts = await this.postService.getAllPosts();
             } else {
                 posts = await this.postService.getPostForUser(user);
             }
             const userId = req.user.userId;
+            const postsWithLikeState = await Promise.all(
+                posts.map(async (post) => {
+                    const isLiked = await this.postService.checkIfUserLikedPost(post.postId, userId);
+                    return { ...post, isLiked };
+                })
+            );
+
+            // Recalculate like counts for each post when user logs in or refreshes
+            for (const post of posts) {
+                // Fetch total likes from PostLike table
+                const likeCount = await this.postLikeRepository.count({ where: { postId: post.postId } });
+                post.likeCount = likeCount;  // Update the post's like count
+
+                console.log('Post like count', post.likeCount);
+            }
 
             console.log('User ID before get all post and search post owner:', userId);
-            return res.status(200).json({ posts, userId, role });
+            return res.status(200).json({ posts: postsWithLikeState, userId, role });
         } catch (error) {
             console.error('Failed to get post in controller', error.message);
             throw new InternalServerErrorException('Failed to retrieve posts');
@@ -140,26 +162,28 @@ export class PostController {
         }
     }
 
-    @Patch('update/likecount/:postId')
+    @Patch('update/like/:postId')
     @UseGuards(JwtAuthGuard)
-    async updatePostLikeCount(@Param('postId') postId: number, @Body() updatePostDto: UpdatePostDto, @Req() req, @Res() res) {
+    async likePost(@Body() body: { postId: number; userId: number }, @Req() req, @Res() res,) {
         try {
-            const userId = req.user.userId;
-            console.log('User ID who like post:', userId);
-            const updatedPost = await this.postService.updatePostLike(
-                postId,
-                updatePostDto.postLikeCount,
-                userId,
-            )
+            const { postId, userId } = body;
 
-            if (!updatedPost) {
-                return res.status(404).json({ message: 'Post not found or you do not have permission to edit' })
+            if (!userId) {
+                throw new BadRequestException('User ID is required');
             }
 
-            return res.status(200).json(updatedPost);
+            console.log('User who likes post in controller', userId);
+            return this.postService.likePost(postId, userId);
         } catch (error) {
-            console.error('Failed to update post in controller', error.message);
-            return res.status(500).json({ message: 'Failed to update post' });
+            console.error('Error updating post like count:', error.message);
+            return res.status(500).json({ message: 'Failed to update post like count' });
         }
+    }
+
+    @Get('get/likeCount/:postId')
+    async getLikeCount(@Param('postId') postId: number) {
+        const post = await this.postService.getPostById(postId);
+        console.log(`Post ID in controller ${postId} like count is ${post.likeCount}`)
+      return this.postService.getPostLikeCount(postId);
     }
 }

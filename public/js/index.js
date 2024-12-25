@@ -103,7 +103,7 @@ function clearInput() {
   postPicture.value = '';
 }
 
-async function renderPost(initialLike = 0) {
+async function renderPost() {
   mainFeed.innerHTML = '';
 
   articles.forEach((article) => {
@@ -115,7 +115,11 @@ async function renderPost(initialLike = 0) {
     console.log('Article UserID:', article.author.userId);
     console.log('Logged in userID:', loggedInUserId);
     console.log('Picture to render in post', article.pictures);
-    likeCount[postId] = initialLike;
+    console.log(`Post ${article.postId} likeCount:`, article.likeCount);
+
+    const isLiked = article.isLiked;
+    const likeButtonState = isLiked ? 'liked' : 'unliked';
+    const likeButtonImg = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
 
     mainFeedList.innerHTML = `
     <div id="post-${article.postId}">
@@ -127,11 +131,11 @@ async function renderPost(initialLike = 0) {
       <div class="post-pictures">
         ${article.pictures.map((picture) => `<img src="/public/${picture.pictureUrl}" alt="Post picture" />`).join('')}
       </div>
-      <div id="post-engagement${article.postId}">
-        <button id="post-like-btn-${article.postId}" class="post-like-btn ${article.postLikeCount > 0 ? 'liked' : 'unliked'}" data-post-id="${article.postId}">
-          <img src="${article.postLikeCount > 0 ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg'}" alt="post like button">
+      <div id="post-engagement-${article.postId}">
+        <button id="post-like-btn-${article.postId}" class="post-like-btn ${likeButtonState}" data-post-id="${article.postId}">
+          <img src="${likeButtonImg}" alt="post like button">
         </button>
-        <p class="article-like-count" id="like-count-${article.postId}">${article.postLikeCount}</p>
+        <p class="article-like-count" id="like-count-${article.postId}">${article.likeCount !== undefined ? article.likeCount : 'error'}</p>
       </div>
 
         ${
@@ -148,6 +152,15 @@ async function renderPost(initialLike = 0) {
     ${article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : ''}
   </div>
   `;
+
+    const likeButton = document.getElementById(`post-like-btn-${article.postId}`);
+    if (likeButton) {
+        if (article.isLiked) {
+            likeButton.classList.add('liked');
+        } else {
+            likeButton.classList.remove('liked');
+        }
+    }
 
     if (
       article.author.userId === loggedInUserId ||
@@ -177,10 +190,11 @@ async function renderPost(initialLike = 0) {
       if (postLikeBtn) {
         const postId = postLikeBtn.getAttribute('data-post-id');
         console.log('Post like button is activated for postId:', postId);
-        likePost(postId);
+        postLikeCount(postId);
       }
     });
 
+    fetchLikeCount(article.postId);
     mainFeed.append(mainFeedList);
   });
 }
@@ -297,11 +311,80 @@ window.deletePost = async function deletePost(postId) {
   }
 };
 
-async function likePost(postId) {
+// async function likePost(postId) {
+//   console.log('Like post activated on postId', postId);
+  
+//   const postLikeBtn = document.getElementById(`post-like-btn-${postId}`);
+//   const likeCountElement = document.querySelector(`#like-count-${postId}`);
+
+//   if (!postLikeBtn || !likeCountElement) {
+//     console.error('Post like button or like count element not found');
+//     return;
+//   }
+
+//   const img = postLikeBtn.querySelector('img');
+//   const isLiked = postLikeBtn.classList.contains('liked');
+
+//   // Current count from UI
+//   let currentCount = parseInt(likeCountElement.textContent) || 0;
+
+//   // Update UI Optimistically
+//   let updatedCount = isLiked ? currentCount - 1 : currentCount + 1;
+//   updatedCount = Math.max(updatedCount, 0); // Ensure count doesn't go below 0
+
+//   // Toggle Button State
+//   postLikeBtn.classList.toggle('liked', !isLiked);
+//   postLikeBtn.classList.toggle('unliked', isLiked);
+//   img.src = isLiked
+//     ? '/public/picture/Vector.svg'
+//     : '/public/picture/Solid-Vector.svg';
+
+//   // Update Count in UI
+//   likeCountElement.textContent = updatedCount;
+
+//   try {
+//     const response = await fetch(`/post/update/likecount/${postId}`, {
+//       method: 'PATCH',
+//       credentials: 'include',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       // body: JSON.stringify({ postLikeCount: updatedCount }), // Correct property name
+//     });
+
+//     if (response.ok) {
+//       const updatedPostLikeCountData = await response.json();
+//       console.log('Update like count successfully:', updatedPostLikeCountData);
+
+//       // Update UI with server-confirmed count
+//       likeCountElement.textContent = updatedPostLikeCountData.postLikeCount;
+//     } else {
+//       throw new Error(`Failed to update post like count: ${response.statusText}`);
+//     }
+//   } catch (error) {
+//     console.error('Failed to update post like count:', error.message);
+
+//     // Revert UI Changes on Failure
+//     const revertCount = isLiked ? currentCount : currentCount - 1;
+//     likeCountElement.textContent = revertCount;
+//     postLikeBtn.classList.toggle('liked', isLiked);
+//     postLikeBtn.classList.toggle('unliked', !isLiked);
+//     img.src = isLiked
+//       ? '/public/picture/Solid-Vector.svg'
+//       : '/public/picture/Vector.svg';
+//   }
+// }
+
+async function postLikeCount(postId) {
   console.log('Like post activated on postId', postId);
   
   const postLikeBtn = document.getElementById(`post-like-btn-${postId}`);
   const likeCountElement = document.querySelector(`#like-count-${postId}`);
+  let currentCount = parseInt(likeCountElement.textContent, 10) || 0;
+
+  if (!loggedInUserId) {
+    alert('User ID is not available, please login first');
+  }
 
   if (!postLikeBtn || !likeCountElement) {
     console.error('Post like button or like count element not found');
@@ -310,53 +393,61 @@ async function likePost(postId) {
 
   const img = postLikeBtn.querySelector('img');
   const isLiked = postLikeBtn.classList.contains('liked');
-
-  // Current count from UI
-  let currentCount = parseInt(likeCountElement.textContent) || 0;
-
-  // Update UI Optimistically
-  let updatedCount = isLiked ? currentCount - 1 : currentCount + 1;
-  updatedCount = Math.max(updatedCount, 0); // Ensure count doesn't go below 0
-
+  const newCount = isLiked ? currentCount - 1 : currentCount + 1;
+  
   // Toggle Button State
   postLikeBtn.classList.toggle('liked', !isLiked);
   postLikeBtn.classList.toggle('unliked', isLiked);
-  img.src = isLiked
-    ? '/public/picture/Vector.svg'
-    : '/public/picture/Solid-Vector.svg';
-
-  // Update Count in UI
-  likeCountElement.textContent = updatedCount;
+  img.src = isLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg';
+  updateLikeCount(postId, newCount);
 
   try {
-    const response = await fetch(`/post/update/likecount/${postId}`, {
+    const response = await fetch(`/post/update/like/${postId}`, {
       method: 'PATCH',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ postLikeCount: updatedCount }), // Correct property name
+      body: JSON.stringify({ postId, userId: loggedInUserId }),
     });
-
-    if (response.ok) {
-      const updatedPostLikeCountData = await response.json();
-      console.log('Update like count successfully:', updatedPostLikeCountData);
-
-      // Update UI with server-confirmed count
-      likeCountElement.textContent = updatedPostLikeCountData.postLikeCount;
-    } else {
-      throw new Error(`Failed to update post like count: ${response.statusText}`);
+    if (!response.ok) {
+      console.error('Failed to toggle like', error.message);
+      updateLikeCount(postId, currentCount);
     }
-  } catch (error) {
-    console.error('Failed to update post like count:', error.message);
 
-    // Revert UI Changes on Failure
-    const revertCount = isLiked ? currentCount : currentCount - 1;
-    likeCountElement.textContent = revertCount;
+    const updatedPost = await response.json();
+    updateLikeCount(postId, updatedPost.likeCount);
+    postLikeBtn.classList.toggle('liked', updatedPost.isLiked);
+    postLikeBtn.classList.toggle('unliked', !updatedPost.isLiked);
+  } catch (error) {
+    console.error(error);
+        
+    // Revert optimistic UI update on error
     postLikeBtn.classList.toggle('liked', isLiked);
     postLikeBtn.classList.toggle('unliked', !isLiked);
-    img.src = isLiked
-      ? '/public/picture/Solid-Vector.svg'
-      : '/public/picture/Vector.svg';
+    img.src = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+    postLikeBtn.classList.toggle('liked', isLiked);
+    postLikeBtn.classList.toggle('unliked', !isLiked);
+    updateLikeCount(postId, currentCount);
+  }
+}
+
+async function fetchLikeCount(postId) {
+  try {
+    const response = await fetch(`/post/get/likeCount/${postId}`);
+    if (!response.ok) throw new Error('Failed to fetch like count');
+
+    const likeCount = await response.json();
+    console.log('Fetched like count', likeCount);
+    updateLikeCount(postId, likeCount);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function updateLikeCount(postId, likeCount) {
+  console.log(`Updating Post ${postId} likeCount to:`, likeCount);
+  const likeCountElement = document.getElementById(`like-count-${postId}`);
+  if (likeCountElement) {
+    likeCountElement.textContent = likeCount;
   }
 }

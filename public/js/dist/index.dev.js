@@ -173,13 +173,10 @@ function clearInput() {
 }
 
 function renderPost() {
-  var initialLike,
-      _args3 = arguments;
   return regeneratorRuntime.async(function renderPost$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
-          initialLike = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : 0;
           mainFeed.innerHTML = '';
           articles.forEach(function (article) {
             var mainFeedList = document.createElement('div');
@@ -188,10 +185,22 @@ function renderPost() {
             console.log('Article UserID:', article.author.userId);
             console.log('Logged in userID:', loggedInUserId);
             console.log('Picture to render in post', article.pictures);
-            likeCount[postId] = initialLike;
+            console.log("Post ".concat(article.postId, " likeCount:"), article.likeCount);
+            var isLiked = article.isLiked;
+            var likeButtonState = isLiked ? 'liked' : 'unliked';
+            var likeButtonImg = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
             mainFeedList.innerHTML = "\n    <div id=\"post-".concat(article.postId, "\">\n      <h3 class=\"article-title\" id=\"title-input-").concat(article.postId, "\">").concat(article.title, "</h3>\n      <p class=\"article-content\" id=\"content-input-").concat(article.postId, "\">").concat(article.content, "</p>\n      <p class=\"post-author-id\">Author ID: ").concat(article.author.userId, "</p>\n      <p class=\"post-id\">Post ID: ").concat(article.postId, "</p>\n      <p class=\"login-user-id\">Login ID: ").concat(loggedInUserId, "</p>\n      <div class=\"post-pictures\">\n        ").concat(article.pictures.map(function (picture) {
               return "<img src=\"/public/".concat(picture.pictureUrl, "\" alt=\"Post picture\" />");
-            }).join(''), "\n      </div>\n      <div id=\"post-engagement").concat(article.postId, "\">\n        <button id=\"post-like-btn-").concat(article.postId, "\" class=\"post-like-btn ").concat(article.postLikeCount > 0 ? 'liked' : 'unliked', "\" data-post-id=\"").concat(article.postId, "\">\n          <img src=\"").concat(article.postLikeCount > 0 ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg', "\" alt=\"post like button\">\n        </button>\n        <p class=\"article-like-count\" id=\"like-count-").concat(article.postId, "\">").concat(article.postLikeCount, "</p>\n      </div>\n\n        ").concat(article.author.userId === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n        <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    ").concat(loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n  </div>\n  ");
+            }).join(''), "\n      </div>\n      <div id=\"post-engagement-").concat(article.postId, "\">\n        <button id=\"post-like-btn-").concat(article.postId, "\" class=\"post-like-btn ").concat(likeButtonState, "\" data-post-id=\"").concat(article.postId, "\">\n          <img src=\"").concat(likeButtonImg, "\" alt=\"post like button\">\n        </button>\n        <p class=\"article-like-count\" id=\"like-count-").concat(article.postId, "\">").concat(article.likeCount !== undefined ? article.likeCount : 'error', "</p>\n      </div>\n\n        ").concat(article.author.userId === loggedInUserId ? "<button id=\"edit-btn-".concat(article.postId, "\" class=\"edit-post-btn btn btn-secondary\" data-post-id=\"").concat(article.postId, "\">Edit</button>\n        <button id=\"delete-btn-").concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    ").concat(loggedInUserRole === 'admin' && article.author.userId !== loggedInUserId ? "<button id=\"delete-btn-".concat(article.postId, "\" class=\"delete-post-btn btn btn-danger\" data-post-id=\"").concat(article.postId, "\">Delete</button>") : '', "\n    ").concat(article.author.id === loggedInUserId && loggedInUserRole === 'admin' ? '' : '', "\n  </div>\n  ");
+            var likeButton = document.getElementById("post-like-btn-".concat(article.postId));
+
+            if (likeButton) {
+              if (article.isLiked) {
+                likeButton.classList.add('liked');
+              } else {
+                likeButton.classList.remove('liked');
+              }
+            }
 
             if (article.author.userId === loggedInUserId || loggedInUserRole === 'admin') {
               var editBtn = mainFeedList.querySelector('.edit-post-btn');
@@ -222,13 +231,14 @@ function renderPost() {
                 var _postId = postLikeBtn.getAttribute('data-post-id');
 
                 console.log('Post like button is activated for postId:', _postId);
-                likePost(_postId);
+                postLikeCount(_postId);
               }
             });
+            fetchLikeCount(article.postId);
             mainFeed.append(mainFeedList);
           });
 
-        case 3:
+        case 2:
         case "end":
           return _context3.stop();
       }
@@ -411,96 +421,194 @@ window.deletePost = function deletePost(postId) {
       }
     }
   }, null, null, [[0, 24]]);
-};
+}; // async function likePost(postId) {
+//   console.log('Like post activated on postId', postId);
+//   const postLikeBtn = document.getElementById(`post-like-btn-${postId}`);
+//   const likeCountElement = document.querySelector(`#like-count-${postId}`);
+//   if (!postLikeBtn || !likeCountElement) {
+//     console.error('Post like button or like count element not found');
+//     return;
+//   }
+//   const img = postLikeBtn.querySelector('img');
+//   const isLiked = postLikeBtn.classList.contains('liked');
+//   // Current count from UI
+//   let currentCount = parseInt(likeCountElement.textContent) || 0;
+//   // Update UI Optimistically
+//   let updatedCount = isLiked ? currentCount - 1 : currentCount + 1;
+//   updatedCount = Math.max(updatedCount, 0); // Ensure count doesn't go below 0
+//   // Toggle Button State
+//   postLikeBtn.classList.toggle('liked', !isLiked);
+//   postLikeBtn.classList.toggle('unliked', isLiked);
+//   img.src = isLiked
+//     ? '/public/picture/Vector.svg'
+//     : '/public/picture/Solid-Vector.svg';
+//   // Update Count in UI
+//   likeCountElement.textContent = updatedCount;
+//   try {
+//     const response = await fetch(`/post/update/likecount/${postId}`, {
+//       method: 'PATCH',
+//       credentials: 'include',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       // body: JSON.stringify({ postLikeCount: updatedCount }), // Correct property name
+//     });
+//     if (response.ok) {
+//       const updatedPostLikeCountData = await response.json();
+//       console.log('Update like count successfully:', updatedPostLikeCountData);
+//       // Update UI with server-confirmed count
+//       likeCountElement.textContent = updatedPostLikeCountData.postLikeCount;
+//     } else {
+//       throw new Error(`Failed to update post like count: ${response.statusText}`);
+//     }
+//   } catch (error) {
+//     console.error('Failed to update post like count:', error.message);
+//     // Revert UI Changes on Failure
+//     const revertCount = isLiked ? currentCount : currentCount - 1;
+//     likeCountElement.textContent = revertCount;
+//     postLikeBtn.classList.toggle('liked', isLiked);
+//     postLikeBtn.classList.toggle('unliked', !isLiked);
+//     img.src = isLiked
+//       ? '/public/picture/Solid-Vector.svg'
+//       : '/public/picture/Vector.svg';
+//   }
+// }
 
-function likePost(postId) {
-  var postLikeBtn, likeCountElement, img, isLiked, currentCount, updatedCount, response, updatedPostLikeCountData, revertCount;
-  return regeneratorRuntime.async(function likePost$(_context6) {
+
+function postLikeCount(postId) {
+  var postLikeBtn, likeCountElement, currentCount, img, isLiked, newCount, response, updatedPost;
+  return regeneratorRuntime.async(function postLikeCount$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
           console.log('Like post activated on postId', postId);
           postLikeBtn = document.getElementById("post-like-btn-".concat(postId));
           likeCountElement = document.querySelector("#like-count-".concat(postId));
+          currentCount = parseInt(likeCountElement.textContent, 10) || 0;
+
+          if (!loggedInUserId) {
+            alert('User ID is not available, please login first');
+          }
 
           if (!(!postLikeBtn || !likeCountElement)) {
-            _context6.next = 6;
+            _context6.next = 8;
             break;
           }
 
           console.error('Post like button or like count element not found');
           return _context6.abrupt("return");
 
-        case 6:
+        case 8:
           img = postLikeBtn.querySelector('img');
-          isLiked = postLikeBtn.classList.contains('liked'); // Current count from UI
-
-          currentCount = parseInt(likeCountElement.textContent) || 0; // Update UI Optimistically
-
-          updatedCount = isLiked ? currentCount - 1 : currentCount + 1;
-          updatedCount = Math.max(updatedCount, 0); // Ensure count doesn't go below 0
-          // Toggle Button State
+          isLiked = postLikeBtn.classList.contains('liked');
+          newCount = isLiked ? currentCount - 1 : currentCount + 1; // Toggle Button State
 
           postLikeBtn.classList.toggle('liked', !isLiked);
           postLikeBtn.classList.toggle('unliked', isLiked);
-          img.src = isLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg'; // Update Count in UI
-
-          likeCountElement.textContent = updatedCount;
+          img.src = isLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg';
+          updateLikeCount(postId, newCount);
           _context6.prev = 15;
           _context6.next = 18;
-          return regeneratorRuntime.awrap(fetch("/post/update/likecount/".concat(postId), {
+          return regeneratorRuntime.awrap(fetch("/post/update/like/".concat(postId), {
             method: 'PATCH',
-            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              postLikeCount: updatedCount
-            }) // Correct property name
-
+              postId: postId,
+              userId: loggedInUserId
+            })
           }));
 
         case 18:
           response = _context6.sent;
 
           if (!response.ok) {
-            _context6.next = 27;
-            break;
+            console.error('Failed to toggle like', error.message);
+            updateLikeCount(postId, currentCount);
           }
 
           _context6.next = 22;
           return regeneratorRuntime.awrap(response.json());
 
         case 22:
-          updatedPostLikeCountData = _context6.sent;
-          console.log('Update like count successfully:', updatedPostLikeCountData); // Update UI with server-confirmed count
-
-          likeCountElement.textContent = updatedPostLikeCountData.postLikeCount;
-          _context6.next = 28;
+          updatedPost = _context6.sent;
+          updateLikeCount(postId, updatedPost.likeCount);
+          postLikeBtn.classList.toggle('liked', updatedPost.isLiked);
+          postLikeBtn.classList.toggle('unliked', !updatedPost.isLiked);
+          _context6.next = 37;
           break;
-
-        case 27:
-          throw new Error("Failed to update post like count: ".concat(response.statusText));
 
         case 28:
-          _context6.next = 38;
-          break;
-
-        case 30:
-          _context6.prev = 30;
+          _context6.prev = 28;
           _context6.t0 = _context6["catch"](15);
-          console.error('Failed to update post like count:', _context6.t0.message); // Revert UI Changes on Failure
+          console.error(_context6.t0); // Revert optimistic UI update on error
 
-          revertCount = isLiked ? currentCount : currentCount - 1;
-          likeCountElement.textContent = revertCount;
           postLikeBtn.classList.toggle('liked', isLiked);
           postLikeBtn.classList.toggle('unliked', !isLiked);
           img.src = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+          postLikeBtn.classList.toggle('liked', isLiked);
+          postLikeBtn.classList.toggle('unliked', !isLiked);
+          updateLikeCount(postId, currentCount);
 
-        case 38:
+        case 37:
         case "end":
           return _context6.stop();
       }
     }
-  }, null, null, [[15, 30]]);
+  }, null, null, [[15, 28]]);
+}
+
+function fetchLikeCount(postId) {
+  var response, _likeCount;
+
+  return regeneratorRuntime.async(function fetchLikeCount$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          _context7.prev = 0;
+          _context7.next = 3;
+          return regeneratorRuntime.awrap(fetch("/post/get/likeCount/".concat(postId)));
+
+        case 3:
+          response = _context7.sent;
+
+          if (response.ok) {
+            _context7.next = 6;
+            break;
+          }
+
+          throw new Error('Failed to fetch like count');
+
+        case 6:
+          _context7.next = 8;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 8:
+          _likeCount = _context7.sent;
+          console.log('Fetched like count', _likeCount);
+          updateLikeCount(postId, _likeCount);
+          _context7.next = 16;
+          break;
+
+        case 13:
+          _context7.prev = 13;
+          _context7.t0 = _context7["catch"](0);
+          console.error(_context7.t0);
+
+        case 16:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  }, null, null, [[0, 13]]);
+}
+
+function updateLikeCount(postId, likeCount) {
+  console.log("Updating Post ".concat(postId, " likeCount to:"), likeCount);
+  var likeCountElement = document.getElementById("like-count-".concat(postId));
+
+  if (likeCountElement) {
+    likeCountElement.textContent = likeCount;
+  }
 }

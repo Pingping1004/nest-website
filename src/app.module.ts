@@ -9,6 +9,7 @@ import { User } from './users/schema/user.entity';
 import { GoogleStrategy } from './auth/strategy/google.strategy';
 import { PostModule } from './post/post.module';
 import { Post } from './post/schema/post.entity';
+import { PostLike } from './post/like/postLike.entity';
 import { Comment } from './post/comment/comment.entity';
 import { AdminModule} from './admin/admin.module';
 import { Picture } from '../src/post/schema/picture.entity'
@@ -42,12 +43,12 @@ import { AdminController } from './admin/admin.controller';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Post, Picture, Records, Comment],
+      entities: [User, Post, Picture, Records, Comment, PostLike],
       synchronize: false,
       subscribers: [RecordSubscriber, PostSubscriber],
       // logging: true,
     }),
-    TypeOrmModule.forFeature([User, Post, Records, Comment]),
+    TypeOrmModule.forFeature([User, Post, Records, Comment, PostLike]),
     AdminModule,
     MulterModule.register({
       dest: './uploads',

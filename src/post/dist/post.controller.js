@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -52,10 +63,13 @@ var platform_express_1 = require("@nestjs/platform-express");
 var multer_1 = require("multer");
 var path = require("path");
 var fs_1 = require("fs");
+var typeorm_1 = require("@nestjs/typeorm");
+var postLike_entity_1 = require("./like/postLike.entity");
 var PostController = /** @class */ (function () {
-    function PostController(postService, userService) {
+    function PostController(postService, userService, postLikeRepository) {
         this.postService = postService;
         this.userService = userService;
+        this.postLikeRepository = postLikeRepository;
     }
     PostController.prototype.createPost = function (req, res, createPostDto, files) {
         return __awaiter(this, void 0, void 0, function () {
@@ -90,11 +104,12 @@ var PostController = /** @class */ (function () {
     };
     PostController.prototype.getAllPost = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, role, posts, userId, error_2;
+            var user, role, posts, userId_1, postsWithLikeState, _i, posts_1, post, likeCount, error_2;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 5, , 6]);
+                        _a.trys.push([0, 10, , 11]);
                         user = req.user;
                         role = req.user.role;
                         posts = void 0;
@@ -108,14 +123,42 @@ var PostController = /** @class */ (function () {
                         posts = _a.sent();
                         _a.label = 4;
                     case 4:
-                        userId = req.user.userId;
-                        console.log('User ID before get all post and search post owner:', userId);
-                        return [2 /*return*/, res.status(200).json({ posts: posts, userId: userId, role: role })];
+                        userId_1 = req.user.userId;
+                        return [4 /*yield*/, Promise.all(posts.map(function (post) { return __awaiter(_this, void 0, void 0, function () {
+                                var isLiked;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.postService.checkIfUserLikedPost(post.postId, userId_1)];
+                                        case 1:
+                                            isLiked = _a.sent();
+                                            return [2 /*return*/, __assign(__assign({}, post), { isLiked: isLiked })];
+                                    }
+                                });
+                            }); }))];
                     case 5:
+                        postsWithLikeState = _a.sent();
+                        _i = 0, posts_1 = posts;
+                        _a.label = 6;
+                    case 6:
+                        if (!(_i < posts_1.length)) return [3 /*break*/, 9];
+                        post = posts_1[_i];
+                        return [4 /*yield*/, this.postLikeRepository.count({ where: { postId: post.postId } })];
+                    case 7:
+                        likeCount = _a.sent();
+                        post.likeCount = likeCount; // Update the post's like count
+                        console.log('Post like count', post.likeCount);
+                        _a.label = 8;
+                    case 8:
+                        _i++;
+                        return [3 /*break*/, 6];
+                    case 9:
+                        console.log('User ID before get all post and search post owner:', userId_1);
+                        return [2 /*return*/, res.status(200).json({ posts: postsWithLikeState, userId: userId_1, role: role })];
+                    case 10:
                         error_2 = _a.sent();
                         console.error('Failed to get post in controller', error_2.message);
                         throw new common_1.InternalServerErrorException('Failed to retrieve posts');
-                    case 6: return [2 /*return*/];
+                    case 11: return [2 /*return*/];
                 }
             });
         });
@@ -180,27 +223,36 @@ var PostController = /** @class */ (function () {
             });
         });
     };
-    PostController.prototype.updatePostLikeCount = function (postId, updatePostDto, req, res) {
+    PostController.prototype.likePost = function (body, req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, updatedPost, error_5;
+            var postId, userId;
+            return __generator(this, function (_a) {
+                try {
+                    postId = body.postId, userId = body.userId;
+                    if (!userId) {
+                        throw new common_1.BadRequestException('User ID is required');
+                    }
+                    console.log('User who likes post in controller', userId);
+                    return [2 /*return*/, this.postService.likePost(postId, userId)];
+                }
+                catch (error) {
+                    console.error('Error updating post like count:', error.message);
+                    return [2 /*return*/, res.status(500).json({ message: 'Failed to update post like count' })];
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    PostController.prototype.getLikeCount = function (postId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var post;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        userId = req.user.userId;
-                        console.log('User ID who like post:', userId);
-                        return [4 /*yield*/, this.postService.updatePostLike(postId, updatePostDto.postLikeCount, userId)];
+                    case 0: return [4 /*yield*/, this.postService.getPostById(postId)];
                     case 1:
-                        updatedPost = _a.sent();
-                        if (!updatedPost) {
-                            return [2 /*return*/, res.status(404).json({ message: 'Post not found or you do not have permission to edit' })];
-                        }
-                        return [2 /*return*/, res.status(200).json(updatedPost)];
-                    case 2:
-                        error_5 = _a.sent();
-                        console.error('Failed to update post in controller', error_5.message);
-                        return [2 /*return*/, res.status(500).json({ message: 'Failed to update post' })];
-                    case 3: return [2 /*return*/];
+                        post = _a.sent();
+                        console.log("Post ID in controller " + postId + " like count is " + post.likeCount);
+                        return [2 /*return*/, this.postService.getPostLikeCount(postId)];
                 }
             });
         });
@@ -246,12 +298,17 @@ var PostController = /** @class */ (function () {
         __param(0, common_1.Param('postId')), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], PostController.prototype, "deletePost");
     __decorate([
-        common_1.Patch('update/likecount/:postId'),
+        common_1.Patch('update/like/:postId'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-        __param(0, common_1.Param('postId')), __param(1, common_1.Body()), __param(2, common_1.Req()), __param(3, common_1.Res())
-    ], PostController.prototype, "updatePostLikeCount");
+        __param(0, common_1.Body()), __param(1, common_1.Req()), __param(2, common_1.Res())
+    ], PostController.prototype, "likePost");
+    __decorate([
+        common_1.Get('get/likeCount/:postId'),
+        __param(0, common_1.Param('postId'))
+    ], PostController.prototype, "getLikeCount");
     PostController = __decorate([
-        common_1.Controller('post')
+        common_1.Controller('post'),
+        __param(2, typeorm_1.InjectRepository(postLike_entity_1.PostLike))
     ], PostController);
     return PostController;
 }());

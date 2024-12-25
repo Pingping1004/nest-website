@@ -14,6 +14,7 @@ var Role;
 })(Role = exports.Role || (exports.Role = {}));
 var typeorm_1 = require("typeorm");
 var post_entity_1 = require("../../post/schema/post.entity");
+var postLike_entity_1 = require("../../post/like/postLike.entity");
 var User = /** @class */ (function () {
     function User() {
     }
@@ -68,6 +69,9 @@ var User = /** @class */ (function () {
     __decorate([
         typeorm_1.OneToMany(function () { return post_entity_1.Post; }, function (post) { return post.author; })
     ], User.prototype, "posts");
+    __decorate([
+        typeorm_1.OneToMany(function () { return postLike_entity_1.PostLike; }, function (postLike) { return postLike.userId; })
+    ], User.prototype, "postLikes");
     User = __decorate([
         typeorm_1.Entity('user')
     ], User);

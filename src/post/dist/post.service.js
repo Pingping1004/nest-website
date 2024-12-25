@@ -61,10 +61,13 @@ var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var post_entity_1 = require("./schema/post.entity");
 var picture_entity_1 = require("../post/schema/picture.entity");
+var postLike_entity_1 = require("../post/like/postLike.entity");
+var user_entity_1 = require("../users/schema/user.entity");
 var PostService = /** @class */ (function () {
-    function PostService(postRepository, picturesRepository) {
+    function PostService(postRepository, postLikeRepository, userRepository) {
         this.postRepository = postRepository;
-        this.picturesRepository = picturesRepository;
+        this.postLikeRepository = postLikeRepository;
+        this.userRepository = userRepository;
     }
     PostService.prototype.createPost = function (createPostDto, userId) {
         return __awaiter(this, void 0, Promise, function () {
@@ -73,8 +76,11 @@ var PostService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        post_1 = this.postRepository.create(__assign(__assign({}, createPostDto), { author: { userId: userId }, postLikeCount: 0, pictures: [], comments: [] }));
-                        if (createPostDto.pictureContent && createPostDto.pictureContent.length > 0) {
+                        post_1 = this.postRepository.create(__assign(__assign({}, createPostDto), { author: { userId: userId }, 
+                            // postLikeCount: 0,
+                            pictures: [], comments: [] }));
+                        if (createPostDto.pictureContent &&
+                            createPostDto.pictureContent.length > 0) {
                             pictures = createPostDto.pictureContent.map(function (filePath) {
                                 var picture = new picture_entity_1.Picture();
                                 picture.pictureUrl = filePath; // Ensure file.path is correct
@@ -109,7 +115,9 @@ var PostService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.postRepository.find({ relations: ['author', 'pictures'] })];
+                        return [4 /*yield*/, this.postRepository.find({
+                                relations: ['author', 'pictures']
+                            })];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
                         error_2 = _a.sent();
@@ -232,29 +240,78 @@ var PostService = /** @class */ (function () {
             });
         });
     };
-    PostService.prototype.updatePostLike = function (postId, newLikeCount, userId) {
+    PostService.prototype.likePost = function (postId, userId) {
         return __awaiter(this, void 0, Promise, function () {
-            var post, error_7;
+            var post, user, existingLike, newLike;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, this.getPostById(postId)];
+                    case 0: return [4 /*yield*/, this.postRepository.findOne({ where: { postId: postId } })];
                     case 1:
                         post = _a.sent();
-                        console.log('Updated post detail:', post);
+                        if (!post)
+                            throw new common_1.NotFoundException('Post not found');
+                        return [4 /*yield*/, this.userRepository.findOne({ where: { userId: userId } })];
+                    case 2:
+                        user = _a.sent();
+                        if (!user)
+                            throw new common_1.NotFoundException('User not found');
+                        return [4 /*yield*/, this.postLikeRepository.findOne({
+                                where: { postId: postId, userId: userId }
+                            })];
+                    case 3:
+                        existingLike = _a.sent();
+                        console.log('Existing like', existingLike);
+                        if (!existingLike) return [3 /*break*/, 5];
+                        // Remove the like if user has already like the post
+                        return [4 /*yield*/, this.postLikeRepository.remove(existingLike)];
+                    case 4:
+                        // Remove the like if user has already like the post
+                        _a.sent();
+                        post.likeCount--;
+                        return [3 /*break*/, 7];
+                    case 5:
+                        newLike = this.postLikeRepository.create({ postId: postId, userId: userId });
+                        return [4 /*yield*/, this.postLikeRepository.save(newLike)];
+                    case 6:
+                        _a.sent();
+                        post.likeCount++;
+                        _a.label = 7;
+                    case 7: return [4 /*yield*/, this.postRepository.save(post)];
+                    case 8:
+                        _a.sent();
+                        return [2 /*return*/, post];
+                }
+            });
+        });
+    };
+    PostService.prototype.getPostLikeCount = function (postId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var post;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getPostById(postId)];
+                    case 1:
+                        post = _a.sent();
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
-                        console.log('User who likes post', userId);
-                        post.postLikeCount = newLikeCount;
-                        return [4 /*yield*/, this.postRepository.save(post)];
-                    case 2: return [2 /*return*/, _a.sent()];
-                    case 3:
-                        error_7 = _a.sent();
-                        console.error('Failed to update post like count', error_7.message);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        console.log("Post ID " + postId + " like count is " + post.likeCount);
+                        return [2 /*return*/, post.likeCount];
+                }
+            });
+        });
+    };
+    PostService.prototype.checkIfUserLikedPost = function (postId, userId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var like;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.postLikeRepository.findOne({
+                            where: { postId: postId, userId: userId }
+                        })];
+                    case 1:
+                        like = _a.sent();
+                        return [2 /*return*/, !!like];
                 }
             });
         });
@@ -262,7 +319,8 @@ var PostService = /** @class */ (function () {
     PostService = __decorate([
         common_1.Injectable(),
         __param(0, typeorm_1.InjectRepository(post_entity_1.Post)),
-        __param(1, typeorm_1.InjectRepository(picture_entity_1.Picture))
+        __param(1, typeorm_1.InjectRepository(postLike_entity_1.PostLike)),
+        __param(2, typeorm_1.InjectRepository(user_entity_1.User))
     ], PostService);
     return PostService;
 }());

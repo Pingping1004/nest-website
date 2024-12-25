@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, O
 import { User } from '../../users/schema/user.entity';
 import { Picture } from '../schema/picture.entity';
 import { Comment } from "../comment/comment.entity";
+import { PostLike } from "../like/postLike.entity";
 
 @Entity('post')
 @Index('IDX_AUTHOR_ID', ["author"])
@@ -36,7 +37,10 @@ export class Post {
     audience: string;
 
     @Column({ default: 0 })
-    postLikeCount: number;
+    likeCount: number;
+
+    @OneToMany(() => PostLike, (postLike) => postLike.postId)
+    postLikes: PostLike[];
 
     @OneToMany(() => Comment, (comment) => comment.post, {
         onDelete: 'CASCADE',
