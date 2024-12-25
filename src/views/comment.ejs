@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../public/css/styles.css">
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="clicking-post">
+
+            <div class="author-detail">
+                <img class="author-profile" src="/public/<%= post.author.profilePicture %>" alt="author profile">
+                <h5 class="author-name"><%= post.author.username %></h5>
+                <br>
+                <h3 class="post-title" id="post-title-<%= post.postId %>"><%= post.title %></h3>
+                <p class="post-content" id="post-title-<%= post.postId %>"><%= post.content %></p>
+                
+                <div id="post-engagement-<%= post.postId %>">
+                    <button id="post-like-btn-<%= post.postId %>" class="post-like-btn <%= likeButtonState %>" data-post-id="<%= post.postId %>">
+                        <img src="<%= likeButtonImg %>" alt="post like button">
+                    </button>
+                    <p class="post-like-count" id="like-count-<%= post.postId %>"><%= post.likeCount !== undefined ? post.likeCount : 'error' %></p>
+                </div>
+
+            </div>
+
+        </header>
+
+        <main class="comment-post-container">
+            <% comments.forEach(comment => { %>
+                <div class="comment-<%= comment.commentId %>">
+
+                    <div class="commenter-profile">
+                        <img class="commenter-profile" src="/public/<%= comment.commenter.profilePicture %>" alt="commenter-profile">
+                        <h5 class="commenter-username"><%= comment.commenter.username %></h5>
+                        <% if (userId === comment.commenter.userId) { %>
+                            <button class="more-info-comment" id="more-info-comment-<%= comment.commentId %>">
+                                <img src="/public/<%= Dots.svg" alt="more-info">
+                            </button>
+                        <% } %>
+                    </div>
+
+                    <p><%= comment.content %></p>
+
+                    <div class="comment-engagement">
+                        <div class="comment-like">
+                            <button id="comment-like-btn-<%= comment.commentId %>" class="comment-like-btn <%= commentLikeButtonState %>">
+                                <img src="<%= commentLikeButtonImg %>" alt="post like button">
+                            </button>
+                            <p class="comment-like-count" id="comment-like-count-<%= comment.commentId %>"><%= post.likeCount !== undefined ? post.likeCount : 'error' %></p>
+                        </div>
+
+                        <div class="comment-backpage">
+                            <button id="comment-back-btn-<%= comment.commentId %>" class="comment-back-btn">
+                                <img src="/public/Back.svg" alt="back to index button">
+                            </button>
+                        </div>
+                    </div
+                </div>
+            <% }) %>
+        </main>
+
+        <footer class="input-comment">
+            <input type="text" name="comments" placeholder="Write a comment...">
+            <button class="btn btn-primary">Sent</button>
+        </footer>
+
+        <script type="module" defer src="../../public/js/comment.js"></script>
+    </div>
+</body>
+
+</html>

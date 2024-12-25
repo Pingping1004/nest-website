@@ -10,7 +10,7 @@ exports.Post = void 0;
 var typeorm_1 = require("typeorm");
 var user_entity_1 = require("../../users/schema/user.entity");
 var picture_entity_1 = require("../schema/picture.entity");
-var comment_entity_1 = require("../comment/comment.entity");
+var comment_entity_1 = require("../comment/schema/comment.entity");
 var postLike_entity_1 = require("../like/postLike.entity");
 var Post = /** @class */ (function () {
     function Post() {
@@ -50,7 +50,7 @@ var Post = /** @class */ (function () {
         typeorm_1.OneToMany(function () { return postLike_entity_1.PostLike; }, function (postLike) { return postLike.postId; })
     ], Post.prototype, "postLikes");
     __decorate([
-        typeorm_1.OneToMany(function () { return comment_entity_1.Comment; }, function (comment) { return comment.post; }, {
+        typeorm_1.OneToMany(function () { return comment_entity_1.Comment; }, function (comment) { return comment.postId; }, {
             onDelete: 'CASCADE',
             eager: true
         })

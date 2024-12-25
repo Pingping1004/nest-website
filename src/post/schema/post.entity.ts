@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, OneToMany } from "typeorm";
 import { User } from '../../users/schema/user.entity';
 import { Picture } from '../schema/picture.entity';
-import { Comment } from "../comment/comment.entity";
+import { Comment } from "../comment/schema/comment.entity";
 import { PostLike } from "../like/postLike.entity";
 
 @Entity('post')
@@ -42,7 +42,7 @@ export class Post {
     @OneToMany(() => PostLike, (postLike) => postLike.postId)
     postLikes: PostLike[];
 
-    @OneToMany(() => Comment, (comment) => comment.post, {
+    @OneToMany(() => Comment, (comment) => comment.postId, {
         onDelete: 'CASCADE',
         eager: true,
     })

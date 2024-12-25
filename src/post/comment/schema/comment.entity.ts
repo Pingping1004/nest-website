@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
-import { Post } from "../schema/post.entity";
+import { Post } from "../../schema/post.entity";
+import { User } from "../../../users/schema/user.entity";
 
 @Entity('Comment')
 
@@ -19,6 +20,12 @@ export class Comment {
     @ManyToOne(() => Post, (post) => post.comments, {
         onDelete: 'CASCADE'
     })
-    @JoinColumn({ name: 'postId'})
-    post: Post;
+    @JoinColumn({ name: 'commmentPostId' })
+    postId: Post;
+
+    @ManyToOne(() => User, (user) => user.postComments, {
+        onDelete: 'CASCADE',
+    })
+    @JoinColumn({ name: 'commenterId' })
+    commenter: User;
 }

@@ -6,6 +6,7 @@ export enum Role {
 import { Column, Entity, OneToMany, BeforeInsert, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from '../../post/schema/post.entity';
 import { PostLike } from '../../post/like/postLike.entity';
+import { Comment } from '../../post/comment/schema/comment.entity';
 
 @Entity('user')
 export class User {
@@ -56,4 +57,7 @@ export class User {
 
     @OneToMany(() => PostLike, (postLike) => postLike.userId)
     postLikes: PostLike[];
+
+    @OneToMany(() => Comment, (comment) => comment.commenter)
+    postComments: Comment[];
 }

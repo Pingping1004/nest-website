@@ -9,10 +9,11 @@ import { UsersService } from '../users/users.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { PostLike } from './like/postLike.entity';
 import { User } from '../users/schema/user.entity';
+import { Comment } from './comment/schema/comment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, Picture, PostLike, User]),
+    TypeOrmModule.forFeature([Post, Picture, PostLike, User, Comment]),
     UsersModule,
     // MulterModule.register({
     //   dest: './uploads/pictures',

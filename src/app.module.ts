@@ -10,7 +10,7 @@ import { GoogleStrategy } from './auth/strategy/google.strategy';
 import { PostModule } from './post/post.module';
 import { Post } from './post/schema/post.entity';
 import { PostLike } from './post/like/postLike.entity';
-import { Comment } from './post/comment/comment.entity';
+import { Comment } from './post/comment/schema/comment.entity';
 import { AdminModule} from './admin/admin.module';
 import { Picture } from '../src/post/schema/picture.entity'
 import { MulterModule } from '@nestjs/platform-express'

@@ -52,6 +52,7 @@ async function addPost() {
   const currentDate = new Date();
   const formData = new FormData();
   const likeCount = 0;
+  const comment = [];
 
   if (titleInput.value === '') {
     alert(`You can't post with empty content`);
@@ -62,6 +63,7 @@ async function addPost() {
   formData.append('audience', postAudience.value);
   formData.append('date', currentDate.toISOString());
   formData.append('likeCount', likeCount);
+  formData.append('comments', comment);
 
   if (postPicture && postPicture.files.length > 0) {
     for (let i = 0; i < postPicture.files.length; i++) {
@@ -395,7 +397,7 @@ async function postLikeCount(postId) {
   const isLiked = postLikeBtn.classList.contains('liked');
   const newCount = isLiked ? currentCount - 1 : currentCount + 1;
   
-  // Toggle Button State
+  // Toggle Button State when click
   postLikeBtn.classList.toggle('liked', !isLiked);
   postLikeBtn.classList.toggle('unliked', isLiked);
   img.src = isLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg';
@@ -416,6 +418,8 @@ async function postLikeCount(postId) {
 
     const updatedPost = await response.json();
     updateLikeCount(postId, updatedPost.likeCount);
+
+    // Toggle Button State when render
     postLikeBtn.classList.toggle('liked', updatedPost.isLiked);
     postLikeBtn.classList.toggle('unliked', !updatedPost.isLiked);
   } catch (error) {
