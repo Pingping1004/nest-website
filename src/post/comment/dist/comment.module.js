@@ -13,17 +13,25 @@ var comment_controller_1 = require("./comment.controller");
 var typeorm_1 = require("@nestjs/typeorm");
 var comment_entity_1 = require("./schema/comment.entity");
 var post_entity_1 = require("../schema/post.entity");
+var user_entity_1 = require("../../users/schema/user.entity");
 var post_service_1 = require("../post.service");
+var users_service_1 = require("../../users/users.service");
+var users_module_1 = require("../../users/users.module");
+var post_module_1 = require("../post.module");
+var postLike_entity_1 = require("../like/postLike.entity");
 var CommentModule = /** @class */ (function () {
     function CommentModule() {
     }
     CommentModule = __decorate([
         common_1.Module({
             imports: [
-                typeorm_1.TypeOrmModule.forFeature([comment_entity_1.Comment, post_entity_1.Post]),
+                typeorm_1.TypeOrmModule.forFeature([comment_entity_1.Comment, post_entity_1.Post, user_entity_1.User, postLike_entity_1.PostLike]),
+                post_module_1.PostModule,
+                users_module_1.UsersModule,
             ],
-            providers: [comment_service_1.CommentService, post_service_1.PostService],
-            controllers: [comment_controller_1.CommentController]
+            providers: [comment_service_1.CommentService, post_service_1.PostService, users_service_1.UsersService],
+            controllers: [comment_controller_1.CommentController],
+            exports: [comment_service_1.CommentService]
         })
     ], CommentModule);
     return CommentModule;

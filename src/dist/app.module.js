@@ -28,6 +28,7 @@ var record_entity_1 = require("./admin/record/entities/record.entity");
 var record_subscriber_1 = require("./admin/record/record.subscriber");
 var post_subscriber_1 = require("./post/post.subscriber");
 var admin_controller_1 = require("./admin/admin.controller");
+var comment_module_1 = require("./post/comment/comment.module");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -45,6 +46,7 @@ var AppModule = /** @class */ (function () {
                 users_module_1.UsersModule,
                 post_module_1.PostModule,
                 record_module_1.RecordModule,
+                comment_module_1.CommentModule,
                 // Connect to typeorm database
                 typeorm_1.TypeOrmModule.forRoot({
                     type: 'mysql',

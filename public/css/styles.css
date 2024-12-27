@@ -23,6 +23,7 @@ body {
 .input-post {
     display: flex;
     column-gap: 1rem;
+    margin-bottom: 3rem;
 }
 
 .input-box {
@@ -38,7 +39,7 @@ body {
     color: black;
     border-radius: 12px;
     margin-bottom: 2rem;
-    padding: 0.75rem 1rem;
+    padding: 2rem 1.5rem;
 }
 
 .article-title {
@@ -80,16 +81,34 @@ body {
     border-radius: 1rem;
     /* justify-self: center; */
 }
-.post-like-btn {
+
+.post-engagement {
+    display: flex;
+    column-gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.post-like {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 0.5rem;
+}
+
+.post-like-count {
+    display: flex;
+    justify-self: center;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.post-like-btn, .post-comment-btn {
+    display: flex;
+    flex-direction: column;
     border: none; /* Remove the border */
     background: none; /* Remove background */
     padding: 0; /* Remove padding */
     cursor: pointer; /* Change cursor to pointer for a clickable effect */
+    align-items: center;
 }
-  
-.like-post {
-    display: block;
-    width: 24px; /* Adjust as per your image size */
-    height: 24px;
-}
-  

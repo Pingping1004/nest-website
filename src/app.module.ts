@@ -21,6 +21,7 @@ import { Records } from './admin/record/entities/record.entity';
 import { RecordSubscriber } from './admin/record/record.subscriber';
 import { PostSubscriber } from './post/post.subscriber';
 import { AdminController } from './admin/admin.controller';
+import { CommentModule } from './post/comment/comment.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AdminController } from './admin/admin.controller';
     UsersModule,
     PostModule,
     RecordModule,
+    CommentModule,
     // Connect to typeorm database
     TypeOrmModule.forRoot({
       type: 'mysql',

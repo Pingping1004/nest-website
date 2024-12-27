@@ -157,7 +157,7 @@ export class PostService {
         throw new NotFoundException('Post not found');
       }
 
-      console.log('Author id of updating post:', post.author.userId);
+      console.log('Author id of deleted post:', post.author.userId);
       console.log('User who delete the post:', userId);
 
       return await this.postRepository.remove(post);

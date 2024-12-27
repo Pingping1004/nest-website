@@ -69,7 +69,7 @@ export class PostController {
             console.log('Created post in controller', post);
             return res.status(201).json({ message: 'Post created successfully', post });
         } catch (error) {
-            console.error('Failed to get post in controller', error.message);
+            console.error('Failed to create post in controller', error.message);
             throw new InternalServerErrorException('Failed to create post');
         }
     }

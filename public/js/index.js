@@ -9,7 +9,6 @@ const logoutBtn = document.querySelector('.logout-btn');
 const postAudience = document.querySelector('.post-audience');
 
 let articles = [];
-let edittingIndex = null;
 let loggedInUserId = null;
 let postId = null;
 let loggedInUserRole = null;
@@ -52,7 +51,7 @@ async function addPost() {
   const currentDate = new Date();
   const formData = new FormData();
   const likeCount = 0;
-  const comment = [];
+  const comments = [];
 
   if (titleInput.value === '') {
     alert(`You can't post with empty content`);
@@ -63,7 +62,7 @@ async function addPost() {
   formData.append('audience', postAudience.value);
   formData.append('date', currentDate.toISOString());
   formData.append('likeCount', likeCount);
-  formData.append('comments', comment);
+  formData.append('comments', comments);
 
   if (postPicture && postPicture.files.length > 0) {
     for (let i = 0; i < postPicture.files.length; i++) {
@@ -133,11 +132,18 @@ async function renderPost() {
       <div class="post-pictures">
         ${article.pictures.map((picture) => `<img src="/public/${picture.pictureUrl}" alt="Post picture" />`).join('')}
       </div>
-      <div id="post-engagement-${article.postId}">
-        <button id="post-like-btn-${article.postId}" class="post-like-btn ${likeButtonState}" data-post-id="${article.postId}">
-          <img src="${likeButtonImg}" alt="post like button">
-        </button>
-        <p class="article-like-count" id="like-count-${article.postId}">${article.likeCount !== undefined ? article.likeCount : 'error'}</p>
+      <div id="post-engagement-${article.postId}" class="post-engagement">
+        <div class="post-like">
+          <button id="post-like-btn-${article.postId}" class="post-like-btn ${likeButtonState}" data-post-id="${article.postId}">
+            <img src="${likeButtonImg}" alt="Post like button" class="like-post-img">
+          </button>
+          <p class="post-like-count" id="like-count-${article.postId}">${article.likeCount !== undefined ? article.likeCount : 'error'}</p>
+        </div>
+        <div class="post-comment">
+          <button id="post-comment-btn-${article.postId}" class="post-comment-btn" data-post-id="${article.postId}">
+            <img src="/public/picture/Comment.svg" alt="Post comment button" class="comment-post-img">
+          </button>
+        </div>
       </div>
 
         ${
@@ -193,6 +199,24 @@ async function renderPost() {
         const postId = postLikeBtn.getAttribute('data-post-id');
         console.log('Post like button is activated for postId:', postId);
         postLikeCount(postId);
+      }
+    });
+
+    mainFeedList.addEventListener('click', (event) => {
+      const postCommentBtn = event.target.closest('.post-comment-btn');
+      if (postCommentBtn) {
+        const postId = postCommentBtn.getAttribute('data-post-id');
+        const userId = loggedInUserId;
+        console.log('Post comment button is activated for postId:', postId, 'by userId', userId);
+
+        if (!postId) {
+          console.error('Post ID is missing');
+          return;
+        }
+
+        localStorage.setItem('postId', postId);
+        window.location.href = `/comments/render/${postId}/${userId}`;
+        // window.location.href = `/comments/render/${encodeURIComponent(postId)}/${encodeURIComponent(userId)}`;
       }
     });
 
@@ -312,70 +336,6 @@ window.deletePost = async function deletePost(postId) {
     console.error('Failed to delete post', error.message);
   }
 };
-
-// async function likePost(postId) {
-//   console.log('Like post activated on postId', postId);
-  
-//   const postLikeBtn = document.getElementById(`post-like-btn-${postId}`);
-//   const likeCountElement = document.querySelector(`#like-count-${postId}`);
-
-//   if (!postLikeBtn || !likeCountElement) {
-//     console.error('Post like button or like count element not found');
-//     return;
-//   }
-
-//   const img = postLikeBtn.querySelector('img');
-//   const isLiked = postLikeBtn.classList.contains('liked');
-
-//   // Current count from UI
-//   let currentCount = parseInt(likeCountElement.textContent) || 0;
-
-//   // Update UI Optimistically
-//   let updatedCount = isLiked ? currentCount - 1 : currentCount + 1;
-//   updatedCount = Math.max(updatedCount, 0); // Ensure count doesn't go below 0
-
-//   // Toggle Button State
-//   postLikeBtn.classList.toggle('liked', !isLiked);
-//   postLikeBtn.classList.toggle('unliked', isLiked);
-//   img.src = isLiked
-//     ? '/public/picture/Vector.svg'
-//     : '/public/picture/Solid-Vector.svg';
-
-//   // Update Count in UI
-//   likeCountElement.textContent = updatedCount;
-
-//   try {
-//     const response = await fetch(`/post/update/likecount/${postId}`, {
-//       method: 'PATCH',
-//       credentials: 'include',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       // body: JSON.stringify({ postLikeCount: updatedCount }), // Correct property name
-//     });
-
-//     if (response.ok) {
-//       const updatedPostLikeCountData = await response.json();
-//       console.log('Update like count successfully:', updatedPostLikeCountData);
-
-//       // Update UI with server-confirmed count
-//       likeCountElement.textContent = updatedPostLikeCountData.postLikeCount;
-//     } else {
-//       throw new Error(`Failed to update post like count: ${response.statusText}`);
-//     }
-//   } catch (error) {
-//     console.error('Failed to update post like count:', error.message);
-
-//     // Revert UI Changes on Failure
-//     const revertCount = isLiked ? currentCount : currentCount - 1;
-//     likeCountElement.textContent = revertCount;
-//     postLikeBtn.classList.toggle('liked', isLiked);
-//     postLikeBtn.classList.toggle('unliked', !isLiked);
-//     img.src = isLiked
-//       ? '/public/picture/Solid-Vector.svg'
-//       : '/public/picture/Vector.svg';
-//   }
-// }
 
 async function postLikeCount(postId) {
   console.log('Like post activated on postId', postId);
