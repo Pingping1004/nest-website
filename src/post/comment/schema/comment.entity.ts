@@ -14,8 +14,8 @@ export class Comment {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     date: Date;
 
-    @Column({ default: 0 })
-    commentLikeCount: number;
+    @Column({ default: 0, nullable: false })
+    likeCount: number;
 
     @ManyToOne(() => Post, (post) => post.comments, {
         onDelete: 'CASCADE'

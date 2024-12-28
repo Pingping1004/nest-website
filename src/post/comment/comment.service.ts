@@ -33,19 +33,22 @@ export class CommentService {
         }
     }
 
-    async createComment(createCommentDto: CreateCommentDto, userId: number): Promise<Comment> {
+    async createComment(createCommentDto: CreateCommentDto, userId: number, postId: number): Promise<Comment> {
         try {
+            console.log('Post ID in create comment service', postId);
             const comment = this.commentRepository.create({
                 ...createCommentDto,
+                postId: { postId },
                 commenter: { userId },
-                //commentLikeCount: 0
+                likeCount: 0,
             });
 
-            console.log('Create comment DTO', createCommentDto);
-            const newComment = await this.commentRepository.save(comment);
+            console.log('Comment before creating in controller', comment);
 
+            const newComment = await this.commentRepository.save(comment);
             return await this.commentRepository.findOne({
                 where: { commentId: newComment.commentId },
+                relations: ['commenter'],
             });
         } catch (error) {
             console.error('Failed to create comment', error.message);
@@ -57,6 +60,7 @@ export class CommentService {
             const comments = await this.commentRepository.find({
                 where: { postId: { postId } },
                 relations: ['commenter'],
+                order: { date: 'ASC' },
             });
             return comments;
         } catch (error) {

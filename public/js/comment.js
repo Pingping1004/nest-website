@@ -1,16 +1,22 @@
-const commentContentInput = document.querySelector('.input-content')
+const commentContentInput = document.querySelector('.input-content');
+const addCommentBtn = document.querySelector('.add-comment-btn');
+const backBtn = document.querySelector('.post-back-btn');
 
 let author = null;
 let articles = null;
 let comments = [];
 let commentId = null;
+let post = null;
+let postId = null;
 let loggedInUserId = null;
-let users = null;
+let user = null;
 
-window.addEventListener('DOMContentLoaded', async () => {
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const postId = urlParams.get('postId');
-    const postId = localStorage.getItem('postId');
+document.addEventListener('DOMContentLoaded', () => {
+    fetchComments();
+})
+
+async function fetchComments() {
+    postId = localStorage.getItem('postId');
     console.log('Post ID for comment page:', postId);
 
     try {
@@ -21,33 +27,43 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         const data = await response.json();
-        let { comments, posts, user } = data;
+        console.log('Fetched comments data:', data);
+        let { post } = data;
 
-        author = posts.author;
-        comments = comments;
-        articles = posts;
+        post = post;
+        comments = post.comments;
+        postId = post.postId;
+        user = post.author;
         loggedInUserId = user.userId;
-        users = user;
 
-        console.log('Fetched author', author);
+        console.log('Fetched post in comment page', post);
+        console.log('Fetched postId in comment page', postId);
         console.log('All fetched comments', comments);
-        console.log('Fetched user', users);
+        console.log('Fetched user', user);
+        console.log('Fetched logged in userId', loggedInUserId);
+
         renderComments();
     } catch (error) {
         console.error('Error fetching all comments on post:', error.message);
     }
-});
+}
 
 async function createComment() {
     try {
         const content = commentContentInput.value;
-        const date = new Date();
+
+        console.log('postId', postId);
 
         const comment = {
             content,
-            date,
+            date: new Date(),
             likeCount: 0,
+            postId,
+            userId: loggedInUserId,
         }
+
+        console.log('User ID in create comment function:', comment.userId);
+        console.log('Comment object before sending to backend', comment);
 
         const response = await fetch('/comments/create', {
             method: 'POST',
@@ -59,13 +75,20 @@ async function createComment() {
         });
 
         if (response.ok) {
-            const newComment = await response.json();
+            console.log('Response from creating', response)
+            const responseData = await response.json();
+            console.log('Response data:', responseData)
+            const newComment = responseData.comment;
+
             comments.push(newComment);
-            await fetchComments();
+            console.log('New comment:', newComment);
+            renderComments();
+
             commentContentInput.value = '';
         } else {
             const errorResponse = await response.json();
             console.error('Failed to create comment:', errorResponse);
+            throw new Error(errorResponse.message || 'Unknown error');
         }
 
     } catch (error) {
@@ -74,16 +97,28 @@ async function createComment() {
     }
 }
 
+addCommentBtn.addEventListener('click', createComment);
+backBtn.addEventListener('click', (event) => {
+    const userId = event.target.getAttribute('data-user-id');
+
+    if (!userId) {
+        console.error('User ID is missing');
+        return;
+    }
+
+    window.location.href = `/index?userId=${userId}`;
+});
+
 function renderComments() {
     const postCommentContainer = document.querySelector('.comment-post-container');
     postCommentContainer.innerHTML = '';
+    console.log('Comments to render', comments);
     comments.forEach((comment) => {
         const postComment = document.createElement('div');
-        
         postComment.classList.add('comment-post')
-        postComment.id(`comment-${comment.commentId}`);
+        postComment.id= `comment-${comment.commentId}`;
 
-        console.log('Post authorId', comment.author.userId);
+        console.log('Post authorId', comment.commenter.userId);
         console.log('Commenter ID', loggedInUserId);
 
         const isLiked = null;
@@ -94,9 +129,9 @@ function renderComments() {
             <div class="comment-${comment.commentId}">
 
                 <div class="commenter-profile-${comment.commentId}">
-                    <img class="commenter-profile" src="/public/${comment.commenter.profilePicture}" alt="commenter-profile">
+                    <img class="commenter-profile" width="100px" height="100px" src="/public/${comment.commenter.profilePicture}" alt="commenter-profile">
                     <h5 class="commenter-username">${comment.commenter.username}</h5>
-                    ${userId === comment.commenter.userId ?
+                    ${loggedInUserId === comment.commenter.userId ?
                         `<button class="more-info-comment" id="more-info-comment-${comment.commentId}" data-comment-id="${comment.commentId}">
                             <img src="/public/<%= Dots.svg" alt="more-info">
                         </button>` : ''
@@ -111,13 +146,7 @@ function renderComments() {
                         <button id="comment-like-btn-${comment.commentId}" class="comment-like-btn ${commentLikeButtonState}">
                             <img src="${commentLikeButtonImg}" alt="post like button">
                         </button>
-                        <p class="comment-like-count" id="comment-like-count-${comment.commentId}">${post.likeCount !== undefined ? post.likeCount : 'error'}</p>
-                    </div>
-
-                    <div class="comment-backpage">
-                        <button id="comment-back-btn-${comment.commentId}" class="comment-back-btn" data-user-id="${loggedInUserId}">
-                            <img src="/public/picture/Back.svg" alt="back to index button">
-                        </button>
+                        <p class="comment-like-count" id="comment-like-count-${comment.commentId}">${comment.likeCount !== undefined ? comment.likeCount : 'error'}</p>
                     </div>
 
                 </div>
@@ -129,18 +158,6 @@ function renderComments() {
         if (moreInfoBtn) {
             renderInfoBanner(commentId);
         }
-
-        const backBtn = document.querySelector('.comment-back-btn');
-        backBtn.addEventListener('click', (event) => {
-            const userId = event.target.getAttribute('data-user-id');
-
-            if (!userId) {
-                console.error('User ID is missing');
-                return;
-            }
-
-            window.location.href = `/index?userId=${userId}`;
-        });
 
         postCommentContainer.append(postComment);
     });

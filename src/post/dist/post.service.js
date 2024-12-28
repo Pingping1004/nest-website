@@ -161,7 +161,7 @@ var PostService = /** @class */ (function () {
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.postRepository.findOne({
                                 where: { postId: postId },
-                                relations: ['author', 'pictures']
+                                relations: ['author', 'pictures', 'comments', 'comments.commenter']
                             })];
                     case 1:
                         post = _a.sent();
@@ -312,6 +312,22 @@ var PostService = /** @class */ (function () {
                     case 1:
                         like = _a.sent();
                         return [2 /*return*/, !!like];
+                }
+            });
+        });
+    };
+    PostService.prototype.getCommentDetail = function (postId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var post;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.postRepository.findOne({
+                            where: { postId: postId },
+                            relations: ['comments']
+                        })];
+                    case 1:
+                        post = _a.sent();
+                        return [2 /*return*/, post];
                 }
             });
         });

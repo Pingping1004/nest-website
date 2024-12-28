@@ -16,6 +16,10 @@ var CreateCommentDto = /** @class */ (function () {
         class_validator_1.IsString()
     ], CreateCommentDto.prototype, "content");
     __decorate([
+        class_validator_1.IsNotEmpty(),
+        class_validator_1.IsNumber()
+    ], CreateCommentDto.prototype, "postId");
+    __decorate([
         class_validator_1.IsOptional(),
         class_validator_1.IsNumber()
     ], CreateCommentDto.prototype, "commentLikeCount");

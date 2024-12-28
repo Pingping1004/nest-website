@@ -124,26 +124,32 @@ async function renderPost() {
 
     mainFeedList.innerHTML = `
     <div id="post-${article.postId}">
+
       <h3 class="article-title" id="title-input-${article.postId}">${article.title}</h3>
       <p class="article-content" id="content-input-${article.postId}">${article.content}</p>
       <p class="post-author-id">Author ID: ${article.author.userId}</p>
       <p class="post-id">Post ID: ${article.postId}</p>
       <p class="login-user-id">Login ID: ${loggedInUserId}</p>
+      
       <div class="post-pictures">
         ${article.pictures.map((picture) => `<img src="/public/${picture.pictureUrl}" alt="Post picture" />`).join('')}
       </div>
+
       <div id="post-engagement-${article.postId}" class="post-engagement">
+
         <div class="post-like">
           <button id="post-like-btn-${article.postId}" class="post-like-btn ${likeButtonState}" data-post-id="${article.postId}">
             <img src="${likeButtonImg}" alt="Post like button" class="like-post-img">
           </button>
           <p class="post-like-count" id="like-count-${article.postId}">${article.likeCount !== undefined ? article.likeCount : 'error'}</p>
         </div>
+
         <div class="post-comment">
           <button id="post-comment-btn-${article.postId}" class="post-comment-btn" data-post-id="${article.postId}">
             <img src="/public/picture/Comment.svg" alt="Post comment button" class="comment-post-img">
           </button>
         </div>
+
       </div>
 
         ${

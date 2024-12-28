@@ -23,8 +23,8 @@ var Comment = /** @class */ (function () {
         typeorm_1.Column({ type: 'timestamp', "default": function () { return 'CURRENT_TIMESTAMP'; } })
     ], Comment.prototype, "date");
     __decorate([
-        typeorm_1.Column({ "default": 0 })
-    ], Comment.prototype, "commentLikeCount");
+        typeorm_1.Column({ "default": 0, nullable: false })
+    ], Comment.prototype, "likeCount");
     __decorate([
         typeorm_1.ManyToOne(function () { return post_entity_1.Post; }, function (post) { return post.comments; }, {
             onDelete: 'CASCADE'

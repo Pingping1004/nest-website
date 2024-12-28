@@ -88,20 +88,22 @@ var CommentService = /** @class */ (function () {
             });
         });
     };
-    CommentService.prototype.createComment = function (createCommentDto, userId) {
+    CommentService.prototype.createComment = function (createCommentDto, userId, postId) {
         return __awaiter(this, void 0, Promise, function () {
             var comment, newComment, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        comment = this.commentRepository.create(__assign(__assign({}, createCommentDto), { commenter: { userId: userId } }));
-                        console.log('Create comment DTO', createCommentDto);
+                        console.log('Post ID in create comment service', postId);
+                        comment = this.commentRepository.create(__assign(__assign({}, createCommentDto), { postId: { postId: postId }, commenter: { userId: userId }, likeCount: 0 }));
+                        console.log('Comment before creating in controller', comment);
                         return [4 /*yield*/, this.commentRepository.save(comment)];
                     case 1:
                         newComment = _a.sent();
                         return [4 /*yield*/, this.commentRepository.findOne({
-                                where: { commentId: newComment.commentId }
+                                where: { commentId: newComment.commentId },
+                                relations: ['commenter']
                             })];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
@@ -122,7 +124,8 @@ var CommentService = /** @class */ (function () {
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.commentRepository.find({
                                 where: { postId: { postId: postId } },
-                                relations: ['commenter']
+                                relations: ['commenter'],
+                                order: { date: 'ASC' }
                             })];
                     case 1:
                         comments = _a.sent();

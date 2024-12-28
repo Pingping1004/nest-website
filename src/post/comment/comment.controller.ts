@@ -1,4 +1,4 @@
-import { Controller, Req, Res, Get, Post, Delete, Param, UseGuards, InternalServerErrorException, NotFoundException, ParseIntPipe } from '@nestjs/common';
+import { Controller, Req, Res, Get, Post, Delete, Param, Body, UseGuards, InternalServerErrorException, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { Response } from 'express';
 import { CommentService } from './comment.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -16,17 +16,25 @@ export class CommentController {
 
     @Post('create')
     @UseGuards(JwtAuthGuard)
-    async createComment(createCommentDto: CreateCommentDto, @Req() req, @Res() res) {
+    async createComment(@Body() createCommentDto: CreateCommentDto, @Req() req, @Res() res) {
         try {
+            const { postId } = createCommentDto;
             const userId = req.user.userId;
-            console.log('User ID', userId);
+            console.log('User ID in create comment controller', userId);
+            console.log('Post ID in create comment controller', postId);
+            console.log('createCommentDto in create comment controller', createCommentDto);
+
             const user = await this.userService.findByUserId(userId);
 
             if (!user) {
                 throw new NotFoundException('User not found');
             }
 
-            const comment = await this.commentService.createComment(createCommentDto, userId);
+            if (!postId) {
+                throw new NotFoundException('postId not found');
+            }
+
+            const comment = await this.commentService.createComment(createCommentDto, userId, postId);
             console.log('Created comment in controller', comment);
             return res.status(201).json({ message: 'Comment created successfully', comment });
         } catch (error) {
@@ -40,8 +48,14 @@ export class CommentController {
     async getComments(@Req() req, @Res() res, @Param('postId', ParseIntPipe) postId: number) {
         try {
             console.log('Post ID of fetch comments:', postId);
-            const comments = await this.commentService.getAllCommentsInPost(postId);
-            return res.status(200).json({ comments });
+
+            const post = await this.postService.getPostById(postId);
+            const comments = post.comments;
+            console.log('Post in comment fetching', post);
+            
+            console.log('Sending response:', post);
+            console.log('Comment of fetching comment controller', comments);
+            return res.status(200).json({ post, comments });
         } catch (error) {
             throw new InternalServerErrorException('Failed to fetch comments');
         }

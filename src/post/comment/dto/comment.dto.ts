@@ -5,6 +5,10 @@ export class CreateCommentDto {
     @IsString()
     content: string;
 
+    @IsNotEmpty()
+    @IsNumber()
+    postId: number;
+
     @IsOptional()
     @IsNumber()
     commentLikeCount?: number;

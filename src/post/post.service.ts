@@ -26,10 +26,7 @@ export class PostService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createPost(
-    createPostDto: CreatePostDto,
-    userId: number,
-  ): Promise<Post> {
+  async createPost(createPostDto: CreatePostDto, userId: number): Promise<Post> {
     try {
       const post = this.postRepository.create({
         ...createPostDto,
@@ -100,7 +97,7 @@ export class PostService {
       // console.log('Searching for post from userId:', id);
       const post = await this.postRepository.findOne({
         where: { postId },
-        relations: ['author', 'pictures'],
+        relations: ['author', 'pictures', 'comments', 'comments.commenter'],
       });
 
       if (!post) {
@@ -211,5 +208,14 @@ export class PostService {
     });
 
     return !!like;
+  }
+
+  async getCommentDetail(postId: number) {
+    const post = await this.postRepository.findOne({
+      where: { postId },
+      relations: ['comments'],
+    });
+
+    return post;
   }
 }

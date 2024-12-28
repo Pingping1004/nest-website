@@ -56,20 +56,26 @@ var CommentController = /** @class */ (function () {
     }
     CommentController.prototype.createComment = function (createCommentDto, req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, user, comment, error_1;
+            var postId, userId, user, comment, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
+                        postId = createCommentDto.postId;
                         userId = req.user.userId;
-                        console.log('User ID', userId);
+                        console.log('User ID in create comment controller', userId);
+                        console.log('Post ID in create comment controller', postId);
+                        console.log('createCommentDto in create comment controller', createCommentDto);
                         return [4 /*yield*/, this.userService.findByUserId(userId)];
                     case 1:
                         user = _a.sent();
                         if (!user) {
                             throw new common_1.NotFoundException('User not found');
                         }
-                        return [4 /*yield*/, this.commentService.createComment(createCommentDto, userId)];
+                        if (!postId) {
+                            throw new common_1.NotFoundException('postId not found');
+                        }
+                        return [4 /*yield*/, this.commentService.createComment(createCommentDto, userId, postId)];
                     case 2:
                         comment = _a.sent();
                         console.log('Created comment in controller', comment);
@@ -85,16 +91,20 @@ var CommentController = /** @class */ (function () {
     };
     CommentController.prototype.getComments = function (req, res, postId) {
         return __awaiter(this, void 0, void 0, function () {
-            var comments, error_2;
+            var post, comments, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         console.log('Post ID of fetch comments:', postId);
-                        return [4 /*yield*/, this.commentService.getAllCommentsInPost(postId)];
+                        return [4 /*yield*/, this.postService.getPostById(postId)];
                     case 1:
-                        comments = _a.sent();
-                        return [2 /*return*/, res.status(200).json({ comments: comments })];
+                        post = _a.sent();
+                        comments = post.comments;
+                        console.log('Post in comment fetching', post);
+                        console.log('Sending response:', post);
+                        console.log('Comment of fetching comment controller', comments);
+                        return [2 /*return*/, res.status(200).json({ post: post, comments: comments })];
                     case 2:
                         error_2 = _a.sent();
                         throw new common_1.InternalServerErrorException('Failed to fetch comments');
@@ -144,7 +154,7 @@ var CommentController = /** @class */ (function () {
     __decorate([
         common_1.Post('create'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-        __param(1, common_1.Req()), __param(2, common_1.Res())
+        __param(0, common_1.Body()), __param(1, common_1.Req()), __param(2, common_1.Res())
     ], CommentController.prototype, "createComment");
     __decorate([
         common_1.Get('get-comments/:postId'),

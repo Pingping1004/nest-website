@@ -7,30 +7,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comment</title>
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/public/css/styles.css">
+    <link rel="stylesheet" href="/public/css/comment.css">
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <header class="clicking-post">
+        <header class="post">
 
             <div class="author-detail">
-                <p>Post ID: <%= post.postId %></p>
                 <img class="author-profile" width="100px" height="100px" src="/public/<%= post.author.profilePicture %>" alt="author profile">
                 <h5 class="author-name"><%= post.author.username %></h5>
                 <br>
+            </div>
+
+            <div class="post-detail">
+
                 <h3 class="post-title" id="post-title-<%= post.postId %>"><%= post.title %></h3>
                 <p class="post-content" id="post-title-<%= post.postId %>"><%= post.content %></p>
+            </div>
                 
-                <div id="post-engagement-<%= post.postId %>">
+            <div class="post-engagement" id="post-engagement-<%= post.postId %>">
+                <div class="post-like">
                     <button id="post-like-btn-<%= post.postId %>" class="post-like-btn <%= post.isLiked %>" data-post-id="<%= post.postId %>">
-                        <img class="like-post-img" src="<%= post.isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+                        <img class="like-post-img" src="<%= post.isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg'
                         %>" alt="post like button">
                     </button>
                     <p class="post-like-count" id="like-count-<%= post.postId %>"><%= post.likeCount !== undefined ? post.likeCount : 'error' %></p>
                 </div>
-
+                    
+                <div class="post-backpage">
+                    <button class="post-back-btn">
+                        <img src="/public/picture/Back.svg" alt="back to index button">
+                    </button>
+                </div>
             </div>
 
         </header>
@@ -39,7 +49,7 @@
 
         <footer class="input-comment">
             <input class="input-content" type="text" name="comments" placeholder="Write a comment...">
-            <button class="btn btn-primary">Sent</button>
+            <button class="btn btn-primary add-comment-btn">Sent</button>
         </footer>
 
         <script type="module" defer src="/public/js/comment.js"></script>
