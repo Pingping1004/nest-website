@@ -130,7 +130,7 @@ async function renderPost() {
       <p class="post-author-id">Author ID: ${article.author.userId}</p>
       <p class="post-id">Post ID: ${article.postId}</p>
       <p class="login-user-id">Login ID: ${loggedInUserId}</p>
-      
+
       <div class="post-pictures">
         ${article.pictures.map((picture) => `<img src="/public/${picture.pictureUrl}" alt="Post picture" />`).join('')}
       </div>
@@ -176,10 +176,7 @@ async function renderPost() {
         }
     }
 
-    if (
-      article.author.userId === loggedInUserId ||
-      loggedInUserRole === 'admin'
-    ) {
+    if (article.author.userId === loggedInUserId || loggedInUserRole === 'admin') {
       const editBtn = mainFeedList.querySelector('.edit-post-btn');
       if (editBtn) {
         editBtn.addEventListener('click', (event) => {

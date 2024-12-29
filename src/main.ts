@@ -17,6 +17,11 @@ async function bootstrap() {
     prefix: '/public',
   });
   app.setViewEngine('ejs');
+  app.enableCors({
+    origin: '*',
+    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+    credentials: true,
+  })
   // app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.listen(3000);
 }

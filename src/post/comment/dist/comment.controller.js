@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -91,31 +102,37 @@ var CommentController = /** @class */ (function () {
     };
     CommentController.prototype.getComments = function (req, res, postId) {
         return __awaiter(this, void 0, void 0, function () {
-            var post, comments, error_2;
+            var post, userId, comments, isLiked, enrichedPost, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _a.trys.push([0, 3, , 4]);
                         console.log('Post ID of fetch comments:', postId);
                         return [4 /*yield*/, this.postService.getPostById(postId)];
                     case 1:
                         post = _a.sent();
+                        userId = post.author.userId;
                         comments = post.comments;
+                        console.log('User ID in get comments controller', userId);
                         console.log('Post in comment fetching', post);
-                        console.log('Sending response:', post);
-                        console.log('Comment of fetching comment controller', comments);
-                        return [2 /*return*/, res.status(200).json({ post: post, comments: comments })];
+                        return [4 /*yield*/, this.postService.checkIfUserLikedPost(postId, userId)];
                     case 2:
+                        isLiked = _a.sent();
+                        enrichedPost = __assign(__assign({}, post), { isLiked: isLiked });
+                        console.log('Post with isLiked state', enrichedPost);
+                        console.log('Comment of fetching comment controller', comments);
+                        return [2 /*return*/, res.status(200).json({ post: enrichedPost, comments: comments })];
+                    case 3:
                         error_2 = _a.sent();
                         throw new common_1.InternalServerErrorException('Failed to fetch comments');
-                    case 3: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
     };
     CommentController.prototype.renderCommentPage = function (req, res, postId, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var post, comments, fullUser, isLiked, error_3;
+            var post, comments, fullUser, postIsLiked, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -138,8 +155,8 @@ var CommentController = /** @class */ (function () {
                         }
                         return [4 /*yield*/, this.postService.checkIfUserLikedPost(postId, userId)];
                     case 4:
-                        isLiked = _a.sent();
-                        return [2 /*return*/, res.render('comment', { post: post, comments: comments, userId: userId, user: fullUser, isLiked: isLiked })];
+                        postIsLiked = _a.sent();
+                        return [2 /*return*/, res.render('comment', { post: post, comments: comments, userId: userId, user: fullUser, postIsLiked: postIsLiked })];
                     case 5:
                         error_3 = _a.sent();
                         if (error_3 instanceof common_1.NotFoundException) {

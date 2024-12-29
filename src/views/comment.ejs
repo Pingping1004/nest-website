@@ -16,7 +16,7 @@
         <header class="post">
 
             <div class="author-detail">
-                <img class="author-profile" width="100px" height="100px" src="/public/<%= post.author.profilePicture %>" alt="author profile">
+                <img class="author-profile-img" width="100px" height="100px" src="/public/<%= post.author.profilePicture %>" alt="author profile">
                 <h5 class="author-name"><%= post.author.username %></h5>
                 <br>
             </div>
@@ -29,8 +29,8 @@
                 
             <div class="post-engagement" id="post-engagement-<%= post.postId %>">
                 <div class="post-like">
-                    <button id="post-like-btn-<%= post.postId %>" class="post-like-btn <%= post.isLiked %>" data-post-id="<%= post.postId %>">
-                        <img class="like-post-img" src="<%= post.isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg'
+                    <button id="post-like-btn-<%= post.postId %>" class="post-like-btn <%= post.isLiked ? 'liked' : 'unliked' %>" data-post-id="<%= post.postId %>">
+                        <img class="like-post-img" src="<%= postIsLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg'
                         %>" alt="post like button">
                     </button>
                     <p class="post-like-count" id="like-count-<%= post.postId %>"><%= post.likeCount !== undefined ? post.likeCount : 'error' %></p>

@@ -242,7 +242,7 @@ var PostService = /** @class */ (function () {
     };
     PostService.prototype.likePost = function (postId, userId) {
         return __awaiter(this, void 0, Promise, function () {
-            var post, user, existingLike, newLike;
+            var post, user, existingLike, newLike, postWithLikeState;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.postRepository.findOne({ where: { postId: postId } })];
@@ -279,7 +279,8 @@ var PostService = /** @class */ (function () {
                     case 7: return [4 /*yield*/, this.postRepository.save(post)];
                     case 8:
                         _a.sent();
-                        return [2 /*return*/, post];
+                        postWithLikeState = __assign(__assign({}, post), { isLiked: !existingLike });
+                        return [2 /*return*/, postWithLikeState];
                 }
             });
         });
@@ -312,22 +313,6 @@ var PostService = /** @class */ (function () {
                     case 1:
                         like = _a.sent();
                         return [2 /*return*/, !!like];
-                }
-            });
-        });
-    };
-    PostService.prototype.getCommentDetail = function (postId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var post;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.postRepository.findOne({
-                            where: { postId: postId },
-                            relations: ['comments']
-                        })];
-                    case 1:
-                        post = _a.sent();
-                        return [2 /*return*/, post];
                 }
             });
         });

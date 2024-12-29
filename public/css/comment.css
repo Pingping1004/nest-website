@@ -35,17 +35,11 @@ body {
         display: flex;
         align-items: center;
         column-gap: 1rem;
-        margin-bottom: 1.5rem;
-
-        .author-profile {
-            border-radius: 50%;
-            width: 2.5rem;
-            height: 2.5rem;
-        }
+        margin-bottom: 1rem;
     }
 
     .post-detail {
-        margin: 2rem 0;
+        margin: 1.5rem 0;
     }
 
     .post-engagement {
@@ -70,6 +64,16 @@ body {
     }
 }
 
+.post-detail, .post-engagement {
+    padding-left: 3.5rem;
+}
+
+.author-profile-img, .commenter-profile-img {
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
 .post-like-btn, .post-back-btn {
     display: flex;
     flex-direction: column;
@@ -78,4 +82,68 @@ body {
     padding: 0;
     cursor: pointer;
     align-items: center;
+}
+
+.comment-post-container {
+    background-color: #ffffff;
+    color: #000000;
+
+    .comment {
+        padding-left: 1rem;
+        margin: 2rem 3rem 3rem 3rem;
+        
+        .comment-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-bottom: 1rem;
+            
+            .commenter-profile {
+                display: flex;
+                align-items: center;
+                column-gap: 1rem;
+            }
+            
+            .more-info-element {
+                display: flex;
+                align-items: center;
+                justify-content: end;
+            }
+
+            .comment-content-container {
+                margin-bottom: 2rem;
+
+                .comment-content {
+                    margin-bottom: 1.5rem;
+                }
+            }
+        }
+    }
+}
+
+.comment-engagement {
+    display: flex;
+    align-items: center;
+    
+    .comment-like {
+        display: flex;
+        align-items: center;
+        column-gap: 1rem;
+        
+        .comment-like-count {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.comment-content-container, .comment-engagement {
+    padding-left: 2.5rem;
+    margin-left: 1rem;
+}
+
+.comment-like-btn, .more-info-btn {
+    display: flex;
+    border: none;
+    background: none;
+    background-color: none;
+    cursor: pointer;
 }

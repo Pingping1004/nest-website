@@ -188,7 +188,12 @@ export class PostService {
     }
 
     await this.postRepository.save(post);
-    return post;
+
+    const postWithLikeState = {
+      ...post,
+      isLiked: !existingLike,
+    }
+    return postWithLikeState;
   }
 
   async getPostLikeCount(postId: number): Promise<number> {
@@ -208,14 +213,5 @@ export class PostService {
     });
 
     return !!like;
-  }
-
-  async getCommentDetail(postId: number) {
-    const post = await this.postRepository.findOne({
-      where: { postId },
-      relations: ['comments'],
-    });
-
-    return post;
   }
 }

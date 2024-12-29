@@ -50,12 +50,19 @@ export class CommentController {
             console.log('Post ID of fetch comments:', postId);
 
             const post = await this.postService.getPostById(postId);
+            const userId = post.author.userId;
             const comments = post.comments;
+
+            console.log('User ID in get comments controller', userId);
             console.log('Post in comment fetching', post);
             
-            console.log('Sending response:', post);
+            const isLiked = await this.postService.checkIfUserLikedPost(postId, userId);
+            const enrichedPost = { ...post, isLiked };
+
+            console.log('Post with isLiked state', enrichedPost);
             console.log('Comment of fetching comment controller', comments);
-            return res.status(200).json({ post, comments });
+
+            return res.status(200).json({ post: enrichedPost, comments });
         } catch (error) {
             throw new InternalServerErrorException('Failed to fetch comments');
         }
@@ -81,9 +88,9 @@ export class CommentController {
                 throw new NotFoundException('Post not found');
             }
 
-            const isLiked = await this.postService.checkIfUserLikedPost(postId, userId);
+            const postIsLiked = await this.postService.checkIfUserLikedPost(postId, userId);
 
-            return res.render('comment', { post, comments, userId, user: fullUser, isLiked });
+            return res.render('comment', { post, comments, userId, user: fullUser, postIsLiked });
         } catch (error) {
             if (error instanceof NotFoundException) {
                 throw error; // Re-throw NotFoundException

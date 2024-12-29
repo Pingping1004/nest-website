@@ -173,7 +173,9 @@ export class PostController {
             }
 
             console.log('User who likes post in controller', userId);
-            return this.postService.likePost(postId, userId);
+            const updatedPost = await this.postService.likePost(postId, userId);
+            console.log('Update post like object in controller', updatedPost);
+            return res.status(200).json(updatedPost);
         } catch (error) {
             console.error('Error updating post like count:', error.message);
             return res.status(500).json({ message: 'Failed to update post like count' });

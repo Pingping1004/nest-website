@@ -225,21 +225,27 @@ var PostController = /** @class */ (function () {
     };
     PostController.prototype.likePost = function (body, req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var postId, userId;
+            var postId, userId, updatedPost, error_5;
             return __generator(this, function (_a) {
-                try {
-                    postId = body.postId, userId = body.userId;
-                    if (!userId) {
-                        throw new common_1.BadRequestException('User ID is required');
-                    }
-                    console.log('User who likes post in controller', userId);
-                    return [2 /*return*/, this.postService.likePost(postId, userId)];
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        postId = body.postId, userId = body.userId;
+                        if (!userId) {
+                            throw new common_1.BadRequestException('User ID is required');
+                        }
+                        console.log('User who likes post in controller', userId);
+                        return [4 /*yield*/, this.postService.likePost(postId, userId)];
+                    case 1:
+                        updatedPost = _a.sent();
+                        console.log('Update post like object in controller', updatedPost);
+                        return [2 /*return*/, res.status(200).json(updatedPost)];
+                    case 2:
+                        error_5 = _a.sent();
+                        console.error('Error updating post like count:', error_5.message);
+                        return [2 /*return*/, res.status(500).json({ message: 'Failed to update post like count' })];
+                    case 3: return [2 /*return*/];
                 }
-                catch (error) {
-                    console.error('Error updating post like count:', error.message);
-                    return [2 /*return*/, res.status(500).json({ message: 'Failed to update post like count' })];
-                }
-                return [2 /*return*/];
             });
         });
     };
