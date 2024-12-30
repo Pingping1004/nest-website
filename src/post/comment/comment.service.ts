@@ -69,7 +69,7 @@ export class CommentService {
         }
     }
 
-    async deleteComments(commentId: number): Promise<Comment> {
+    async deleteComment(commentId: number): Promise<Comment> {
         try {
             console.log('commentId to delete:', commentId);
 

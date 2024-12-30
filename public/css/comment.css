@@ -5,13 +5,14 @@
 }
 
 body {
-    background-color: grey;
+    /* background-color: grey; */
     color: white;
 
     .container {
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        --bs-gutter-x: 0;
     }
 
     main {
@@ -21,8 +22,9 @@ body {
     .input-comment {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
-        background-color: #f9f9f9;
+        padding: 1rem 1rem;
+        border-top: #5c6369 1px solid;
+        background-color: #ffffff;
     }
 }
 
@@ -146,4 +148,24 @@ body {
     background: none;
     background-color: none;
     cursor: pointer;
+}
+
+.modal-content {
+    background-color: #b5b5b5;
+    padding: 1rem 1.5rem;
+
+    .modal-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .modal-cta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 2rem;
+        
+        .close {
+            width: 2rem;
+            height: 2rem;
+        }
+    }
 }

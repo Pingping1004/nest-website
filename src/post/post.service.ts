@@ -163,7 +163,7 @@ export class PostService {
     }
   }
 
-  async likePost(postId: number, userId: number): Promise<Post> {
+  async likePost(postId: number, userId: number): Promise<Post & { isLiked: boolean }> {
     const post = await this.postRepository.findOne({ where: { postId } });
     if (!post) throw new NotFoundException('Post not found');
 
@@ -189,10 +189,12 @@ export class PostService {
 
     await this.postRepository.save(post);
 
+    const isLiked = await this.checkIfUserLikedPost(postId, userId);
     const postWithLikeState = {
       ...post,
-      isLiked: !existingLike,
+      isLiked,
     }
+    console.log(`Post like state for user ${userId}: ${isLiked}`);
     return postWithLikeState;
   }
 

@@ -139,7 +139,7 @@ var CommentService = /** @class */ (function () {
             });
         });
     };
-    CommentService.prototype.deleteComments = function (commentId) {
+    CommentService.prototype.deleteComment = function (commentId) {
         return __awaiter(this, void 0, Promise, function () {
             var comment, error_3;
             return __generator(this, function (_a) {

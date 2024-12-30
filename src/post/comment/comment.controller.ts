@@ -49,20 +49,22 @@ export class CommentController {
         try {
             console.log('Post ID of fetch comments:', postId);
 
+            const userId = req.user.userId;
+            const user = await this.userService.findByUserId(userId);
             const post = await this.postService.getPostById(postId);
-            const userId = post.author.userId;
             const comments = post.comments;
 
             console.log('User ID in get comments controller', userId);
             console.log('Post in comment fetching', post);
             
             const isLiked = await this.postService.checkIfUserLikedPost(postId, userId);
+            console.log('Post is liked in fetch comment api', isLiked);
             const enrichedPost = { ...post, isLiked };
 
             console.log('Post with isLiked state', enrichedPost);
             console.log('Comment of fetching comment controller', comments);
 
-            return res.status(200).json({ post: enrichedPost, comments });
+            return res.status(200).json({ post: enrichedPost, comments, user });
         } catch (error) {
             throw new InternalServerErrorException('Failed to fetch comments');
         }
@@ -79,6 +81,7 @@ export class CommentController {
             const post = await this.postService.getPostById(postId);
             const comments = await this.commentService.getAllCommentsInPost(postId);
             const fullUser = await this.userService.findByUserId(userId);
+            const userIdFromToken = req.user.userId;
 
             if (!userId || !postId) {
                 throw new NotFoundException('UserID or postId not found');
@@ -88,7 +91,12 @@ export class CommentController {
                 throw new NotFoundException('Post not found');
             }
 
+            if (userId !== userIdFromToken) {
+                return res.status(403).send('Forbidden');
+            }
+
             const postIsLiked = await this.postService.checkIfUserLikedPost(postId, userId);
+            console.log('Post is liked in render comment api', postIsLiked);
 
             return res.render('comment', { post, comments, userId, user: fullUser, postIsLiked });
         } catch (error) {
@@ -96,6 +104,19 @@ export class CommentController {
                 throw error; // Re-throw NotFoundException
             }
             throw new InternalServerErrorException('Failed to render comment page');
+        }
+    }
+
+    @Delete('delete/:commentId')
+    @UseGuards(JwtAuthGuard)
+    async deleteComment(@Param('commentId') commentId: number, @Req() req, @Res() res) {
+        try {
+            const deletedComment = await this.commentService.deleteComment(commentId);
+            console.log('Deleted comment in controller:', deletedComment);
+            return res.status(200).json({ message: 'Delete comment successfully', deletedComment });
+        } catch (error) {
+            console.error('Failed to delete comment in controller', error.message);
+            throw new InternalServerErrorException('Failed to delete comment');
         }
     }
 }

@@ -11,12 +11,20 @@ let postLikeCount = null;
 let post = null;
 let postId = null;
 let loggedInUserId = null;
-let user = null;
+let loggedInUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchComments();
     fetchPostLikeCount(postId);
-})
+    document.body.addEventListener('click', (event) => {
+        const moreInfoBtn = event.target.closest('.more-info-btn');
+        if (moreInfoBtn) {
+            const commentId = moreInfoBtn.getAttribute('data-comment-id');
+            console.log('More info clicked for comment ID:', commentId);
+            renderPopup(commentId);
+        }
+    })
+});
 
 async function fetchComments() {
     postId = localStorage.getItem('postId');
@@ -31,21 +39,27 @@ async function fetchComments() {
 
         const data = await response.json();
         console.log('Fetched comments data:', data);
-        let { post } = data;
+        let { user, post } = data;
 
         post = post;
         comments = post.comments;
         postIsLiked = post.isLiked;
         postId = post.postId;
-        user = post.author;
+        loggedInUser = user;
         loggedInUserId = user.userId;
 
         console.log('Fetched post in comment page', post);
         console.log('Fetched post like state in comment page', postIsLiked);
         console.log('Fetched postId in comment page', postId);
         console.log('All fetched comments', comments);
+
+        comments.forEach((comment) => {
+            console.log('All fetched comment ID', comment.commentId);
+        });
+
         console.log('Fetched user', user);
         console.log('Fetched logged in userId', loggedInUserId);
+        console.log('Post ID ', postId, ' like state ', postIsLiked);
 
         renderComments();
     } catch (error) {
@@ -125,6 +139,8 @@ function renderComments() {
 
         console.log('Post authorId', comment.commenter.userId);
         console.log('Commenter ID', loggedInUserId);
+        console.log('Comment ID:', comment.commentId);
+
 
         const commentLikeButtonState = null;
         const commentLikeButtonImg = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
@@ -167,43 +183,11 @@ function renderComments() {
 
         const moreInfoBtn = document.querySelector(`#more-info-comment-${comment.commentId}`);
         if (moreInfoBtn) {
-            renderInfoBanner(commentId);
+            renderInfoBanner(comment.commentId);
         }
 
         postCommentContainer.append(postComment);
     });
-}
-
-window.deleteComment = async function deleteComment(commentId) {
-    try {
-        console.log('CommentId to delete', commentId);
-        const response = await fetch(`comments/delete/${commentId}`, {
-            method: 'DELETE',
-            credentials: 'include',
-        });
-
-        if (response.ok) {
-            const commentElement = document.getElementById(`comment-${comment.commentId}`);
-            if (commentElement) {
-                commentElement.remove();
-            } else {
-                console.error(`Comment element with ID ${comment.commentId} does not found in DOM`);
-            }
-
-            const deletedComment = await response.json();
-            console.log('Delete comment', deletedComment);
-
-            comments = comments.filter((comment) => comment.commentId !== parseInt(commentId, 10));
-            console.log('Comment deleted successfully');
-            renderComments();
-        } else {
-            const result = await response.json();
-            alert('Failed to remove comment', result.message);
-            console.error('Failed to remove comment:', result.message)
-        }
-    } catch (error) {
-        console.error('Failed to delete post', error.message);
-    }
 }
 
 async function postLike(postId) {
@@ -314,11 +298,89 @@ postEngagementContainer.addEventListener('click', (event) => {
     }
 });
 
+window.deleteComment = async function deleteComment(commentId) {
+    try {
+        const commentModalContainer = document.querySelector('.comment-modal-container');
+        console.log('CommentId to delete', commentId);
+        const response = await fetch(`/comments/delete/${commentId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+
+        if (response.ok) {
+            const commentElement = document.getElementById(`comment-${commentId}`);
+            if (commentElement) {
+                commentElement.remove();
+            } else {
+                console.error(`Comment element with ID ${commentId} does not found in DOM`);
+            }
+
+            const deletedComment = await response.json();
+            console.log('Delete comment', deletedComment);
+
+            comments = comments.filter((comment) => comment.commentId !== parseInt(commentId, 10));
+            console.log('Comment deleted successfully');
+            renderComments();
+            commentModalContainer.innerHTML = '';
+        } else {
+            const result = await response.json();
+            alert('Failed to remove comment', result.message);
+            console.error('Failed to remove comment:', result.message)
+        }
+    } catch (error) {
+        console.error('Failed to delete post', error.message);
+    }
+}
+
+function renderPopup(commentId) {
+    console.log(typeof deleteComment);
+    console.log('Comment ID in render popup function', commentId);
+
+    const commentModalContainer = document.querySelector('.comment-modal-container');
+    if (!commentModalContainer) {
+        console.error('comment-modal-container not found');
+        return;
+    }
+
+    commentModalContainer.innerHTML = '';
+
+    const commentModal = document.createElement('div');
+    commentModal.classList.add('comment-modal');
+    commentModal.id = `comment-modal-${commentId}`;
+
+    commentModal.innerHTML = `
+        <div class="modal-content">
+            <h5 class="modal-header">Are you sure you want to delete this comment?</h5>
+
+            <div class="modal-cta" id="modal-cta-${commentId}">
+                <button class="delete-comment-btn btn btn-danger" id="delete-comment-btn-${commentId} data-comment-id="${commentId}">
+                    Delete
+                </button>
+                <button class="close-modal btn btn-secondary">Cancel</button>
+            </div>
+
+        </div>
+    `;
+
+    commentModalContainer.append(commentModal);
+
+    const deleteCommentBtn = commentModal.querySelector(`.delete-comment-btn`);
+    if (deleteCommentBtn) {
+        deleteCommentBtn.addEventListener('click', (event) => {
+            // const commentId = event.target.getAttribute('data-comment-id');
+            console.log(`Delete mode activated for commentId: ${commentId}`);
+            deleteComment(commentId);
+        });
+    }
+
+    const closeModal = commentModal.querySelector('.close-modal');
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            commentModalContainer.innerHTML = '';
+        })
+    }
+}
 
 async function commentLike() {
     // toggle like state as same as postLike function
-}
-
-function renderInfoBanner(commentId) {
-    // render delete option in the bannner and click to activate delete function
 }

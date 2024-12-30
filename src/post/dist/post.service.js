@@ -242,7 +242,7 @@ var PostService = /** @class */ (function () {
     };
     PostService.prototype.likePost = function (postId, userId) {
         return __awaiter(this, void 0, Promise, function () {
-            var post, user, existingLike, newLike, postWithLikeState;
+            var post, user, existingLike, newLike, isLiked, postWithLikeState;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.postRepository.findOne({ where: { postId: postId } })];
@@ -279,7 +279,11 @@ var PostService = /** @class */ (function () {
                     case 7: return [4 /*yield*/, this.postRepository.save(post)];
                     case 8:
                         _a.sent();
-                        postWithLikeState = __assign(__assign({}, post), { isLiked: !existingLike });
+                        return [4 /*yield*/, this.checkIfUserLikedPost(postId, userId)];
+                    case 9:
+                        isLiked = _a.sent();
+                        postWithLikeState = __assign(__assign({}, post), { isLiked: isLiked });
+                        console.log("Post like state for user " + userId + ": " + isLiked);
                         return [2 /*return*/, postWithLikeState];
                 }
             });

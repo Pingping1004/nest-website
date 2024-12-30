@@ -102,37 +102,41 @@ var CommentController = /** @class */ (function () {
     };
     CommentController.prototype.getComments = function (req, res, postId) {
         return __awaiter(this, void 0, void 0, function () {
-            var post, userId, comments, isLiked, enrichedPost, error_2;
+            var userId, user, post, comments, isLiked, enrichedPost, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _a.trys.push([0, 4, , 5]);
                         console.log('Post ID of fetch comments:', postId);
-                        return [4 /*yield*/, this.postService.getPostById(postId)];
+                        userId = req.user.userId;
+                        return [4 /*yield*/, this.userService.findByUserId(userId)];
                     case 1:
+                        user = _a.sent();
+                        return [4 /*yield*/, this.postService.getPostById(postId)];
+                    case 2:
                         post = _a.sent();
-                        userId = post.author.userId;
                         comments = post.comments;
                         console.log('User ID in get comments controller', userId);
                         console.log('Post in comment fetching', post);
                         return [4 /*yield*/, this.postService.checkIfUserLikedPost(postId, userId)];
-                    case 2:
+                    case 3:
                         isLiked = _a.sent();
+                        console.log('Post is liked in fetch comment api', isLiked);
                         enrichedPost = __assign(__assign({}, post), { isLiked: isLiked });
                         console.log('Post with isLiked state', enrichedPost);
                         console.log('Comment of fetching comment controller', comments);
-                        return [2 /*return*/, res.status(200).json({ post: enrichedPost, comments: comments })];
-                    case 3:
+                        return [2 /*return*/, res.status(200).json({ post: enrichedPost, comments: comments, user: user })];
+                    case 4:
                         error_2 = _a.sent();
                         throw new common_1.InternalServerErrorException('Failed to fetch comments');
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
     CommentController.prototype.renderCommentPage = function (req, res, postId, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var post, comments, fullUser, postIsLiked, error_3;
+            var post, comments, fullUser, userIdFromToken, postIsLiked, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -147,15 +151,20 @@ var CommentController = /** @class */ (function () {
                         return [4 /*yield*/, this.userService.findByUserId(userId)];
                     case 3:
                         fullUser = _a.sent();
+                        userIdFromToken = req.user.userId;
                         if (!userId || !postId) {
                             throw new common_1.NotFoundException('UserID or postId not found');
                         }
                         if (!post) {
                             throw new common_1.NotFoundException('Post not found');
                         }
+                        if (userId !== userIdFromToken) {
+                            return [2 /*return*/, res.status(403).send('Forbidden')];
+                        }
                         return [4 /*yield*/, this.postService.checkIfUserLikedPost(postId, userId)];
                     case 4:
                         postIsLiked = _a.sent();
+                        console.log('Post is liked in render comment api', postIsLiked);
                         return [2 /*return*/, res.render('comment', { post: post, comments: comments, userId: userId, user: fullUser, postIsLiked: postIsLiked })];
                     case 5:
                         error_3 = _a.sent();
@@ -164,6 +173,27 @@ var CommentController = /** @class */ (function () {
                         }
                         throw new common_1.InternalServerErrorException('Failed to render comment page');
                     case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    CommentController.prototype.deleteComment = function (commentId, req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var deletedComment, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.commentService.deleteComment(commentId)];
+                    case 1:
+                        deletedComment = _a.sent();
+                        console.log('Deleted comment in controller:', deletedComment);
+                        return [2 /*return*/, res.status(200).json({ message: 'Delete comment successfully', deletedComment: deletedComment })];
+                    case 2:
+                        error_4 = _a.sent();
+                        console.error('Failed to delete comment in controller', error_4.message);
+                        throw new common_1.InternalServerErrorException('Failed to delete comment');
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -183,6 +213,11 @@ var CommentController = /** @class */ (function () {
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
         __param(0, common_1.Req()), __param(1, common_1.Res()), __param(2, common_1.Param('postId', common_1.ParseIntPipe)), __param(3, common_1.Param('userId', common_1.ParseIntPipe))
     ], CommentController.prototype, "renderCommentPage");
+    __decorate([
+        common_1.Delete('delete/:commentId'),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        __param(0, common_1.Param('commentId')), __param(1, common_1.Req()), __param(2, common_1.Res())
+    ], CommentController.prototype, "deleteComment");
     CommentController = __decorate([
         common_1.Controller('comments')
     ], CommentController);
