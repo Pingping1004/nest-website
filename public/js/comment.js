@@ -55,10 +55,6 @@ async function fetchComments() {
         console.log('Fetched postId in comment page', postId);
         console.log('All fetched comments', comments);
 
-        comments.forEach((comment) => {
-            console.log('All fetched comment ID', comment.commentId);
-        });
-
         console.log('Fetched user', user);
         console.log('Fetched logged in userId', loggedInUserId);
         console.log('Post ID ', postId, ' like state ', postIsLiked);
@@ -149,9 +145,10 @@ function renderComments() {
         console.log('Post ID:', postId);
         console.log('Commenter ID', loggedInUserId);
         console.log('Comment ID:', comment.commentId);
+        console.log('Comment like state', comment.isLiked);
 
-
-        const commentLikeButtonState = null;
+        const isLiked = comment.isLiked;
+        const commentLikeButtonState = isLiked ? 'liked' : 'unliked';
         const commentLikeButtonImg = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
 
         postComment.innerHTML = `
@@ -190,6 +187,18 @@ function renderComments() {
             </div>
         `;
 
+        const commentLikeBtn = document.getElementById(`comment-like-btn-${comment.commentId}`);
+        if (commentLikeBtn) {
+            if (comment.isLiked) {
+                commentLikeBtn.classList.add('liked');
+                commentLikeBtn.classList.remove('unliked');
+                
+            } else {
+                commentLikeBtn.classList.add('unliked');
+                commentLikeBtn.classList.remove('liked');
+            }
+        }
+
         postComment.addEventListener('click', (event) => {
             const commentLikeBtn = event.target.closest('.comment-like-btn');
             if (commentLikeBtn) {
@@ -204,6 +213,7 @@ function renderComments() {
             renderPopup(postId, comment.commentId);
         }
 
+        fetchCommentLikeCount(postId, comment.commentId)
         postCommentContainer.append(postComment);
     });
 }
@@ -462,9 +472,9 @@ async function commentLike(postId, commentId) {
     }
 }
 
-async function fetchCommentLikeCount(commentId) {
+async function fetchCommentLikeCount(postId, commentId) {
     try {
-        const response = await fetch(`/comments/get/likeCount/${commentId}`);
+        const response = await fetch(`/comments/get/likeCount/${postId}/${commentId}`);
 
         if (!response.ok) {
             throw new Error('Failed to fetch like count');

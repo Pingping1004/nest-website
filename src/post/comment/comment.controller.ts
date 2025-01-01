@@ -5,6 +5,19 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { CreateCommentDto } from './dto/comment.dto';
 import { UsersService } from '../../users/users.service';
 import { PostService } from '../post.service';
+import { User } from '../../users/schema/user.entity';
+import { Post as PostEntity } from '../../post/schema/post.entity'
+
+interface Comments {
+    commentId: number;
+    content: string;
+    likeCount: number;
+    date: Date;
+    post: PostEntity;
+    commenter: User;
+    isLiked?: boolean;
+
+}
 
 @Controller('comments')
 export class CommentController {
@@ -45,14 +58,14 @@ export class CommentController {
 
     @Get('get-comments/:postId')
     @UseGuards(JwtAuthGuard)
-    async getComments(@Req() req, @Res() res, @Param('postId', ParseIntPipe) postId: number) {
+    async getComments(@Req() req, @Res() res: Response, @Param('postId', ParseIntPipe) postId: number): Promise<Response> {
         try {
             console.log('Post ID of fetch comments:', postId);
 
             const userId = req.user.userId;
             const user = await this.userService.findByUserId(userId);
             const post = await this.postService.getPostById(postId);
-            const comments = post.comments;
+            const comments = post.comments as Comments[];
 
             console.log('User ID in get comments controller', userId);
             console.log('Post in comment fetching', post);
@@ -63,6 +76,14 @@ export class CommentController {
 
             console.log('Post with isLiked state', enrichedPost);
             console.log('Comment of fetching comment controller', comments);
+
+            // Modify the comments directly by adding the 'isLiked' property to each comment
+            for (const comment of comments) {
+                const isCommentLiked = await this.commentService.checkIfUserLikedComment(postId, comment.commentId, userId);
+                comment.isLiked = isCommentLiked; // Add isLiked property to the comment
+            }
+
+            console.log('Comments with like state:', comments);
 
             return res.status(200).json({ post: enrichedPost, comments, user });
         } catch (error) {

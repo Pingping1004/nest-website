@@ -109,7 +109,7 @@ export class CommentService {
         if (!post) throw new NotFoundException('Post not found');
     
         const existingCommentLike = await this.commentLikeRepository.findOne({
-          where: { commentId, userId },
+          where: { postId, commentId, userId },
         });
 
         console.log('Existing comment like', existingCommentLike);
@@ -127,7 +127,6 @@ export class CommentService {
 
         const isLiked = await this.checkIfUserLikedComment(postId, commentId, userId);
         const commentWithLikeState = {
-            postId,
             ...comment,
             isLiked,
         }
@@ -141,18 +140,24 @@ export class CommentService {
         const comment = await this.getCommentById(postId, commentId);
     
         if (!comment) {
-          throw new NotFoundException('Post not found');
+          throw new NotFoundException('Comment not found');
         }
     
         console.log(`Comment ID ${commentId} like count is ${comment.likeCount}`)
         return comment.likeCount;
       }
     
-      async checkIfUserLikedComment(postId: number, commentId: number, userId: number): Promise<boolean> {
+    async checkIfUserLikedComment(postId: number, commentId: number, userId: number): Promise<boolean> {
         const like = await this.commentLikeRepository.findOne({
-          where: { postId, commentId, userId },
+            where: { postId, commentId, userId },
         });
     
         return !!like;
-      }
+    }
+
+    // async getUserLikedComments(postId: number, userId: number): Promise<CommentLike[]> {
+    //     return this.commentLikeRepository.find({
+    //         where: { postId, userId },
+    //     })
+    // }
 }

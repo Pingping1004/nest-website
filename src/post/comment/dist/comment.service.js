@@ -198,7 +198,7 @@ var CommentService = /** @class */ (function () {
                         if (!post)
                             throw new common_1.NotFoundException('Post not found');
                         return [4 /*yield*/, this.commentLikeRepository.findOne({
-                                where: { commentId: commentId, userId: userId }
+                                where: { postId: postId, commentId: commentId, userId: userId }
                             })];
                     case 4:
                         existingCommentLike = _a.sent();
@@ -222,7 +222,7 @@ var CommentService = /** @class */ (function () {
                         return [4 /*yield*/, this.checkIfUserLikedComment(postId, commentId, userId)];
                     case 10:
                         isLiked = _a.sent();
-                        commentWithLikeState = __assign(__assign({ postId: postId }, comment), { isLiked: isLiked });
+                        commentWithLikeState = __assign(__assign({}, comment), { isLiked: isLiked });
                         console.log("Comment like state for user " + userId + ": " + isLiked + " from post " + postId);
                         return [2 /*return*/, commentWithLikeState];
                 }
@@ -240,7 +240,7 @@ var CommentService = /** @class */ (function () {
                     case 1:
                         comment = _a.sent();
                         if (!comment) {
-                            throw new common_1.NotFoundException('Post not found');
+                            throw new common_1.NotFoundException('Comment not found');
                         }
                         console.log("Comment ID " + commentId + " like count is " + comment.likeCount);
                         return [2 /*return*/, comment.likeCount];

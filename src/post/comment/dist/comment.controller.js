@@ -101,12 +101,12 @@ var CommentController = /** @class */ (function () {
         });
     };
     CommentController.prototype.getComments = function (req, res, postId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var userId, user, post, comments, isLiked, enrichedPost, error_2;
+        return __awaiter(this, void 0, Promise, function () {
+            var userId, user, post, comments, isLiked, enrichedPost, _i, comments_1, comment, isCommentLiked, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 4, , 5]);
+                        _a.trys.push([0, 8, , 9]);
                         console.log('Post ID of fetch comments:', postId);
                         userId = req.user.userId;
                         return [4 /*yield*/, this.userService.findByUserId(userId)];
@@ -125,11 +125,26 @@ var CommentController = /** @class */ (function () {
                         enrichedPost = __assign(__assign({}, post), { isLiked: isLiked });
                         console.log('Post with isLiked state', enrichedPost);
                         console.log('Comment of fetching comment controller', comments);
-                        return [2 /*return*/, res.status(200).json({ post: enrichedPost, comments: comments, user: user })];
+                        _i = 0, comments_1 = comments;
+                        _a.label = 4;
                     case 4:
+                        if (!(_i < comments_1.length)) return [3 /*break*/, 7];
+                        comment = comments_1[_i];
+                        return [4 /*yield*/, this.commentService.checkIfUserLikedComment(postId, comment.commentId, userId)];
+                    case 5:
+                        isCommentLiked = _a.sent();
+                        comment.isLiked = isCommentLiked; // Add isLiked property to the comment
+                        _a.label = 6;
+                    case 6:
+                        _i++;
+                        return [3 /*break*/, 4];
+                    case 7:
+                        console.log('Comments with like state:', comments);
+                        return [2 /*return*/, res.status(200).json({ post: enrichedPost, comments: comments, user: user })];
+                    case 8:
                         error_2 = _a.sent();
                         throw new common_1.InternalServerErrorException('Failed to fetch comments');
-                    case 5: return [2 /*return*/];
+                    case 9: return [2 /*return*/];
                 }
             });
         });

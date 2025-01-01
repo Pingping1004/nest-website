@@ -73,27 +73,24 @@ function fetchComments() {
           console.log('Fetched post like state in comment page', postIsLiked);
           console.log('Fetched postId in comment page', postId);
           console.log('All fetched comments', comments);
-          comments.forEach(function (comment) {
-            console.log('All fetched comment ID', comment.commentId);
-          });
           console.log('Fetched user', user);
           console.log('Fetched logged in userId', loggedInUserId);
           console.log('Post ID ', postId, ' like state ', postIsLiked);
           renderComments();
-          _context.next = 34;
+          _context.next = 33;
           break;
 
-        case 31:
-          _context.prev = 31;
+        case 30:
+          _context.prev = 30;
           _context.t0 = _context["catch"](2);
           console.error('Error fetching all comments on post:', _context.t0.message);
 
-        case 34:
+        case 33:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[2, 31]]);
+  }, null, null, [[2, 30]]);
 }
 
 function createComment() {
@@ -204,9 +201,23 @@ function renderComments() {
     console.log('Post ID:', postId);
     console.log('Commenter ID', loggedInUserId);
     console.log('Comment ID:', comment.commentId);
-    var commentLikeButtonState = null;
+    console.log('Comment like state', comment.isLiked);
+    var isLiked = comment.isLiked;
+    var commentLikeButtonState = isLiked ? 'liked' : 'unliked';
     var commentLikeButtonImg = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
     postComment.innerHTML = "\n            <div class=\"comment\" id=\"comment-".concat(comment.commentId, "\">\n\n                <div class=\"comment-header\">\n                    <div class=\"commenter-profile\" id=\"commenter-profile-").concat(comment.commentId, "\">\n                        <img class=\"commenter-profile-img\" width=\"100px\" height=\"100px\" src=\"/public/").concat(comment.commenter.profilePicture, "\" alt=\"commenter-profile\">\n                        <h5 class=\"commenter-username\">").concat(comment.commenter.username, "</h5>\n                    </div>\n\n                    ").concat(loggedInUserId === comment.commenter.userId ? "<div class=\"more-info-element\">\n                            <button class=\"more-info-btn\" id=\"more-info-comment-".concat(comment.commentId, "\" data-comment-id=\"").concat(comment.commentId, "\">\n                                <img class=\"more-info-img\" src=\"/public/picture/Dots.svg\" alt=\"more-info\">\n                            </button>\n                        </div>") : '', "\n                </div>\n\n                <div class=\"comment-content-container\">\n                    <p class=\"comment-content\" id=\"comment-content-").concat(comment.commentId, "\">").concat(comment.content, "</p>\n                </div>\n\n                <div class=\"comment-engagement\" id=\"comment-engagement-").concat(comment.commentId, "\">\n\n                    <div class=\"comment-like\" id=\"comment-like-").concat(comment.commentId, "\">\n                        <button id=\"comment-like-btn-").concat(comment.commentId, "\" class=\"comment-like-btn ").concat(commentLikeButtonState, "\" data-comment-id=\"").concat(comment.commentId, "\">\n                            <img class=\"comment-like-img\" src=\"").concat(commentLikeButtonImg, "\" alt=\"post like button\">\n                        </button>\n                        <p class=\"comment-like-count\" id=\"comment-like-count-").concat(comment.commentId, "\">").concat(comment.likeCount !== undefined ? comment.likeCount : 'error', "</p>\n                    </div>\n\n                </div>\n\n            </div>\n        ");
+    var commentLikeBtn = document.getElementById("comment-like-btn-".concat(comment.commentId));
+
+    if (commentLikeBtn) {
+      if (comment.isLiked) {
+        commentLikeBtn.classList.add('liked');
+        commentLikeBtn.classList.remove('unliked');
+      } else {
+        commentLikeBtn.classList.add('unliked');
+        commentLikeBtn.classList.remove('liked');
+      }
+    }
+
     postComment.addEventListener('click', function (event) {
       var commentLikeBtn = event.target.closest('.comment-like-btn');
 
@@ -222,6 +233,7 @@ function renderComments() {
       renderPopup(postId, comment.commentId);
     }
 
+    fetchCommentLikeCount(postId, comment.commentId);
     postCommentContainer.append(postComment);
   });
 }
@@ -581,7 +593,7 @@ function commentLike(postId, commentId) {
   }, null, null, [[17, 33]]);
 }
 
-function fetchCommentLikeCount(commentId) {
+function fetchCommentLikeCount(postId, commentId) {
   var response, _commentLikeCount;
 
   return regeneratorRuntime.async(function fetchCommentLikeCount$(_context7) {
@@ -590,7 +602,7 @@ function fetchCommentLikeCount(commentId) {
         case 0:
           _context7.prev = 0;
           _context7.next = 3;
-          return regeneratorRuntime.awrap(fetch("/comments/get/likeCount/".concat(commentId)));
+          return regeneratorRuntime.awrap(fetch("/comments/get/likeCount/".concat(postId, "/").concat(commentId)));
 
         case 3:
           response = _context7.sent;
