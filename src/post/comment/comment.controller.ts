@@ -1,4 +1,4 @@
-import { Controller, Req, Res, Get, Post, Delete, Param, Body, UseGuards, InternalServerErrorException, NotFoundException, ParseIntPipe } from '@nestjs/common';
+import { Controller, Req, Res, Get, Post, Patch, Delete, Param, Body, UseGuards, BadRequestException, InternalServerErrorException, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { Response } from 'express';
 import { CommentService } from './comment.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -107,16 +107,44 @@ export class CommentController {
         }
     }
 
-    @Delete('delete/:commentId')
+    @Delete('delete/:postId/:commentId')
     @UseGuards(JwtAuthGuard)
-    async deleteComment(@Param('commentId') commentId: number, @Req() req, @Res() res) {
+    async deleteComment(@Param('postId') postId: number, @Param('commentId') commentId: number, @Req() req, @Res() res) {
         try {
-            const deletedComment = await this.commentService.deleteComment(commentId);
+            const deletedComment = await this.commentService.deleteComment(postId, commentId);
             console.log('Deleted comment in controller:', deletedComment);
             return res.status(200).json({ message: 'Delete comment successfully', deletedComment });
         } catch (error) {
             console.error('Failed to delete comment in controller', error.message);
             throw new InternalServerErrorException('Failed to delete comment');
         }
+    }
+
+    @Patch('update/like/:commentId')
+    @UseGuards(JwtAuthGuard)
+    async likeComment(@Body() body: { postId: number, commentId: number; userId: number }, @Req() req, @Res() res,) {
+        try {
+            const { postId, commentId, userId } = body;
+    
+            if (!userId) {
+                throw new BadRequestException('User ID is required');
+            }
+    
+            console.log('User who likes comment in controller', userId);
+            const updatedComment = await this.commentService.likeComment(postId, commentId, userId);
+            console.log('Update comment like object in controller', updatedComment);
+            return res.status(200).json(updatedComment);
+        } catch (error) {
+            console.error('Error updating comment like count:', error.message);
+            return res.status(500).json({ message: 'Failed to update comment like count' });
+        }
+    }
+    
+    @Get('get/likeCount/:postId/:commentId')
+    async getCommentLikeCount(@Param('postId') postId: number, @Param('commentId') commentId: number) {
+        console.log('Post ID in the get comment like count controller', postId);
+        const comment = await this.commentService.getCommentById(postId, commentId);
+        console.log(`Post ID in controller ${commentId} like count is ${comment.likeCount}`)
+        return this.commentService.getCommentLikeCount(postId, commentId);
     }
 }

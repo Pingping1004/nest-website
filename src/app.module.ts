@@ -22,6 +22,7 @@ import { RecordSubscriber } from './admin/record/record.subscriber';
 import { PostSubscriber } from './post/post.subscriber';
 import { AdminController } from './admin/admin.controller';
 import { CommentModule } from './post/comment/comment.module';
+import { CommentLike } from './post/comment/schema/commentLike.entity';
 
 @Module({
   imports: [
@@ -45,12 +46,12 @@ import { CommentModule } from './post/comment/comment.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Post, Picture, Records, Comment, PostLike],
+      entities: [User, Post, Picture, Records, Comment, PostLike, CommentLike],
       synchronize: false,
       subscribers: [RecordSubscriber, PostSubscriber],
       // logging: true,
     }),
-    TypeOrmModule.forFeature([User, Post, Records, Comment, PostLike]),
+    TypeOrmModule.forFeature([User, Post, Records, Comment, PostLike, CommentLike]),
     AdminModule,
     MulterModule.register({
       dest: './uploads',

@@ -61,42 +61,53 @@ var common_1 = require("@nestjs/common");
 var typeorm_1 = require("@nestjs/typeorm");
 var comment_entity_1 = require("./schema/comment.entity");
 var post_entity_1 = require("../schema/post.entity");
+var user_entity_1 = require("../../users/schema/user.entity");
+var commentLike_entity_1 = require("./schema/commentLike.entity");
 var CommentService = /** @class */ (function () {
-    function CommentService(commentRepository, postRepository) {
+    function CommentService(commentRepository, postRepository, userRepository, commentLikeRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
+        this.commentLikeRepository = commentLikeRepository;
     }
-    CommentService.prototype.getCommentById = function (commentId) {
+    CommentService.prototype.getCommentById = function (postId, commentId) {
         return __awaiter(this, void 0, Promise, function () {
-            var comment;
+            var comment, error_1;
             return __generator(this, function (_a) {
-                try {
-                    comment = this.commentRepository.findOne({
-                        where: { commentId: commentId },
-                        relations: ['commenter']
-                    });
-                    if (!comment) {
-                        throw new common_1.NotFoundException('Comment not found');
-                    }
-                    console.log('Comment that get by ID:', comment);
-                    return [2 /*return*/, comment];
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        console.log('Post ID in get comment by ID funciton', postId);
+                        console.log('Comment ID in get comment by ID funciton', commentId);
+                        return [4 /*yield*/, this.commentRepository.findOne({
+                                where: { post: { postId: postId }, commentId: commentId },
+                                relations: ['commenter', 'post']
+                            })];
+                    case 1:
+                        comment = _a.sent();
+                        if (!comment) {
+                            throw new common_1.NotFoundException('Comment not found');
+                        }
+                        console.log('Comment that get by ID:', comment);
+                        return [2 /*return*/, comment];
+                    case 2:
+                        error_1 = _a.sent();
+                        console.error('Failed to get comment by ID', error_1.message);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
-                catch (error) {
-                    console.error('Failed to get comment by ID', error.message);
-                }
-                return [2 /*return*/];
             });
         });
     };
     CommentService.prototype.createComment = function (createCommentDto, userId, postId) {
         return __awaiter(this, void 0, Promise, function () {
-            var comment, newComment, error_1;
+            var comment, newComment, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
                         console.log('Post ID in create comment service', postId);
-                        comment = this.commentRepository.create(__assign(__assign({}, createCommentDto), { postId: { postId: postId }, commenter: { userId: userId }, likeCount: 0 }));
+                        comment = this.commentRepository.create(__assign(__assign({}, createCommentDto), { post: { postId: postId }, commenter: { userId: userId }, likeCount: 0 }));
                         console.log('Comment before creating in controller', comment);
                         return [4 /*yield*/, this.commentRepository.save(comment)];
                     case 1:
@@ -107,8 +118,8 @@ var CommentService = /** @class */ (function () {
                             })];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
-                        error_1 = _a.sent();
-                        console.error('Failed to create comment', error_1.message);
+                        error_2 = _a.sent();
+                        console.error('Failed to create comment', error_2.message);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
@@ -117,13 +128,13 @@ var CommentService = /** @class */ (function () {
     };
     CommentService.prototype.getAllCommentsInPost = function (postId) {
         return __awaiter(this, void 0, Promise, function () {
-            var comments, error_2;
+            var comments, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.commentRepository.find({
-                                where: { postId: { postId: postId } },
+                                where: { post: { postId: postId } },
                                 relations: ['commenter'],
                                 order: { date: 'ASC' }
                             })];
@@ -131,23 +142,23 @@ var CommentService = /** @class */ (function () {
                         comments = _a.sent();
                         return [2 /*return*/, comments];
                     case 2:
-                        error_2 = _a.sent();
-                        console.error('Failed to render all comments in post', error_2.message);
+                        error_3 = _a.sent();
+                        console.error('Failed to render all comments in post', error_3.message);
                         throw new common_1.InternalServerErrorException('Failed to retrieve comments');
                     case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    CommentService.prototype.deleteComment = function (commentId) {
+    CommentService.prototype.deleteComment = function (postId, commentId) {
         return __awaiter(this, void 0, Promise, function () {
-            var comment, error_3;
+            var comment, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        console.log('commentId to delete:', commentId);
-                        return [4 /*yield*/, this.getCommentById(commentId)];
+                        console.log('commentId to delete:', commentId), ' from post ID', postId;
+                        return [4 /*yield*/, this.getCommentById(postId, commentId)];
                     case 1:
                         comment = _a.sent();
                         console.log('Deleted comment detail:', comment);
@@ -158,10 +169,96 @@ var CommentService = /** @class */ (function () {
                         return [4 /*yield*/, this.commentRepository.remove(comment)];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
-                        error_3 = _a.sent();
-                        console.error('Failed to delete comment', error_3.message);
+                        error_4 = _a.sent();
+                        console.error('Failed to delete comment', error_4.message);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    CommentService.prototype.likeComment = function (postId, commentId, userId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var comment, user, post, existingCommentLike, newCommentLike, isLiked, commentWithLikeState;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.commentRepository.findOne({ where: { commentId: commentId } })];
+                    case 1:
+                        comment = _a.sent();
+                        if (!comment)
+                            throw new common_1.NotFoundException('Post not found');
+                        return [4 /*yield*/, this.userRepository.findOne({ where: { userId: userId } })];
+                    case 2:
+                        user = _a.sent();
+                        if (!user)
+                            throw new common_1.NotFoundException('User not found');
+                        return [4 /*yield*/, this.postRepository.findOne({ where: { postId: postId } })];
+                    case 3:
+                        post = _a.sent();
+                        if (!post)
+                            throw new common_1.NotFoundException('Post not found');
+                        return [4 /*yield*/, this.commentLikeRepository.findOne({
+                                where: { commentId: commentId, userId: userId }
+                            })];
+                    case 4:
+                        existingCommentLike = _a.sent();
+                        console.log('Existing comment like', existingCommentLike);
+                        if (!existingCommentLike) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.commentLikeRepository.remove(existingCommentLike)];
+                    case 5:
+                        _a.sent();
+                        comment.likeCount--;
+                        return [3 /*break*/, 8];
+                    case 6:
+                        newCommentLike = this.commentLikeRepository.create({ postId: postId, commentId: commentId, userId: userId });
+                        return [4 /*yield*/, this.commentLikeRepository.save(newCommentLike)];
+                    case 7:
+                        _a.sent();
+                        comment.likeCount++;
+                        _a.label = 8;
+                    case 8: return [4 /*yield*/, this.commentRepository.save(comment)];
+                    case 9:
+                        _a.sent();
+                        return [4 /*yield*/, this.checkIfUserLikedComment(postId, commentId, userId)];
+                    case 10:
+                        isLiked = _a.sent();
+                        commentWithLikeState = __assign(__assign({ postId: postId }, comment), { isLiked: isLiked });
+                        console.log("Comment like state for user " + userId + ": " + isLiked + " from post " + postId);
+                        return [2 /*return*/, commentWithLikeState];
+                }
+            });
+        });
+    };
+    CommentService.prototype.getCommentLikeCount = function (postId, commentId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var comment;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log('Comment ID from get comment like count serivce', postId);
+                        return [4 /*yield*/, this.getCommentById(postId, commentId)];
+                    case 1:
+                        comment = _a.sent();
+                        if (!comment) {
+                            throw new common_1.NotFoundException('Post not found');
+                        }
+                        console.log("Comment ID " + commentId + " like count is " + comment.likeCount);
+                        return [2 /*return*/, comment.likeCount];
+                }
+            });
+        });
+    };
+    CommentService.prototype.checkIfUserLikedComment = function (postId, commentId, userId) {
+        return __awaiter(this, void 0, Promise, function () {
+            var like;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.commentLikeRepository.findOne({
+                            where: { postId: postId, commentId: commentId, userId: userId }
+                        })];
+                    case 1:
+                        like = _a.sent();
+                        return [2 /*return*/, !!like];
                 }
             });
         });
@@ -169,7 +266,9 @@ var CommentService = /** @class */ (function () {
     CommentService = __decorate([
         common_1.Injectable(),
         __param(0, typeorm_1.InjectRepository(comment_entity_1.Comment)),
-        __param(1, typeorm_1.InjectRepository(post_entity_1.Post))
+        __param(1, typeorm_1.InjectRepository(post_entity_1.Post)),
+        __param(2, typeorm_1.InjectRepository(user_entity_1.User)),
+        __param(3, typeorm_1.InjectRepository(commentLike_entity_1.CommentLike))
     ], CommentService);
     return CommentService;
 }());

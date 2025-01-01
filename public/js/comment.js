@@ -5,6 +5,7 @@ const postEngagementContainer = document.querySelector('.post-engagement');
 
 let comments = [];
 let commentId = null;
+let commentLikeCount = [];
 let isLiked = null;
 let postIsLiked = null;
 let postLikeCount = null;
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (moreInfoBtn) {
             const commentId = moreInfoBtn.getAttribute('data-comment-id');
             console.log('More info clicked for comment ID:', commentId);
-            renderPopup(commentId);
+            renderPopup(postId, commentId);
         }
     })
 });
@@ -49,6 +50,7 @@ async function fetchComments() {
         loggedInUserId = user.userId;
 
         console.log('Fetched post in comment page', post);
+        console.log('Logged in user object detail', loggedInUser);
         console.log('Fetched post like state in comment page', postIsLiked);
         console.log('Fetched postId in comment page', postId);
         console.log('All fetched comments', comments);
@@ -118,14 +120,20 @@ async function createComment() {
 
 addCommentBtn.addEventListener('click', createComment);
 backBtn.addEventListener('click', (event) => {
-    const userId = event.target.getAttribute('data-user-id');
+    // const userId = event.target.getAttribute('data-user-id');
+    const userRole = loggedInUser.role;
+    const userId = loggedInUserId;
 
     if (!userId) {
         console.error('User ID is missing');
         return;
     }
 
-    window.location.href = `/index?userId=${userId}`;
+    if (userRole === 'admin') {
+        window.location.href = `/auth/admin/index/${userId}`;
+    } else {
+        window.location.href = `/auth/index/${userId}`;
+    }
 });
 
 function renderComments() {
@@ -138,6 +146,7 @@ function renderComments() {
         postComment.id= `comment-${comment.commentId}`;
 
         console.log('Post authorId', comment.commenter.userId);
+        console.log('Post ID:', postId);
         console.log('Commenter ID', loggedInUserId);
         console.log('Comment ID:', comment.commentId);
 
@@ -170,7 +179,7 @@ function renderComments() {
                 <div class="comment-engagement" id="comment-engagement-${comment.commentId}">
 
                     <div class="comment-like" id="comment-like-${comment.commentId}">
-                        <button id="comment-like-btn-${comment.commentId}" class="comment-like-btn ${commentLikeButtonState}">
+                        <button id="comment-like-btn-${comment.commentId}" class="comment-like-btn ${commentLikeButtonState}" data-comment-id="${comment.commentId}">
                             <img class="comment-like-img" src="${commentLikeButtonImg}" alt="post like button">
                         </button>
                         <p class="comment-like-count" id="comment-like-count-${comment.commentId}">${comment.likeCount !== undefined ? comment.likeCount : 'error'}</p>
@@ -181,9 +190,18 @@ function renderComments() {
             </div>
         `;
 
+        postComment.addEventListener('click', (event) => {
+            const commentLikeBtn = event.target.closest('.comment-like-btn');
+            if (commentLikeBtn) {
+            //   const commentId = commentLikeBtn.getAttribute('data-post-id');
+              console.log('Comment like button is activated for commentId:', comment.commentId);
+              commentLike(postId, comment.commentId);
+            }
+          });
+
         const moreInfoBtn = document.querySelector(`#more-info-comment-${comment.commentId}`);
         if (moreInfoBtn) {
-            renderInfoBanner(comment.commentId);
+            renderPopup(postId, comment.commentId);
         }
 
         postCommentContainer.append(postComment);
@@ -241,7 +259,7 @@ async function postLike(postId) {
         postLikeBtn.classList.toggle('unliked', !updatedPost.isLiked);
         img.src = updatedPost.isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
     } catch (error) {
-        console.error(error);
+        console.error('Failed to like post in comment page', error.message);
 
         updatePostLikeCount(postId, currentPostLikeCount);
         postLikeBtn.classList.toggle('liked', postIsCurrentlyLiked);
@@ -262,7 +280,7 @@ async function fetchPostLikeCount(postId) {
         console.log('Fetched like count', likeCount);
         updatePostLikeCount(postId, likeCount);
     } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch post like count', error.message);
     }
 }
 
@@ -298,11 +316,11 @@ postEngagementContainer.addEventListener('click', (event) => {
     }
 });
 
-window.deleteComment = async function deleteComment(commentId) {
+window.deleteComment = async function deleteComment(postId, commentId) {
     try {
         const commentModalContainer = document.querySelector('.comment-modal-container');
-        console.log('CommentId to delete', commentId);
-        const response = await fetch(`/comments/delete/${commentId}`, {
+        console.log('CommentId to delete', commentId, ' on post ID:', postId);
+        const response = await fetch(`/comments/delete/${postId}/${commentId}`, {
             method: 'DELETE',
             credentials: 'include',
         });
@@ -332,8 +350,9 @@ window.deleteComment = async function deleteComment(commentId) {
     }
 }
 
-function renderPopup(commentId) {
+function renderPopup(postId, commentId) {
     console.log(typeof deleteComment);
+    console.log('Post ID in render popup function', postId);
     console.log('Comment ID in render popup function', commentId);
 
     const commentModalContainer = document.querySelector('.comment-modal-container');
@@ -369,7 +388,7 @@ function renderPopup(commentId) {
         deleteCommentBtn.addEventListener('click', (event) => {
             // const commentId = event.target.getAttribute('data-comment-id');
             console.log(`Delete mode activated for commentId: ${commentId}`);
-            deleteComment(commentId);
+            deleteComment(postId, commentId);
         });
     }
 
@@ -381,6 +400,89 @@ function renderPopup(commentId) {
     }
 }
 
-async function commentLike() {
-    // toggle like state as same as postLike function
+async function commentLike(postId, commentId) {
+    console.log('Post ID in comment like function', postId);
+    console.log('Comment like function is activated on commentId', commentId);
+
+    const commentLikeBtn = document.getElementById(`comment-like-btn-${commentId}`);
+    const commentLikeCountElement = document.querySelector(`#comment-like-count-${commentId}`);
+    console.log('Comment like count element', commentLikeCountElement);
+    let currentCommentLikeCount = parseInt(commentLikeCountElement.textContent, 10) || 0;
+
+    if (!loggedInUserId) {
+        alert('User ID is not available, please login first');
+    }
+
+    if (!commentLikeBtn || !commentLikeCountElement) {
+        console.error('Comment like button or comment like count element not found');
+        return;
+    }
+
+    const img = commentLikeBtn.querySelector('img');
+    const commentIsCurrentLiked = commentLikeBtn.classList.contains('liked');
+
+    const newCommentLikeCount = commentIsCurrentLiked ? currentCommentLikeCount - 1 : currentCommentLikeCount + 1;
+
+    updateCommentLikeCount(commentId, newCommentLikeCount);
+    commentLikeBtn.classList.toggle('liked', !commentIsCurrentLiked);
+    commentLikeBtn.classList.toggle('unliked', commentIsCurrentLiked);
+    img.src = commentIsCurrentLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg';
+
+    try {
+        const response = await fetch(`/comments/update/like/${commentId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ postId, commentId, userId: loggedInUserId }),
+        });
+        console.log('Fetch request completed.');
+
+        if (!response.ok) {
+            console.error('Failed to toggle like', error.message);
+            // updateCommentLikeCount(commentId, currentCommentLikeCount);
+        }
+
+        const updatedComment = await response.json();
+        console.log('Server response for comment like toggle:', updatedComment);
+
+        // const { likeCount, isLiked } = updatedComment;
+        updateCommentLikeCount(commentId, updatedComment.likeCount);
+
+        commentLikeBtn.classList.toggle('liked', updatedComment.isLiked);
+        commentLikeBtn.classList.toggle('unliked', !updatedComment.isLiked);
+        img.src = updatedComment.isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+    } catch (error) {
+        console.error('Failed to like comment in comment page', error.message);
+
+        updateCommentLikeCount(commentId, currentCommentLikeCount);
+        commentLikeBtn.classList.toggle('liked', commentIsCurrentLiked);
+        commentLikeBtn.classList.toggle('unliked', !commentIsCurrentLiked);
+        img.src = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+    }
+}
+
+async function fetchCommentLikeCount(commentId) {
+    try {
+        const response = await fetch(`/comments/get/likeCount/${commentId}`);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch like count');
+        }
+
+        const commentLikeCount = await response.json();
+        console.log('Fetched like count', commentLikeCount);
+        updateCommentLikeCount(commentId, commentLikeCount);
+    } catch (error) {
+        console.error('Failed to fetch comment like count', error.message);
+    }
+}
+
+function updateCommentLikeCount(commentId, commentLikeCount) {
+    console.log(`Updating post ${commentId} likeCount to: ${commentLikeCount}`);
+    const commentLikeCountElement = document.getElementById(`comment-like-count-${commentId}`);
+
+    if (commentLikeCountElement) {
+        commentLikeCountElement.textContent = commentLikeCount;
+    }
 }

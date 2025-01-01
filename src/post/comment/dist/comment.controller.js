@@ -177,14 +177,14 @@ var CommentController = /** @class */ (function () {
             });
         });
     };
-    CommentController.prototype.deleteComment = function (commentId, req, res) {
+    CommentController.prototype.deleteComment = function (postId, commentId, req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var deletedComment, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.commentService.deleteComment(commentId)];
+                        return [4 /*yield*/, this.commentService.deleteComment(postId, commentId)];
                     case 1:
                         deletedComment = _a.sent();
                         console.log('Deleted comment in controller:', deletedComment);
@@ -194,6 +194,48 @@ var CommentController = /** @class */ (function () {
                         console.error('Failed to delete comment in controller', error_4.message);
                         throw new common_1.InternalServerErrorException('Failed to delete comment');
                     case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    CommentController.prototype.likeComment = function (body, req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var postId, commentId, userId, updatedComment, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        postId = body.postId, commentId = body.commentId, userId = body.userId;
+                        if (!userId) {
+                            throw new common_1.BadRequestException('User ID is required');
+                        }
+                        console.log('User who likes comment in controller', userId);
+                        return [4 /*yield*/, this.commentService.likeComment(postId, commentId, userId)];
+                    case 1:
+                        updatedComment = _a.sent();
+                        console.log('Update comment like object in controller', updatedComment);
+                        return [2 /*return*/, res.status(200).json(updatedComment)];
+                    case 2:
+                        error_5 = _a.sent();
+                        console.error('Error updating comment like count:', error_5.message);
+                        return [2 /*return*/, res.status(500).json({ message: 'Failed to update comment like count' })];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    CommentController.prototype.getCommentLikeCount = function (postId, commentId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var comment;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log('Post ID in the get comment like count controller', postId);
+                        return [4 /*yield*/, this.commentService.getCommentById(postId, commentId)];
+                    case 1:
+                        comment = _a.sent();
+                        console.log("Post ID in controller " + commentId + " like count is " + comment.likeCount);
+                        return [2 /*return*/, this.commentService.getCommentLikeCount(postId, commentId)];
                 }
             });
         });
@@ -214,10 +256,19 @@ var CommentController = /** @class */ (function () {
         __param(0, common_1.Req()), __param(1, common_1.Res()), __param(2, common_1.Param('postId', common_1.ParseIntPipe)), __param(3, common_1.Param('userId', common_1.ParseIntPipe))
     ], CommentController.prototype, "renderCommentPage");
     __decorate([
-        common_1.Delete('delete/:commentId'),
+        common_1.Delete('delete/:postId/:commentId'),
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
-        __param(0, common_1.Param('commentId')), __param(1, common_1.Req()), __param(2, common_1.Res())
+        __param(0, common_1.Param('postId')), __param(1, common_1.Param('commentId')), __param(2, common_1.Req()), __param(3, common_1.Res())
     ], CommentController.prototype, "deleteComment");
+    __decorate([
+        common_1.Patch('update/like/:commentId'),
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        __param(0, common_1.Body()), __param(1, common_1.Req()), __param(2, common_1.Res())
+    ], CommentController.prototype, "likeComment");
+    __decorate([
+        common_1.Get('get/likeCount/:postId/:commentId'),
+        __param(0, common_1.Param('postId')), __param(1, common_1.Param('commentId'))
+    ], CommentController.prototype, "getCommentLikeCount");
     CommentController = __decorate([
         common_1.Controller('comments')
     ], CommentController);

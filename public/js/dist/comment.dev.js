@@ -8,6 +8,7 @@ var backBtn = document.querySelector('.post-back-btn');
 var postEngagementContainer = document.querySelector('.post-engagement');
 var comments = [];
 var commentId = null;
+var commentLikeCount = [];
 var isLiked = null;
 var postIsLiked = null;
 var postLikeCount = null;
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var _commentId = moreInfoBtn.getAttribute('data-comment-id');
 
       console.log('More info clicked for comment ID:', _commentId);
-      renderPopup(_commentId);
+      renderPopup(postId, _commentId);
     }
   });
 });
@@ -68,6 +69,7 @@ function fetchComments() {
           loggedInUser = user;
           loggedInUserId = user.userId;
           console.log('Fetched post in comment page', _post);
+          console.log('Logged in user object detail', loggedInUser);
           console.log('Fetched post like state in comment page', postIsLiked);
           console.log('Fetched postId in comment page', postId);
           console.log('All fetched comments', comments);
@@ -78,20 +80,20 @@ function fetchComments() {
           console.log('Fetched logged in userId', loggedInUserId);
           console.log('Post ID ', postId, ' like state ', postIsLiked);
           renderComments();
-          _context.next = 33;
+          _context.next = 34;
           break;
 
-        case 30:
-          _context.prev = 30;
+        case 31:
+          _context.prev = 31;
           _context.t0 = _context["catch"](2);
           console.error('Error fetching all comments on post:', _context.t0.message);
 
-        case 33:
+        case 34:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[2, 30]]);
+  }, null, null, [[2, 31]]);
 }
 
 function createComment() {
@@ -174,14 +176,20 @@ function createComment() {
 
 addCommentBtn.addEventListener('click', createComment);
 backBtn.addEventListener('click', function (event) {
-  var userId = event.target.getAttribute('data-user-id');
+  // const userId = event.target.getAttribute('data-user-id');
+  var userRole = loggedInUser.role;
+  var userId = loggedInUserId;
 
   if (!userId) {
     console.error('User ID is missing');
     return;
   }
 
-  window.location.href = "/index?userId=".concat(userId);
+  if (userRole === 'admin') {
+    window.location.href = "/auth/admin/index/".concat(userId);
+  } else {
+    window.location.href = "/auth/index/".concat(userId);
+  }
 });
 
 function renderComments() {
@@ -193,15 +201,25 @@ function renderComments() {
     postComment.classList.add('comment-post');
     postComment.id = "comment-".concat(comment.commentId);
     console.log('Post authorId', comment.commenter.userId);
+    console.log('Post ID:', postId);
     console.log('Commenter ID', loggedInUserId);
     console.log('Comment ID:', comment.commentId);
     var commentLikeButtonState = null;
     var commentLikeButtonImg = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
-    postComment.innerHTML = "\n            <div class=\"comment\" id=\"comment-".concat(comment.commentId, "\">\n\n                <div class=\"comment-header\">\n                    <div class=\"commenter-profile\" id=\"commenter-profile-").concat(comment.commentId, "\">\n                        <img class=\"commenter-profile-img\" width=\"100px\" height=\"100px\" src=\"/public/").concat(comment.commenter.profilePicture, "\" alt=\"commenter-profile\">\n                        <h5 class=\"commenter-username\">").concat(comment.commenter.username, "</h5>\n                    </div>\n\n                    ").concat(loggedInUserId === comment.commenter.userId ? "<div class=\"more-info-element\">\n                            <button class=\"more-info-btn\" id=\"more-info-comment-".concat(comment.commentId, "\" data-comment-id=\"").concat(comment.commentId, "\">\n                                <img class=\"more-info-img\" src=\"/public/picture/Dots.svg\" alt=\"more-info\">\n                            </button>\n                        </div>") : '', "\n                </div>\n\n                <div class=\"comment-content-container\">\n                    <p class=\"comment-content\" id=\"comment-content-").concat(comment.commentId, "\">").concat(comment.content, "</p>\n                </div>\n\n                <div class=\"comment-engagement\" id=\"comment-engagement-").concat(comment.commentId, "\">\n\n                    <div class=\"comment-like\" id=\"comment-like-").concat(comment.commentId, "\">\n                        <button id=\"comment-like-btn-").concat(comment.commentId, "\" class=\"comment-like-btn ").concat(commentLikeButtonState, "\">\n                            <img class=\"comment-like-img\" src=\"").concat(commentLikeButtonImg, "\" alt=\"post like button\">\n                        </button>\n                        <p class=\"comment-like-count\" id=\"comment-like-count-").concat(comment.commentId, "\">").concat(comment.likeCount !== undefined ? comment.likeCount : 'error', "</p>\n                    </div>\n\n                </div>\n\n            </div>\n        ");
+    postComment.innerHTML = "\n            <div class=\"comment\" id=\"comment-".concat(comment.commentId, "\">\n\n                <div class=\"comment-header\">\n                    <div class=\"commenter-profile\" id=\"commenter-profile-").concat(comment.commentId, "\">\n                        <img class=\"commenter-profile-img\" width=\"100px\" height=\"100px\" src=\"/public/").concat(comment.commenter.profilePicture, "\" alt=\"commenter-profile\">\n                        <h5 class=\"commenter-username\">").concat(comment.commenter.username, "</h5>\n                    </div>\n\n                    ").concat(loggedInUserId === comment.commenter.userId ? "<div class=\"more-info-element\">\n                            <button class=\"more-info-btn\" id=\"more-info-comment-".concat(comment.commentId, "\" data-comment-id=\"").concat(comment.commentId, "\">\n                                <img class=\"more-info-img\" src=\"/public/picture/Dots.svg\" alt=\"more-info\">\n                            </button>\n                        </div>") : '', "\n                </div>\n\n                <div class=\"comment-content-container\">\n                    <p class=\"comment-content\" id=\"comment-content-").concat(comment.commentId, "\">").concat(comment.content, "</p>\n                </div>\n\n                <div class=\"comment-engagement\" id=\"comment-engagement-").concat(comment.commentId, "\">\n\n                    <div class=\"comment-like\" id=\"comment-like-").concat(comment.commentId, "\">\n                        <button id=\"comment-like-btn-").concat(comment.commentId, "\" class=\"comment-like-btn ").concat(commentLikeButtonState, "\" data-comment-id=\"").concat(comment.commentId, "\">\n                            <img class=\"comment-like-img\" src=\"").concat(commentLikeButtonImg, "\" alt=\"post like button\">\n                        </button>\n                        <p class=\"comment-like-count\" id=\"comment-like-count-").concat(comment.commentId, "\">").concat(comment.likeCount !== undefined ? comment.likeCount : 'error', "</p>\n                    </div>\n\n                </div>\n\n            </div>\n        ");
+    postComment.addEventListener('click', function (event) {
+      var commentLikeBtn = event.target.closest('.comment-like-btn');
+
+      if (commentLikeBtn) {
+        //   const commentId = commentLikeBtn.getAttribute('data-post-id');
+        console.log('Comment like button is activated for commentId:', comment.commentId);
+        commentLike(postId, comment.commentId);
+      }
+    });
     var moreInfoBtn = document.querySelector("#more-info-comment-".concat(comment.commentId));
 
     if (moreInfoBtn) {
-      renderInfoBanner(comment.commentId);
+      renderPopup(postId, comment.commentId);
     }
 
     postCommentContainer.append(postComment);
@@ -277,7 +295,7 @@ function postLike(postId) {
         case 31:
           _context3.prev = 31;
           _context3.t0 = _context3["catch"](15);
-          console.error(_context3.t0);
+          console.error('Failed to like post in comment page', _context3.t0.message);
           updatePostLikeCount(postId, currentPostLikeCount);
           postLikeBtn.classList.toggle('liked', postIsCurrentlyLiked);
           postLikeBtn.classList.toggle('unliked', !postIsCurrentlyLiked);
@@ -325,7 +343,7 @@ function fetchPostLikeCount(postId) {
         case 13:
           _context4.prev = 13;
           _context4.t0 = _context4["catch"](0);
-          console.error(_context4.t0);
+          console.error('Failed to fetch post like count', _context4.t0.message);
 
         case 16:
         case "end":
@@ -369,7 +387,7 @@ postEngagementContainer.addEventListener('click', function (event) {
   }
 });
 
-window.deleteComment = function deleteComment(commentId) {
+window.deleteComment = function deleteComment(postId, commentId) {
   var commentModalContainer, response, commentElement, deletedComment, result;
   return regeneratorRuntime.async(function deleteComment$(_context5) {
     while (1) {
@@ -377,9 +395,9 @@ window.deleteComment = function deleteComment(commentId) {
         case 0:
           _context5.prev = 0;
           commentModalContainer = document.querySelector('.comment-modal-container');
-          console.log('CommentId to delete', commentId);
+          console.log('CommentId to delete', commentId, ' on post ID:', postId);
           _context5.next = 5;
-          return regeneratorRuntime.awrap(fetch("/comments/delete/".concat(commentId), {
+          return regeneratorRuntime.awrap(fetch("/comments/delete/".concat(postId, "/").concat(commentId), {
             method: 'DELETE',
             credentials: 'include'
           }));
@@ -441,8 +459,9 @@ window.deleteComment = function deleteComment(commentId) {
   }, null, null, [[0, 26]]);
 };
 
-function renderPopup(commentId) {
+function renderPopup(postId, commentId) {
   console.log(typeof deleteComment === "undefined" ? "undefined" : _typeof(deleteComment));
+  console.log('Post ID in render popup function', postId);
   console.log('Comment ID in render popup function', commentId);
   var commentModalContainer = document.querySelector('.comment-modal-container');
 
@@ -463,7 +482,7 @@ function renderPopup(commentId) {
     deleteCommentBtn.addEventListener('click', function (event) {
       // const commentId = event.target.getAttribute('data-comment-id');
       console.log("Delete mode activated for commentId: ".concat(commentId));
-      deleteComment(commentId);
+      deleteComment(postId, commentId);
     });
   }
 
@@ -476,14 +495,142 @@ function renderPopup(commentId) {
   }
 }
 
-function commentLike() {
+function commentLike(postId, commentId) {
+  var commentLikeBtn, commentLikeCountElement, currentCommentLikeCount, img, commentIsCurrentLiked, newCommentLikeCount, response, updatedComment;
   return regeneratorRuntime.async(function commentLike$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
+          console.log('Post ID in comment like function', postId);
+          console.log('Comment like function is activated on commentId', commentId);
+          commentLikeBtn = document.getElementById("comment-like-btn-".concat(commentId));
+          commentLikeCountElement = document.querySelector("#comment-like-count-".concat(commentId));
+          console.log('Comment like count element', commentLikeCountElement);
+          currentCommentLikeCount = parseInt(commentLikeCountElement.textContent, 10) || 0;
+
+          if (!loggedInUserId) {
+            alert('User ID is not available, please login first');
+          }
+
+          if (!(!commentLikeBtn || !commentLikeCountElement)) {
+            _context6.next = 10;
+            break;
+          }
+
+          console.error('Comment like button or comment like count element not found');
+          return _context6.abrupt("return");
+
+        case 10:
+          img = commentLikeBtn.querySelector('img');
+          commentIsCurrentLiked = commentLikeBtn.classList.contains('liked');
+          newCommentLikeCount = commentIsCurrentLiked ? currentCommentLikeCount - 1 : currentCommentLikeCount + 1;
+          updateCommentLikeCount(commentId, newCommentLikeCount);
+          commentLikeBtn.classList.toggle('liked', !commentIsCurrentLiked);
+          commentLikeBtn.classList.toggle('unliked', commentIsCurrentLiked);
+          img.src = commentIsCurrentLiked ? '/public/picture/Vector.svg' : '/public/picture/Solid-Vector.svg';
+          _context6.prev = 17;
+          _context6.next = 20;
+          return regeneratorRuntime.awrap(fetch("/comments/update/like/".concat(commentId), {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              postId: postId,
+              commentId: commentId,
+              userId: loggedInUserId
+            })
+          }));
+
+        case 20:
+          response = _context6.sent;
+          console.log('Fetch request completed.');
+
+          if (!response.ok) {
+            console.error('Failed to toggle like', error.message); // updateCommentLikeCount(commentId, currentCommentLikeCount);
+          }
+
+          _context6.next = 25;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 25:
+          updatedComment = _context6.sent;
+          console.log('Server response for comment like toggle:', updatedComment); // const { likeCount, isLiked } = updatedComment;
+
+          updateCommentLikeCount(commentId, updatedComment.likeCount);
+          commentLikeBtn.classList.toggle('liked', updatedComment.isLiked);
+          commentLikeBtn.classList.toggle('unliked', !updatedComment.isLiked);
+          img.src = updatedComment.isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+          _context6.next = 40;
+          break;
+
+        case 33:
+          _context6.prev = 33;
+          _context6.t0 = _context6["catch"](17);
+          console.error('Failed to like comment in comment page', _context6.t0.message);
+          updateCommentLikeCount(commentId, currentCommentLikeCount);
+          commentLikeBtn.classList.toggle('liked', commentIsCurrentLiked);
+          commentLikeBtn.classList.toggle('unliked', !commentIsCurrentLiked);
+          img.src = isLiked ? '/public/picture/Solid-Vector.svg' : '/public/picture/Vector.svg';
+
+        case 40:
         case "end":
           return _context6.stop();
       }
     }
-  });
+  }, null, null, [[17, 33]]);
+}
+
+function fetchCommentLikeCount(commentId) {
+  var response, _commentLikeCount;
+
+  return regeneratorRuntime.async(function fetchCommentLikeCount$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          _context7.prev = 0;
+          _context7.next = 3;
+          return regeneratorRuntime.awrap(fetch("/comments/get/likeCount/".concat(commentId)));
+
+        case 3:
+          response = _context7.sent;
+
+          if (response.ok) {
+            _context7.next = 6;
+            break;
+          }
+
+          throw new Error('Failed to fetch like count');
+
+        case 6:
+          _context7.next = 8;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 8:
+          _commentLikeCount = _context7.sent;
+          console.log('Fetched like count', _commentLikeCount);
+          updateCommentLikeCount(commentId, _commentLikeCount);
+          _context7.next = 16;
+          break;
+
+        case 13:
+          _context7.prev = 13;
+          _context7.t0 = _context7["catch"](0);
+          console.error('Failed to fetch comment like count', _context7.t0.message);
+
+        case 16:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  }, null, null, [[0, 13]]);
+}
+
+function updateCommentLikeCount(commentId, commentLikeCount) {
+  console.log("Updating post ".concat(commentId, " likeCount to: ").concat(commentLikeCount));
+  var commentLikeCountElement = document.getElementById("comment-like-count-".concat(commentId));
+
+  if (commentLikeCountElement) {
+    commentLikeCountElement.textContent = commentLikeCount;
+  }
 }

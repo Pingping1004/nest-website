@@ -7,6 +7,7 @@ import { Column, Entity, OneToMany, BeforeInsert, PrimaryGeneratedColumn } from 
 import { Post } from '../../post/schema/post.entity';
 import { PostLike } from '../../post/like/postLike.entity';
 import { Comment } from '../../post/comment/schema/comment.entity';
+import { CommentLike } from '../../post/comment/schema/commentLike.entity';
 
 @Entity('user')
 export class User {
@@ -60,4 +61,7 @@ export class User {
 
     @OneToMany(() => Comment, (comment) => comment.commenter)
     postComments: Comment[];
+
+    @OneToMany(() => CommentLike, (commentLikes) => commentLikes.userId)
+    commentLikes: CommentLike[];
 }

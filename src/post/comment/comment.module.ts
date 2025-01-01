@@ -10,10 +10,11 @@ import { UsersService } from '../../users/users.service';
 import { UsersModule } from '../../users/users.module';
 import { PostModule } from '../post.module';
 import { PostLike } from '../like/postLike.entity';
+import { CommentLike } from './schema/commentLike.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Comment, Post, User, PostLike]),
+    TypeOrmModule.forFeature([Comment, Post, User, PostLike, CommentLike]),
     PostModule,
     UsersModule,
   ],

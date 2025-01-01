@@ -10,6 +10,7 @@ exports.Comment = void 0;
 var typeorm_1 = require("typeorm");
 var post_entity_1 = require("../../schema/post.entity");
 var user_entity_1 = require("../../../users/schema/user.entity");
+var commentLike_entity_1 = require("./commentLike.entity");
 var Comment = /** @class */ (function () {
     function Comment() {
     }
@@ -30,13 +31,18 @@ var Comment = /** @class */ (function () {
             onDelete: 'CASCADE'
         }),
         typeorm_1.JoinColumn({ name: 'postId' })
-    ], Comment.prototype, "postId");
+    ], Comment.prototype, "post");
     __decorate([
         typeorm_1.ManyToOne(function () { return user_entity_1.User; }, function (user) { return user.postComments; }, {
             onDelete: 'CASCADE'
         }),
         typeorm_1.JoinColumn({ name: 'commenterId' })
     ], Comment.prototype, "commenter");
+    __decorate([
+        typeorm_1.OneToMany(function () { return commentLike_entity_1.CommentLike; }, function (commentLikes) { return commentLikes.commentId; }, {
+            onDelete: 'CASCADE'
+        })
+    ], Comment.prototype, "commentLikes");
     Comment = __decorate([
         typeorm_1.Entity('Comment')
     ], Comment);

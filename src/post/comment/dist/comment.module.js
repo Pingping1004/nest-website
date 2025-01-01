@@ -19,13 +19,14 @@ var users_service_1 = require("../../users/users.service");
 var users_module_1 = require("../../users/users.module");
 var post_module_1 = require("../post.module");
 var postLike_entity_1 = require("../like/postLike.entity");
+var commentLike_entity_1 = require("./schema/commentLike.entity");
 var CommentModule = /** @class */ (function () {
     function CommentModule() {
     }
     CommentModule = __decorate([
         common_1.Module({
             imports: [
-                typeorm_1.TypeOrmModule.forFeature([comment_entity_1.Comment, post_entity_1.Post, user_entity_1.User, postLike_entity_1.PostLike]),
+                typeorm_1.TypeOrmModule.forFeature([comment_entity_1.Comment, post_entity_1.Post, user_entity_1.User, postLike_entity_1.PostLike, commentLike_entity_1.CommentLike]),
                 post_module_1.PostModule,
                 users_module_1.UsersModule,
             ],

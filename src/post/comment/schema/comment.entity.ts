@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from "typeorm";
 import { Post } from "../../schema/post.entity";
 import { User } from "../../../users/schema/user.entity";
+import { CommentLike } from "./commentLike.entity";
 
 @Entity('Comment')
 
@@ -21,11 +22,16 @@ export class Comment {
         onDelete: 'CASCADE'
     })
     @JoinColumn({ name: 'postId' })
-    postId: Post;
+    post: Post;
 
     @ManyToOne(() => User, (user) => user.postComments, {
         onDelete: 'CASCADE',
     })
     @JoinColumn({ name: 'commenterId' })
     commenter: User;
+
+    @OneToMany(() => CommentLike, (commentLikes) => commentLikes.commentId, {
+        onDelete: 'CASCADE',
+    })
+    commentLikes: CommentLike[];
 }

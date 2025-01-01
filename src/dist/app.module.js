@@ -29,6 +29,7 @@ var record_subscriber_1 = require("./admin/record/record.subscriber");
 var post_subscriber_1 = require("./post/post.subscriber");
 var admin_controller_1 = require("./admin/admin.controller");
 var comment_module_1 = require("./post/comment/comment.module");
+var commentLike_entity_1 = require("./post/comment/schema/commentLike.entity");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -55,11 +56,11 @@ var AppModule = /** @class */ (function () {
                     username: process.env.DB_USERNAME,
                     password: process.env.DB_PASSWORD,
                     database: process.env.DB_DATABASE,
-                    entities: [user_entity_1.User, post_entity_1.Post, picture_entity_1.Picture, record_entity_1.Records, comment_entity_1.Comment, postLike_entity_1.PostLike],
+                    entities: [user_entity_1.User, post_entity_1.Post, picture_entity_1.Picture, record_entity_1.Records, comment_entity_1.Comment, postLike_entity_1.PostLike, commentLike_entity_1.CommentLike],
                     synchronize: false,
                     subscribers: [record_subscriber_1.RecordSubscriber, post_subscriber_1.PostSubscriber]
                 }),
-                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, post_entity_1.Post, record_entity_1.Records, comment_entity_1.Comment, postLike_entity_1.PostLike]),
+                typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, post_entity_1.Post, record_entity_1.Records, comment_entity_1.Comment, postLike_entity_1.PostLike, commentLike_entity_1.CommentLike]),
                 admin_module_1.AdminModule,
                 platform_express_1.MulterModule.register({
                     dest: './uploads'

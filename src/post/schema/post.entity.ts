@@ -3,6 +3,7 @@ import { User } from '../../users/schema/user.entity';
 import { Picture } from '../schema/picture.entity';
 import { Comment } from "../comment/schema/comment.entity";
 import { PostLike } from "../like/postLike.entity";
+import { CommentLike } from "../comment/schema/commentLike.entity";
 
 @Entity('post')
 @Index('IDX_AUTHOR_ID', ["author"])
@@ -42,9 +43,15 @@ export class Post {
     @OneToMany(() => PostLike, (postLike) => postLike.postId)
     postLikes: PostLike[];
 
-    @OneToMany(() => Comment, (comment) => comment.postId, {
+    @OneToMany(() => Comment, (comment) => comment.post, {
         onDelete: 'CASCADE',
         eager: true,
     })
     comments: Comment[];
+
+    @OneToMany(() => CommentLike, (commentLikes) => commentLikes.postId, {
+        onDelete:'CASCADE',
+        eager: true,
+    })
+    commentLikes: CommentLike[];
 }

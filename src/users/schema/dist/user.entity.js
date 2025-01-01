@@ -16,6 +16,7 @@ var typeorm_1 = require("typeorm");
 var post_entity_1 = require("../../post/schema/post.entity");
 var postLike_entity_1 = require("../../post/like/postLike.entity");
 var comment_entity_1 = require("../../post/comment/schema/comment.entity");
+var commentLike_entity_1 = require("../../post/comment/schema/commentLike.entity");
 var User = /** @class */ (function () {
     function User() {
     }
@@ -76,6 +77,9 @@ var User = /** @class */ (function () {
     __decorate([
         typeorm_1.OneToMany(function () { return comment_entity_1.Comment; }, function (comment) { return comment.commenter; })
     ], User.prototype, "postComments");
+    __decorate([
+        typeorm_1.OneToMany(function () { return commentLike_entity_1.CommentLike; }, function (commentLikes) { return commentLikes.userId; })
+    ], User.prototype, "commentLikes");
     User = __decorate([
         typeorm_1.Entity('user')
     ], User);
